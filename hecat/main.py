@@ -50,6 +50,7 @@ def load_yaml_software(args):
 #######################
 
 def main():
+    # pylint: disable=line-too-long
     """Main loop"""
     # command-line parsing
     parser = argparse.ArgumentParser()

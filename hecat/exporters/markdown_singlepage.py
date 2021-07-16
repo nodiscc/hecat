@@ -79,7 +79,8 @@ def render_markdown_list_item(software):
     else:
         markdown_source_code = ''
     if 'related_software_url' in software:
-        markdown_related_software = '[Related software]({})'.format(software['related_software_url'])
+        markdown_related_software = '[Related software]({})'.format(
+            software['related_software_url'])
     else:
         markdown_related_software = ''
     if 'depends_3rdparty' in software and software['depends_3rdparty']:
@@ -102,9 +103,6 @@ def render_markdown_list_item(software):
         )
     return markdown_list_item
 
-def render_markdown_toc(markdown_header, tags, markdown_footer):
-    """render markdown table of contents"""
-    return 'TODO'
 
 def render_markdown_singlepage(tags, software_list, args):
     """
@@ -121,7 +119,6 @@ def render_markdown_singlepage(tags, software_list, args):
     for tag in tags:
         markdown_category = render_markdown_singlepage_category(tag, software_list)
         markdown_software_list = markdown_software_list + markdown_category + '\n\n'
-    markdown_toc = render_markdown_toc(markdown_header, tags, markdown_footer)
-    markdown = '{}\n\n{}\n\n{}\n\n{}'.format(
-        markdown_header, markdown_toc, markdown_software_list, markdown_footer)
+    markdown = '{}\n\n{}\n\n{}'.format(
+        markdown_header, markdown_software_list, markdown_footer)
     return markdown
