@@ -14,16 +14,6 @@ def to_kebab_case(string):
     string.translate(str.maketrans(replacements)).lower()
     return string
 
-def to_camel_case(string):
-    """convert a string to camel_case, remove some special characters"""
-    replacements = {
-        ' ': '_',
-        '(': '',
-        ')': ''
-    }
-    string.translate(str.maketrans(replacements)).lower()
-    return string
-
 def to_markdown_anchor(string):
     """Convert a section name to a markdown anchor link in the form [Tag name](#tag-name)"""
     anchor_url = to_kebab_case(string)
