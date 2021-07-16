@@ -99,22 +99,23 @@ Currently the program takes its configuration from command-line parameters. See 
 
 ```bash
 $ hecat --help
-usage: hecat [-h] {build} ...
+usage: hecat [-h] {build,import} ...
 
 positional arguments:
-  {build}
-    build     build markdown from YAML source files
+  {build,import}
+    build         build markdown from YAML source files
+    import        import initial data from other formats
 
 optional arguments:
-  -h, --help  show this help message and exit
+  -h, --help      show this help message and exit
 ```
 
 ```
-$ hecat build --help
-usage: hecat build [-h] [--exporter {markdown_singlepage}]
-                   [--source-directory SOURCE_DIRECTORY]
-                   [--output-directory OUTPUT_DIRECTORY]
-                   [--output-file OUTPUT_FILE]
+$  hecat build --help
+usage: hecat build [-h] [--exporter {markdown_singlepage}] --source-directory
+                   SOURCE_DIRECTORY --output-directory OUTPUT_DIRECTORY
+                   --output-file OUTPUT_FILE [--tags-directory TAGS_DIRECTORY]
+                   [--software-directory SOFTWARE_DIRECTORY]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -126,12 +127,41 @@ optional arguments:
                         base directory for markdown output
   --output-file OUTPUT_FILE
                         output filename
+  --tags-directory TAGS_DIRECTORY
+                        source subdirectory for tags definitions
+  --software-directory SOFTWARE_DIRECTORY
+                        source subdirectory for software definitions
+
+```
+
+```
+$ hecat import --help
+usage: hecat import [-h] [--importer {markdown_awesome}] --source-file
+                    SOURCE_FILE --output-directory OUTPUT_DIRECTORY
+                    [--tags-directory TAGS_DIRECTORY]
+                    [--software-directory SOFTWARE_DIRECTORY]
+                    [--platforms-directory PLATFORMS_DIRECTORY]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --importer {markdown_awesome}
+                        importer to use
+  --source-file SOURCE_FILE
+                        input markdown file
+  --output-directory OUTPUT_DIRECTORY
+                        base directory for YAML output
+  --tags-directory TAGS_DIRECTORY
+                        destination subdirectory for tags definitions
+  --software-directory SOFTWARE_DIRECTORY
+                        destination subdirectory for software definitions
+  --platforms-directory PLATFORMS_DIRECTORY
+                        destination subdirectory for platforms definitions
 ```
 
 ### Build a single page markdown list
 
 ```bash
-hecat build --exporter markdown_singlepage --source-directory /path/to/source/directory --output-directory /path/to/output/directory --output-file singlepage.md
+hecat build --exporter markdown_singlepage --source-directory /path/to/source/directory --output-directory /path/to/output/directory --output-file README.md
 ```
 
 This will generate the following directory structure:
@@ -142,6 +172,18 @@ This will generate the following directory structure:
 ```
 
 
+### Import data from an awesome list
+
+The importer assumes a few things about the original markdown file:
+- all level 3 (`###`) titles/sections contain the actual list data/items, other sections must use level 2 headings
+- the list of licenses is available in a `## List of Licenses` section
+
+```bash
+hecat import --importer markdown_awesome --source-file /path/to/awesome/README.md --output-directory /path/to/output/yaml/data/directory
+```
+
+Destination directories for tags/software/platforms must exist. 
+
 ## Support
 
 Please submit any questions to <https://gitlab.com/nodiscc/hecat/-/issues> or <https://github.com/nodiscc/hecat/issues>
@@ -149,7 +191,7 @@ Please submit any questions to <https://gitlab.com/nodiscc/hecat/-/issues> or <h
 
 ## Contributing
 
-This program is at a very ealry stage of development. Code cleanup, documentation, unit tests, improvements, support for other input/output formats is very welcome at <https://gitlab.com/nodiscc/hecat/-/merge_requests> or <https://github.com/nodiscc/hecat/pulls>
+This program is at a very early stage of development. Code cleanup, documentation, unit tests, improvements, support for other input/output formats is very welcome at <https://gitlab.com/nodiscc/hecat/-/merge_requests> or <https://github.com/nodiscc/hecat/pulls>
 
 
 ## Testing
