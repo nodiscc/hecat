@@ -59,7 +59,7 @@ def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers()
     build_parser = subparsers.add_parser('build', help='build markdown from YAML source files')
-    build_parser.add_argument('--exporter', required=True, type=str, choices=['markdown_singlepage'], help='exporter to use')
+    build_parser.add_argument('--exporter', type=str, default='markdown_singlepage', choices=['markdown_singlepage'], help='exporter to use')
     build_parser.add_argument('--source-directory', required=True, type=str, help='base directory for YAML data')
     build_parser.add_argument('--output-directory', required=True, type=str, help='base directory for markdown output')
     build_parser.add_argument('--output-file', required=True, type=str, help='output filename')
