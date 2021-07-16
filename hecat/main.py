@@ -38,7 +38,7 @@ def load_yaml_tags(args):
 def load_yaml_software(args):
     """load software projects definitions from yaml source files"""
     software_list = []
-    for file in list_yaml_files(args.software_directory):
+    for file in list_yaml_files(args.source_directory +  args.software_directory):
         source_file = args.source_directory + args.software_directory + file
         logging.info('loading software data from %s', source_file)
         with open(source_file, 'r') as yaml_data:

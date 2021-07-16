@@ -59,8 +59,8 @@ Files containing software data must be formatted as follows:
 ```yaml
 # software/my-awesome-software.yml
 name: "My awesome software" # required
-website_url: "https://my.awesome.softwar.e" # required
-source_code_url: "https://gitlab.com/awesome/software" # optional
+website_url: "https://my.awesome.softwar.e" # one of website_url, source_code_url is required
+source_code_url: "https://gitlab.com/awesome/software" # one of website_url, source_code_url is required
 description: "A description of my awesome software." # required
 licenses: # required, all licenses must be listed in licenses.yml
   - Apache-2.0

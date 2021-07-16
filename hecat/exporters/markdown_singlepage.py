@@ -63,9 +63,32 @@ def render_markdown_singlepage_category(tag, software_list):
     for software in software_list:
         logging.debug('adding project %s to category %s', software['name'], tag['name'])
         if software['tags'][0] == tag['name']:
+            check_rules(software)
             markdown_list_item = render_markdown_list_item(software)
             markdown_category = markdown_category + markdown_list_item + '\n'
     return markdown_category
+
+def check_rules(software):
+    """check software information against project requirements
+    (hardcoded requirements for awesome-selfhosted)
+    @param software Dict: software project data
+    """
+    requirements = [
+        { 'rule': "source_code_url must be defined and not empty",
+          'assertion': 'source_code_url' in software and software['source_code_url']
+        },
+        { 'rule': "website_url must not be the same as source_code_url",
+          'assertion': not software['source_code_url'] == software['website_url']
+        }
+    ]
+    for requirement in requirements:
+        logging.info('checking requirement %s on %s' % (requirement['rule'], software['name']))
+        try:
+            assert requirement['assertion']
+        except AssertionError:
+            logging.error('%s: %s' % (software['name'], requirement['rule']))
+            sys.exit(1)
+    sys.exit(0)
 
 def render_markdown_list_item(software):
     """render a software project info as a markdown list item"""
@@ -74,19 +97,31 @@ def render_markdown_list_item(software):
         markdown_demo = '[Demo]({})'.format(software['demo_url'])
     else:
         markdown_demo = ''
+
+    if 'website_url' in software:
+        main_url = software['website_url']
+    elif 'source_code_url' in software:
+        main_url = software['source_code_url']
+    else:
+        logging.error('%s: At least one of website_url or source_code_url is required')
+        sys.exit(1)
+
     if 'source_code_url' in software:
         markdown_source_code = '[Source Code]({})'.format(software['source_code_url'])
     else:
         markdown_source_code = ''
+
     if 'related_software_url' in software:
         markdown_related_software = '[Related software]({})'.format(
             software['related_software_url'])
     else:
         markdown_related_software = ''
+
     if 'depends_3rdparty' in software and software['depends_3rdparty']:
         markdown_depends_3rdparty = '`⚠` '
     else:
         markdown_depends_3rdparty = ''
+
     links_list = [markdown_demo, markdown_related_software, markdown_source_code]
     # remove empty links from list
     links = [link for link in links_list if link]
@@ -94,7 +129,7 @@ def render_markdown_list_item(software):
     # build markdown-formatted list item
     markdown_list_item = '- [{}]({}) {}- {}{} {} {}'.format(
         software['name'],
-        software['website_url'],
+        main_url,
         markdown_depends_3rdparty,
         software['description'],
         markdown_links,
