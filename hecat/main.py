@@ -13,6 +13,8 @@ config = {
     'tags_dir': '/tags/'
 }
 
+logging.basicConfig(level=logging.INFO)
+
 ##########################
 
 def list_yaml_files(directory):
@@ -38,6 +40,7 @@ def load_yaml_tags(args):
 def load_yaml_software(args):
     """load software projects definitions from yaml source files"""
     software_list = []
+    logging.info('software-directory: %s' % args.software_directory)
     for file in list_yaml_files(args.source_directory +  args.software_directory):
         source_file = args.source_directory + args.software_directory + file
         logging.info('loading software data from %s', source_file)

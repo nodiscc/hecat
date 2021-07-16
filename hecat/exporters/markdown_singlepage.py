@@ -2,6 +2,7 @@
 
 import logging
 
+logging.basicConfig(level=logging.INFO)
 
 def to_kebab_case(string):
     """convert a string to kebab-case, remove some special characters"""
@@ -91,7 +92,8 @@ def check_rules(software):
     sys.exit(0)
 
 def render_markdown_list_item(software):
-    """render a software project info as a markdown list item"""
+    """render a software project as a markdown list item"""
+    logging.info('rendering markdown for %s' % software['name'])
     # check optional fields
     if 'demo_url' in software:
         markdown_demo = '[Demo]({})'.format(software['demo_url'])
