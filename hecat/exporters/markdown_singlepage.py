@@ -1,27 +1,8 @@
 """Single-page markdown rendering"""
 
 import logging
-
-
-def to_kebab_case(string):
-    """convert a string to kebab-case, remove some special characters"""
-    replacements = {
-        ' ': '-',
-        '(': '',
-        ')': ''
-    }
-    string.translate(str.maketrans(replacements)).lower()
-    return string
-
-def to_camel_case(string):
-    """convert a string to camel_case, remove some special characters"""
-    replacements = {
-        ' ': '_',
-        '(': '',
-        ')': ''
-    }
-    string.translate(str.maketrans(replacements)).lower()
-    return string
+import yaml
+from ..utils import list_files, to_kebab_case
 
 def to_markdown_anchor(string):
     """Convert a section name to a markdown anchor link in the form [Tag name](#tag-name)"""
@@ -103,8 +84,29 @@ def render_markdown_list_item(software):
         )
     return markdown_list_item
 
+def load_yaml_tags(args):
+    """load tags data from yaml source files, order alphabetically"""
+    tags = list([])
+    for file in sorted(list_files(args.source_directory + args.tags_directory)):
+        source_file = args.source_directory + args.tags_directory + file
+        logging.info('loading tag data from %s', source_file)
+        with open(source_file, 'r') as yaml_data:
+            tags.append(yaml.load(yaml_data, Loader=yaml.FullLoader))
+            tags = sorted(tags, key=lambda k: k['name'])
+    return tags
 
-def render_markdown_singlepage(tags, software_list, args):
+def load_yaml_software(args):
+    """load software projects definitions from yaml source files"""
+    software_list = []
+    for file in sorted(list_files(args.source_directory + args.software_directory)):
+        source_file = args.source_directory + args.software_directory + file
+        logging.info('loading software data from %s', source_file)
+        with open(source_file, 'r') as yaml_data:
+            software = yaml.load(yaml_data, Loader=yaml.FullLoader)
+            software_list.append(software)
+    return software_list
+
+def render_markdown_singlepage(args):
     """
     Render a single-page markdown list of all software, grouped by category
     Prepend/append header/footer, categorized list and footer
@@ -113,6 +115,8 @@ def render_markdown_singlepage(tags, software_list, args):
     @param software_list List: list of dicts loaded from yaml source files
     """
     # pylint: disable=consider-using-with
+    tags = load_yaml_tags(args)
+    software_list = load_yaml_software(args)
     markdown_header = open(args.source_directory + '/markdown/header.md', 'r').read()
     markdown_footer = open(args.source_directory + '/markdown/footer.md', 'r').read()
     markdown_software_list = ''
