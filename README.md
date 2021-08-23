@@ -31,65 +31,7 @@ cd hecat && python3 setup.py install
 
 ## Requirements
 
-To convert a YAML-based list to markdown, your source project/YAML directory must follow this directory structure:
 
-```bash
-/path/to/source/directory
-├── markdown
-│   ├── header.md # markdown footer to render in the final single-page document
-│   └── footer.md # markdown header to render in the final single-page document
-├── software
-│   ├── mysoftware.yml # .yml files containing software data
-│   ├── someothersoftware.yml
-│   └── ...
-├── platforms
-│   ├── bash.yml # .yml files containing language/platforms data
-│   ├── python.yml
-│   └── ...
-├── tags
-│   ├── groupware.yml # .yml files containing tags/categories data
-│   ├── enterprise-resource-planning.yml
-│   └── ...
-├── licenses.yml # yaml list of licenses
-└── tools
-```
-
-Files containing software data must be formatted as follows:
-
-```yaml
-# software/my-awesome-software.yml
-name: "My awesome software" # required
-website_url: "https://my.awesome.softwar.e" # required
-source_code_url: "https://gitlab.com/awesome/software" # optional
-description: "A description of my awesome software." # required
-licenses: # required, all licenses must be listed in licenses.yml
-  - Apache-2.0
-  - AGPL-3.0
-platforms: # required, all platforms must be listed in platforms/*.yml
-  - Java
-  - Python
-  - PHP
-  - Nodejs
-  - Deb
-  - Docker
-tags: # required, all tags must be listed in tags/*.yml
-  - Automation
-  - Calendar
-  - File synchronization
-demo_url: "https://my.awesome.softwar.e/demo" # optional
-related_software_url: "https://my.awesome.softwar.e/apps" # optional
-depends_3rdparty: yes # optional, default no
-```
-
-Files containing platforms/languages must be formatted as follows:
-
-```yaml
-name: Document management # required
-description: "[Document management systems (DMS)](https://en.wikipedia.org/wiki/Document_management_system) are used to receive, track, manage and store documents and reduce paper" # required, markdown
-related_tags: # optional
-  - E-books and Integrated Library Systems (ILS)
-  - Archiving and Digital Preservation
-```
 
 ## Configuration
 
@@ -164,25 +106,90 @@ optional arguments:
 hecat build --exporter markdown_singlepage --source-directory /path/to/source/directory --output-directory /path/to/output/directory --output-file README.md
 ```
 
-This will generate the following directory structure:
+Will generate a single markdown document from YAML data.
 
 ```
 /path/to/output/directory/
 └── singlepage.md
 ```
 
+Your source/YAML directory must follow this structure:
+
+```bash
+/path/to/source/directory
+├── markdown
+│   ├── header.md # markdown footer to render in the final single-page document
+│   └── footer.md # markdown header to render in the final single-page document
+├── software
+│   ├── mysoftware.yml # .yml files containing software data
+│   ├── someothersoftware.yml
+│   └── ...
+├── platforms
+│   ├── bash.yml # .yml files containing language/platforms data
+│   ├── python.yml
+│   └── ...
+├── tags
+│   ├── groupware.yml # .yml files containing tags/categories data
+│   ├── enterprise-resource-planning.yml
+│   └── ...
+├── licenses.yml # yaml list of licenses
+└── tools
+```
+
+Files containing software data must be formatted as follows:
+
+```yaml
+# software/my-awesome-software.yml
+name: "My awesome software" # required
+website_url: "https://my.awesome.softwar.e" # required
+source_code_url: "https://gitlab.com/awesome/software" # optional
+description: "A description of my awesome software." # required
+licenses: # required, all licenses must be listed in licenses.yml
+  - Apache-2.0
+  - AGPL-3.0
+platforms: # required, all platforms must be listed in platforms/*.yml
+  - Java
+  - Python
+  - PHP
+  - Nodejs
+  - Deb
+  - Docker
+tags: # required, all tags must be listed in tags/*.yml
+  - Automation
+  - Calendar
+  - File synchronization
+demo_url: "https://my.awesome.softwar.e/demo" # optional
+related_software_url: "https://my.awesome.softwar.e/apps" # optional
+depends_3rdparty: yes # optional, default no
+```
+
+Files containing platforms/languages must be formatted as follows:
+
+```yaml
+name: Document management # required
+description: "[Document management systems (DMS)](https://en.wikipedia.org/wiki/Document_management_system) are used to receive, track, manage and store documents and reduce paper" # required, markdown
+related_tags: # optional
+  - E-books and Integrated Library Systems (ILS)
+  - Archiving and Digital Preservation
+delegate: # optional
+  - https://another.awesome.li.st
+  - https://gitlab.com/user/awesome-list
+```
+
 
 ### Import data from an awesome list
-
-The importer assumes a few things about the original markdown file:
-- all level 3 (`###`) titles/sections contain the actual list data/items, other sections must use level 2 headings
-- the list of licenses is available in a `## List of Licenses` section
 
 ```bash
 hecat import --importer markdown_awesome --source-file /path/to/awesome/README.md --output-directory /path/to/output/yaml/data/directory
 ```
 
+Will generate YAML data from a single-page, _awesome_ markdown list. The importer assumes a few things about the original markdown file:
+- all level 3 (`###`) titles/sections contain the actual list data/items, other sections must use level 2 headings
+- the list of licenses is available in a `## List of Licenses` section
+- ... TODO ...
+
 Destination directories for tags/software/platforms must exist. 
+
 
 ## Support
 
@@ -191,7 +198,7 @@ Please submit any questions to <https://gitlab.com/nodiscc/hecat/-/issues> or <h
 
 ## Contributing
 
-This program is at a very early stage of development. Code cleanup, documentation, unit tests, improvements, support for other input/output formats is very welcome at <https://gitlab.com/nodiscc/hecat/-/merge_requests> or <https://github.com/nodiscc/hecat/pulls>
+This program is in a very early stage of development. Code cleanup, documentation, unit tests, improvements, support for other input/output formats is very welcome at <https://gitlab.com/nodiscc/hecat/-/merge_requests> or <https://github.com/nodiscc/hecat/pulls>
 
 
 ## Testing
