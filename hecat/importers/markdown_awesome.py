@@ -30,9 +30,6 @@ def load_markdown_list_sections(args):
 def import_software(section, args):
     """import all list items from a markdown section/category, to software yaml definitions/files"""
     entries = re.findall("^- .*", section['text'], re.MULTILINE)
-    if len(entries) == 0:
-        logging.warning('%s has no entries, no .yml file will be created for this tag',
-                        section['title'])
     for line in entries:
         logging.debug('importing software from line: %s' % line)
         matches = re.match(r"\- \[(?P<name>.*)\]\((?P<website_url>[^\)]+)\) (?P<depends_3rdparty>`⚠` )?- (?P<description>.*\.) ((?P<links>.*)\)\) )?`(?P<license>.*)` `(?P<language>.*)`", line) # pylint: disable=line-too-long
