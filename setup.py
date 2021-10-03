@@ -24,7 +24,7 @@ setup(
         ],
     },
     install_requires=[
-        'pyyaml'
+        'ruamel.yaml'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',

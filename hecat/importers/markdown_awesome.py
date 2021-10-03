@@ -4,9 +4,11 @@ import os
 import sys
 import logging
 import re
-import yaml
 from ..utils import list_files, to_kebab_case
+import ruamel.yaml
 
+yaml = ruamel.yaml.YAML()
+yaml.indent(sequence=4, offset=2)
 
 def load_markdown_list_sections(args):
     """return original markdown list sections, as a list of dicts:
@@ -32,51 +34,81 @@ def import_software(section, args):
         logging.warning('%s has no entries, no .yml file will be created for this tag',
                         section['title'])
     for line in entries:
+        logging.debug('importing software from line: %s' % line)
         matches = re.match(r"\- \[(?P<name>.*)\]\((?P<website_url>[^\)]+)\) (?P<depends_3rdparty>`⚠` )?- (?P<description>.*\.) ((?P<links>.*)\)\) )?`(?P<license>.*)` `(?P<language>.*)`", line) # pylint: disable=line-too-long
-        name = 'name: {}'.format(matches.group('name'))
-        website_url = 'website_url: "{}"'.format(matches.group('website_url'))
-        tags = 'tags:\n  - {}'.format(section['title'])
-        description = 'description: "{}"'.format(matches.group('description'))
-        licenses = 'licenses:\n{}'.format(
-            yaml.dump(matches.group('license').split('/'), default_flow_style=False)
-            ).replace('\n-','\n  -')[:-1]
-        platforms = 'platforms:\n{}'.format(
-            yaml.dump(matches.group('language').split('/'), default_flow_style=False)
-            ).replace('\n-','\n  -')[:-1]
-
-        # pylint: disable=line-too-long
-        source_code_url = ''
-        demo_url = ''
-        related_software_url = ''
+        entry = {}
+        try:
+            entry['name'] = matches.group('name')
+            entry['website_url'] = matches.group('website_url')
+            entry['description'] = matches.group('description')
+            entry['licenses'] = matches.group('license').split('/')
+            entry['platforms'] = matches.group('language').split('/')
+            entry['tags'] = [section['title']]
+        except AttributeError:
+            logging.exception('Missing required field in entry: %s' % line)
+            raise
         if matches.group('links') is not None:
             source_code_url_match = re.match(r".*\[Source Code\]\(([^\)]+).*", matches.group('links'))
-            demo_url_match = re.match(r".*\[Demo\]\(([^\)]+).*", matches.group('links'))
-            related_software_url_match = re.match(r".*\[Clients\]\(([^\)]+).*", matches.group('links'))
-            source_code_url = ''
-            demo_url = ''
-            related_software_url = ''
             if source_code_url_match is not None:
-                source_code_url = 'source_code_url: "{}"\n'.format(source_code_url_match.group(1))
+                entry['source_code_url'] = source_code_url_match.group(1)
+            demo_url_match = re.match(r".*\[Demo\]\(([^\)]+).*", matches.group('links'))
             if demo_url_match is not None:
-                demo_url = 'demo_url: "{}"\n'.format(demo_url_match.group(1))
+                entry['demo_url'] = demo_url_match.group(1)
+            related_software_url_match = re.match(r".*\[Clients\]\(([^\)]+).*", matches.group('links'))
             if related_software_url_match is not None:
-                related_software_url = 'related_software_url: "{}"\n'.format(related_software_url_match.group(1))
-
-        depends_3rdparty = ''
+                entry['related_software_url'] = related_software_url_match.group(1)
         if matches.group('depends_3rdparty'):
-            depends_3rdparty = 'depends_3rdparty: yes'
+            entry['depends_3rdparty'] = True
 
-        yaml_list_item = '{}\n{}\n{}{}{}\n{}\n{}\n{}\n{}\n{}\n'.format(
-            name, website_url, source_code_url, demo_url, description, licenses,
-            platforms, tags, depends_3rdparty, related_software_url)
         dest_file = '{}/{}'.format(
-            args.output_directory + args.software_directory, matches.group('name').lower().replace(' ', '-') + '.yml')
+            args.output_directory + args.software_directory, to_kebab_case(matches.group('name')) + '.yml')
         if os.path.exists(dest_file):
             logging.error('target file %s already exists.', dest_file)
             sys.exit(1)
         with open(dest_file, 'w+') as yaml_file:
             logging.info('section %s: writing file %s', section['title'], dest_file)
-            yaml_file.write(yaml_list_item)
+            yaml.dump(entry, yaml_file)
+
+# DEBT factorize extract_external_links, extract_related_tags, extract_delegate_to
+def extract_related_tags(section):
+    related_tags = []
+    related_markdown = re.findall("^_Related:.*_", section['text'], re.MULTILINE)
+    if related_markdown:
+        matches = re.findall(r"\[([^\]]*)\]\(([^\)]*)\)", related_markdown[0])
+        for match in matches:
+            related_tags.append(match[0])
+    return related_tags
+
+def extract_delegate_to(section):
+    delegate_to = []
+    delegate_to_markdown = re.findall("^\*\*Please visit.*\*\*", section['text'], re.MULTILINE)
+    if delegate_to_markdown:
+        matches = re.findall(r"\[([^\]]*)\]\(([^\)]*)\)", delegate_to_markdown[0])
+        for match in matches:
+            delegate_to.append({ 'title': match[0], 'url': match[1]})
+    return delegate_to
+
+def extract_external_links(section):
+    external_links = []
+    external_links_markdown = re.findall("^_See also.*_", section['text'], re.MULTILINE)
+    if external_links_markdown:
+        matches = re.findall(r"\[([^\]]*)\]\(([^\)]*)\)", external_links_markdown[0])
+        for match in matches:
+            external_links.append({ 'title': match[0], 'url': match[1]})
+    return external_links
+
+def extract_description(section):
+    description = ''
+    description_markdown = re.findall("^(?![#\*_\-\n]).*", section['text'], re.MULTILINE)
+    if description_markdown:
+        if len(description_markdown) == 1:
+            logging.warning("%s has no description" % section['title'])
+        if len(description_markdown) == 2:
+            description = description_markdown[1]
+        else:
+            logging.warning("%s has more than one description line. Only the first line will be kept" % section['title'])
+            description = description_markdown[1]
+    return description
 
 def import_tag(section, args):
     """create a tag/category yaml file given a source markdown section/category"""
@@ -85,10 +117,20 @@ def import_tag(section, args):
     if os.path.exists(dest_file):
         logging.error('target file %s already exists.', dest_file)
         sys.exit(1)
+    related_tags = extract_related_tags(section)
+    delegate_to = extract_delegate_to(section)
+    description = extract_description(section)
+    external_links = extract_external_links(section)
     with open(dest_file, 'w+') as yaml_file:
         logging.info('section %s: writing file %s', section['title'], dest_file)
-        yaml_file.write('name: {}\ndescription: ""\nrelated_tags: []'.format(
-            section['title']))
+        output_dict = {
+            'name': section['title'],
+            'description': description,
+            'related_tags': related_tags,
+            'delegate_to': delegate_to,
+            'external_links': external_links
+        }
+        yaml.dump(output_dict, yaml_file)
 
 def import_platforms(yaml_software_files, args):
     """builds a list of language/platforms from all software/YAML files,
@@ -96,11 +138,9 @@ def import_platforms(yaml_software_files, args):
     platforms = []
     for file in yaml_software_files:
         with open(args.output_directory + args.software_directory + '/' + file, 'r') as file:
-            logging.debug('working on %s', file)
             data = yaml.load(file)
             platforms = platforms + data['platforms']
     platforms = list(set(platforms))
-    logging.debug('platforms: %s', platforms)
     for platform in platforms:
         dest_file = '{}/{}'.format(
             args.output_directory + args.platforms_directory, to_kebab_case(platform) + '.yml')

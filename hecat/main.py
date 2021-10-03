@@ -1,15 +1,10 @@
 """hecat CLI entrypoint"""
 import argparse
+import logging
 from .exporters import render_markdown_singlepage
 from .importers import import_markdown_awesome
 
-config = {
-    'source_dir': 'awesome-selfhosted-data',
-    'output_dir': 'awesome-selfhosted',
-    'index_file': 'README.md',
-    'software_dir': '/software/',
-    'tags_dir': '/tags/'
-}
+logging.basicConfig(level=logging.WARNING)
 
 ##########################
 

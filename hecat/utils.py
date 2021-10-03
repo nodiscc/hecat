@@ -14,7 +14,8 @@ def to_kebab_case(string):
     replacements = {
         ' ': '-',
         '(': '',
-        ')': ''
+        ')': '',
+        '&': ''
     }
-    string.translate(str.maketrans(replacements)).lower()
-    return string
+    newstring = string.translate(str.maketrans(replacements)).lower()
+    return newstring
