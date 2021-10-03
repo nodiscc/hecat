@@ -2,6 +2,7 @@
 import argparse
 import logging
 from .exporters import render_markdown_singlepage
+from .exporters import render_markdown_authors
 from .importers import import_markdown_awesome
 
 logging.basicConfig(level=logging.WARNING)
@@ -14,6 +15,10 @@ def hecat_build(args):
         markdown_singlepage = render_markdown_singlepage(args)
         with open(args.output_directory + '/' + args.output_file, 'w+') as outfile:
             outfile.write(markdown_singlepage)
+    if args.authors:
+        markdown_authors = render_markdown_authors(args)
+        with open(args.output_directory + '/AUTHORS.md', 'w+') as outfile:
+            outfile.write(markdown_authors)
 
 def hecat_import(args):
     """import initial data from other formats"""
@@ -36,6 +41,7 @@ def main():
     build_parser.add_argument('--output-file', required=True, type=str, help='output filename')
     build_parser.add_argument('--tags-directory', type=str, default='/tags/', help='source subdirectory for tags definitions')
     build_parser.add_argument('--software-directory', type=str, default='/software/', help='source subdirectory for software definitions')
+    build_parser.add_argument('--authors', type=bool, default=True, help='generate an AUTHORS.md file from the source git repository log')
     build_parser.set_defaults(action=hecat_build)
 
     import_parser = subparsers.add_parser('import', help='import initial data from other formats')

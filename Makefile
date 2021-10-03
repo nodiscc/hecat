@@ -12,7 +12,7 @@ virtualenv:
 test: pylint test_run
 
 .PHONY: pylint # run linter
-pylint: virtualenv
+pylint: install
 	-source .venv/bin/activate && \
 	pip3 install pylint pyyaml && \
 	pylint --disable=too-many-locals hecat
