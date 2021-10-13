@@ -97,7 +97,7 @@ def import_platforms(yaml_software_files, args):
     for file in yaml_software_files:
         with open(args.output_directory + args.software_directory + '/' + file, 'r') as file:
             logging.debug('working on %s', file)
-            data = yaml.load(file)
+            data = yaml.load(file, Loader=CLoader)
             platforms = platforms + data['platforms']
     platforms = list(set(platforms))
     logging.debug('platforms: %s', platforms)
