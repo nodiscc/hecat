@@ -5,6 +5,8 @@ import subprocess
 import re
 
 def render_markdown_authors(args):
+    """render a markdown-formatted table of authors"""
+    logging.info('rendering markdown table of contents')
     table_header = "|Commits | Author |\n| :---: | --- |"
     git_process = subprocess.Popen(['/usr/bin/git', 'shortlog', '-s', '-n', '-e'],
                                    cwd=args.source_directory,

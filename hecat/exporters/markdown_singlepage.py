@@ -3,7 +3,6 @@
 import logging
 import ruamel.yaml
 from ..utils import list_files, to_kebab_case
-import sys
 
 yaml = ruamel.yaml.YAML(typ='safe')
 yaml.indent(sequence=4, offset=2)
@@ -100,8 +99,8 @@ def load_yaml_tags(args):
     for file in sorted(list_files(args.source_directory + args.tags_directory)):
         source_file = args.source_directory + args.tags_directory + file
         logging.info('loading tag data from %s', source_file)
-        with open(source_file, 'r') as f:
-            tags.append(yaml.load(f))
+        with open(source_file, 'r') as data:
+            tags.append(yaml.load(data))
             tags = sorted(tags, key=lambda k: k['name'])
     return tags
 
@@ -122,20 +121,25 @@ def load_yaml_licenses(args):
     """load license definitions from a single yaml source file"""
     licenses_file = args.source_directory + '/licenses.yml'
     logging.info('loading license data from %s', licenses_file)
-    with open(licenses_file, 'r') as f:
-        licenses = yaml.load(f)
+    with open(licenses_file, 'r') as data:
+        licenses = yaml.load(data)
     return licenses
 
 def render_markown_licenses(licenses):
+    """render a markdown-formatted licenses list"""
     markdown_licenses = '## List of Licenses\n\n**[`^        back to top        ^`](#)**\n\n'
-    for license in licenses:
+    for _license in licenses:
         try:
-            markdown_licenses += '- `{}` - [{}]({})\n'.format(license['identifier'], license['name'], license['url'])
-        except KeyError as e:
-            logging.warning('missing fields in license, will not be inserted: %s: KeyError: %s' % (license, e))
+            markdown_licenses += '- `{}` - [{}]({})\n'.format(
+                _license['identifier'],
+                _license['name'],
+                _license['url'])
+        except KeyError as err:
+            logging.warning('missing fields in license, will not be inserted: %s: KeyError: %s' % (_license, err))
     return markdown_licenses
 
 def render_markdown_toc(*args):
+    """render a markdown-formatted table of contents"""
     markdown = ''
     for i in args:
         markdown += i
@@ -171,7 +175,11 @@ def render_markdown_singlepage(args):
         markdown_category = render_markdown_singlepage_category(tag, software_list)
         markdown_software_list = markdown_software_list + markdown_category + '\n\n'
     markdown_licenses = render_markown_licenses(licenses)
-    markdown_toc_section = render_markdown_toc(markdown_header, markdown_software_list, markdown_licenses, markdown_footer)
+    markdown_toc_section = render_markdown_toc(
+        markdown_header,
+        markdown_software_list,
+        markdown_licenses,
+        markdown_footer)
     markdown = '{}\n\n{}\n\n{}\n\n{}\n\n{}'.format(
         markdown_header, markdown_toc_section, markdown_software_list, markdown_licenses, markdown_footer)
     return markdown

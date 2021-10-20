@@ -4,8 +4,8 @@ import os
 import sys
 import logging
 import re
-from ..utils import list_files, to_kebab_case
 import ruamel.yaml
+from ..utils import list_files, to_kebab_case
 
 yaml = ruamel.yaml.YAML()
 yaml.indent(sequence=4, offset=2)
@@ -31,7 +31,7 @@ def import_software(section, args):
     """import all list items from a markdown section/category, to software yaml definitions/files"""
     entries = re.findall("^- .*", section['text'], re.MULTILINE)
     for line in entries:
-        logging.debug('importing software from line: %s' % line)
+        logging.debug('importing software from line: %s', line)
         matches = re.match(r"\- \[(?P<name>.*)\]\((?P<website_url>[^\)]+)\) (?P<depends_3rdparty>`⚠` )?- (?P<description>.*\.) ((?P<links>.*)\)\) )?`(?P<license>.*)` `(?P<language>.*)`", line) # pylint: disable=line-too-long
         entry = {}
         try:
@@ -42,7 +42,7 @@ def import_software(section, args):
             entry['platforms'] = matches.group('language').split('/')
             entry['tags'] = [section['title']]
         except AttributeError:
-            logging.exception('Missing required field in entry: %s' % line)
+            logging.exception('Missing required field in entry: %s', line)
             raise
         if matches.group('links') is not None:
             source_code_url_match = re.match(r".*\[Source Code\]\(([^\)]+).*", matches.group('links'))
@@ -58,7 +58,8 @@ def import_software(section, args):
             entry['depends_3rdparty'] = True
 
         dest_file = '{}/{}'.format(
-            args.output_directory + args.software_directory, to_kebab_case(matches.group('name')) + '.yml')
+            args.output_directory + args.software_directory,
+            to_kebab_case(matches.group('name')) + '.yml')
         if os.path.exists(dest_file):
             logging.error('target file %s already exists.', dest_file)
             sys.exit(1)
@@ -68,6 +69,7 @@ def import_software(section, args):
 
 # DEBT factorize extract_external_links, extract_related_tags, extract_delegate_to
 def extract_related_tags(section):
+    """Extract 'Related:' tags from markdown section"""
     related_tags = []
     related_markdown = re.findall("^_Related:.*_", section['text'], re.MULTILINE)
     if related_markdown:
@@ -77,6 +79,7 @@ def extract_related_tags(section):
     return related_tags
 
 def extract_delegate_to(section):
+    """extract 'Please visit' link titles/URLs from markdown"""
     delegate_to = []
     delegate_to_markdown = re.findall("^\*\*Please visit.*\*\*", section['text'], re.MULTILINE)
     if delegate_to_markdown:
@@ -86,6 +89,7 @@ def extract_delegate_to(section):
     return delegate_to
 
 def extract_external_links(section):
+    """Extract 'See also:' links titles/URLs from markdown section"""
     external_links = []
     external_links_markdown = re.findall("^_See also.*_", section['text'], re.MULTILINE)
     if external_links_markdown:
@@ -95,15 +99,16 @@ def extract_external_links(section):
     return external_links
 
 def extract_description(section):
+    """Extract section description from a markdown section"""
     description = ''
     description_markdown = re.findall("^(?![#\*_\-\n]).*", section['text'], re.MULTILINE)
     if description_markdown:
         if len(description_markdown) == 1:
-            logging.warning("%s has no description" % section['title'])
+            logging.warning("%s has no description", section['title'])
         if len(description_markdown) == 2:
             description = description_markdown[1]
         else:
-            logging.warning("%s has more than one description line. Only the first line will be kept" % section['title'])
+            logging.warning("%s has more than one description line. Only the first line will be kept", section['title'])
             description = description_markdown[1]
     return description
 
