@@ -61,11 +61,15 @@ def import_software(section, args):
             args.output_directory + args.software_directory,
             to_kebab_case(matches.group('name')) + '.yml')
         if os.path.exists(dest_file):
-            logging.error('target file %s already exists.', dest_file)
-            sys.exit(1)
-        with open(dest_file, 'w+') as yaml_file:
-            logging.info('section %s: writing file %s', section['title'], dest_file)
-            yaml.dump(entry, yaml_file)
+            logging.debug('overwriting target file %s', dest_file)
+        while True:
+            try:
+                with open(dest_file, 'w+') as yaml_file:
+                    logging.debug('section %s: writing file %s', section['title'], dest_file)
+                    yaml.dump(entry, yaml_file)
+                    break
+            except FileNotFoundError:
+                os.mkdir(args.output_directory + args.software_directory)
 
 # DEBT factorize extract_external_links, extract_related_tags, extract_delegate_to
 def extract_related_tags(section):
@@ -117,22 +121,26 @@ def import_tag(section, args):
     dest_file = '{}/{}'.format(
         args.output_directory + args.tags_directory, to_kebab_case(section['title']) + '.yml')
     if os.path.exists(dest_file):
-        logging.error('target file %s already exists.', dest_file)
-        sys.exit(1)
+        logging.debug('overwriting target file %s', dest_file)
     related_tags = extract_related_tags(section)
     delegate_to = extract_delegate_to(section)
     description = extract_description(section)
     external_links = extract_external_links(section)
-    with open(dest_file, 'w+') as yaml_file:
-        logging.info('section %s: writing file %s', section['title'], dest_file)
-        output_dict = {
-            'name': section['title'],
-            'description': description,
-            'related_tags': related_tags,
-            'delegate_to': delegate_to,
-            'external_links': external_links
-        }
-        yaml.dump(output_dict, yaml_file)
+    while True:
+        try:
+            with open(dest_file, 'w+') as yaml_file:
+                logging.debug('section %s: writing file %s', section['title'], dest_file)
+                output_dict = {
+                    'name': section['title'],
+                    'description': description,
+                    'related_tags': related_tags,
+                    'delegate_to': delegate_to,
+                    'external_links': external_links
+                }
+                yaml.dump(output_dict, yaml_file)
+                break
+        except FileNotFoundError:
+            os.mkdir(args.output_directory + args.tags_directory)
 
 def import_platforms(yaml_software_files, args):
     """builds a list of language/platforms from all software/YAML files,
@@ -147,10 +155,9 @@ def import_platforms(yaml_software_files, args):
         dest_file = '{}/{}'.format(
             args.output_directory + args.platforms_directory, to_kebab_case(platform) + '.yml')
         if os.path.exists(dest_file):
-            logging.error('target file %s already exists.', dest_file)
-            sys.exit(1)
+            logging.debug('overwriting target file %s', dest_file)
         with open(dest_file, 'w+') as yaml_file:
-            logging.info('writing file %s', dest_file)
+            logging.debug('writing file %s', dest_file)
             yaml_file.write('name: {}\ndescription: ""'.format(platform))
 
 def convert_licenses(args):
@@ -170,7 +177,7 @@ def convert_licenses(args):
             yaml_licenses = yaml_licenses + '\n' + yaml_list_item
     dest_file = args.output_directory + '/licenses.yml'
     with open(dest_file, 'w+') as yaml_file:
-        logging.info('writing file %s', dest_file)
+        logging.debug('writing file %s', dest_file)
         yaml_file.write(yaml_licenses)
 
 def import_markdown_awesome(args):

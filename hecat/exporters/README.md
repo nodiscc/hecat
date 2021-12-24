@@ -1,9 +1,9 @@
 ## markdown_singlepage
 
-Generates a single markdown document from YAML data.
+Generates a single markdown document from YAML data, suitable for [awesome](https://github.com/sindresorhus/awesome) lists.
 
 ```bash
-hecat build --exporter markdown_singlepage --source-directory /path/to/source/directory --output-directory /path/to/output/directory --output-file README.md --options=authors
+hecat export --exporter markdown_singlepage --source-directory /path/to/source/directory --output-directory /path/to/output/directory --output-file README.md --options=authors
 ```
 
 Output directory structure:
@@ -63,7 +63,7 @@ demo_url: "https://my.awesome.softwar.e/demo" # optional
 related_software_url: "https://my.awesome.softwar.e/apps" # optional
 depends_3rdparty: yes # optional, default no
 github_last_update: "20200202T20:20:20Z" # optional, auto-generated, last update/commit date for github projects
-github_stars: "999"  # optional, auto-generated, number of stars for github projects
+stargazers_count: "999"  # optional, auto-generated, number of stars for github projects
 ```
 
 Files containing platforms/languages must be formatted as follows:

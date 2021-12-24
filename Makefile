@@ -20,10 +20,14 @@ pylint: install
 .PHONY: install # install in a virtualenv
 install: virtualenv
 	source .venv/bin/activate && \
+	pip3 install wheel && \
 	python3 setup.py install
 
-.PHONY: test_run # test import against actual data
-test_run: install
+.PHONY: test_run # run all integration tests
+test_run: install test_import_as test_process_as test_export_as
+
+.PHONY: test_import_as # test import from awesome-sefhosted
+test_import_as:
 	git clone --depth=1 https://github.com/awesome-selfhosted/awesome-selfhosted
 	git clone https://github.com/awesome-selfhosted/awesome-selfhosted-data
 	# git -C awesome-selfhosted-data config user.name "nodiscc"
@@ -31,7 +35,18 @@ test_run: install
 	# git -C awesome-selfhosted-data merge --allow-unrelated-histories --no-edit origin/import-git-history
 	# cp awesome-selfhosted/.github/.mailmap awesome-selfhosted/.mailmap
 	# cp awesome-selfhosted/.github/.mailmap awesome-selfhosted-data/.mailmap
+	# rm -f awesome-selfhosted-data/software/* awesome-selfhosted-data/tags/* awesome-selfhosted-data/platforms/*
 	source .venv/bin/activate && \
-	hecat import --source-file awesome-selfhosted/README.md --output-directory awesome-selfhosted-data && \
-	hecat build --source-directory awesome-selfhosted-data --output-directory awesome-selfhosted --output-file README.md
+	hecat import --source-file awesome-selfhosted/README.md --output-directory awesome-selfhosted-data
+
+.PHONY: test_process_as # test processing on awesome-selfhosted-data
+test_process_as:
+	source .venv/bin/activate && \
+	hecat process --processors github_metadata --source-directory awesome-selfhosted-data
+	cd awesome-selfhosted-data && git diff --color=always
+
+.PHONY: test_export_as # test export to singlepage markdown from awesome-selfhosted-data
+test_export_as:
+	source .venv/bin/activate && \
+	hecat export --source-directory awesome-selfhosted-data --output-directory awesome-selfhosted --output-file README.md
 	cd awesome-selfhosted && git diff --color=always

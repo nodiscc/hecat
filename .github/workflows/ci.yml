@@ -5,8 +5,11 @@ on:
   pull_request:
     branches: [ master ]
 
+env:
+  GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
 jobs:
-  build:
+  test_run:
     runs-on: ubuntu-latest
     steps:
     - name: checkout repo

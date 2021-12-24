@@ -2,16 +2,19 @@
 
 A catalog generator and management tool.
 
-This program uses YAML files to store data about various kind of items (software projects, bookmarks, movies, ...).
-It can then export the data to multiple human-readable formats.
-
 **Status: experimental** ![CI](https://github.com/nodiscc/hecat/actions/workflows/ci.yml/badge.svg)
 
-Input formats:
-- [markdown_awesome](hecat/importers/README.md#markdown_awesome) - markdown format from [awesome-selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted
+This program uses YAML files to store data about various kind of items (software projects...). It can import data from various sources, run processing tasks on stored data, and export data to multiple human-readable formats:
 
-Output formats:
-- [markdown_singlepage](hecat/exporters/README.md#markdown_singlepage) - single page markdown format for _awesome_ lists
+Importers:
+- [markdown_awesome](hecat/importers/README.md#markdown_awesome)
+
+Processors:
+- [github_metdata](hecat/processors/README.md#github_metadata)
+
+Exporters:
+- [markdown_singlepage](hecat/exporters/README.md#markdown_singlepage)
+
 
 ## Installation
 
@@ -47,11 +50,11 @@ The program takes its configuration from command-line parameters. See [Usage](#u
 
 ```bash
 $ hecat --help
-usage: hecat [-h] {build,import} ...
+usage: hecat [-h] {export,import} ...
 
 positional arguments:
-  {build,import}
-    build         build markdown from YAML source files
+  {export,import}
+    export        build markdown from YAML source files
     import        import initial data from other formats
 
 optional arguments:
@@ -59,8 +62,8 @@ optional arguments:
 ```
 
 ```
-$  hecat build --help
-usage: hecat build [-h] [--exporter {markdown_singlepage}] --source-directory
+$  hecat export --help
+usage: hecat export [-h] [--exporter {markdown_singlepage}] --source-directory
                    SOURCE_DIRECTORY --output-directory OUTPUT_DIRECTORY
                    --output-file OUTPUT_FILE [--tags-directory TAGS_DIRECTORY]
                    [--software-directory SOFTWARE_DIRECTORY]
@@ -105,6 +108,25 @@ optional arguments:
   --platforms-directory PLATFORMS_DIRECTORY
                         destination subdirectory for platforms definitions
 ```
+
+```
+$ hecat process --help
+usage: hecat process [-h] [--processors PROCESSORS] --source-directory SOURCE_DIRECTORY [--software-directory SOFTWARE_DIRECTORY] [--options OPTIONS]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --processors PROCESSORS
+                        list of processors to run, comma-separated
+  --source-directory SOURCE_DIRECTORY
+                        base directory for YAML data
+  --software-directory SOFTWARE_DIRECTORY
+                        source subdirectory for software definitions
+  --options OPTIONS     list of processors options, comma-separated
+```
+
+
+
+
 
 
 ## Support
