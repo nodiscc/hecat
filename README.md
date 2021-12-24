@@ -10,6 +10,9 @@ It can then export the data to multiple human-readable formats.
 Input formats:
 - [markdown_awesome](hecat/importers/README.md#markdown_awesome) - markdown format from [awesome-selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted
 
+Processing:
+- [github_metdata](hecat/processors/README.md#github_metadata) - add software project metadata from Github.com
+
 Output formats:
 - [markdown_singlepage](hecat/exporters/README.md#markdown_singlepage) - single page markdown format for _awesome_ lists
 
@@ -105,6 +108,25 @@ optional arguments:
   --platforms-directory PLATFORMS_DIRECTORY
                         destination subdirectory for platforms definitions
 ```
+
+```
+$ hecat process --help
+usage: hecat process [-h] [--processors PROCESSORS] --source-directory SOURCE_DIRECTORY [--software-directory SOFTWARE_DIRECTORY] [--options OPTIONS]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --processors PROCESSORS
+                        list of processors to run, comma-separated
+  --source-directory SOURCE_DIRECTORY
+                        base directory for YAML data
+  --software-directory SOFTWARE_DIRECTORY
+                        source subdirectory for software definitions
+  --options OPTIONS     list of processors options, comma-separated
+```
+
+
+
+
 
 
 ## Support

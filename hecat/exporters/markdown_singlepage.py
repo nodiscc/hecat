@@ -2,7 +2,7 @@
 
 import logging
 import ruamel.yaml
-from ..utils import list_files, to_kebab_case
+from ..utils import list_files, to_kebab_case, load_yaml_data
 
 yaml = ruamel.yaml.YAML(typ='safe')
 yaml.indent(sequence=4, offset=2)
@@ -28,7 +28,7 @@ def render_markdown_singlepage_category(tag, software_list):
     if 'description' in tag and tag['description']:
         markdown_description = tag['description'] + '\n\n'
     if 'delegate_to' in tag and tag['delegate_to']:
-        markdown_delegate_to = '**Please visit {}**\n'.format(', '.join(
+        markdown_delegate_to = '**Please visit {}**\n\n'.format(', '.join(
             '[{}]({})'.format(
                 link['title'], link['url']
         ) for link in tag['delegate_to']))
@@ -38,8 +38,8 @@ def render_markdown_singlepage_category(tag, software_list):
                 link['title'], link['url']
             ) for link in tag['external_links']))
     # build markdown-formatted category
-    markdown_category = '### {}\n\n{}{}{}{}{}'.format(
-        tag['name'],
+    markdown_category = '### {}{}{}{}{}{}'.format(
+        tag['name'] + '\n\n',
         '**[`^        back to top        ^`](#)**\n\n',
         markdown_description,
         markdown_delegate_to,
@@ -51,8 +51,8 @@ def render_markdown_singlepage_category(tag, software_list):
         if software['tags'][0] == tag['name']:
             markdown_list_item = render_markdown_list_item(software)
             logging.debug('adding project %s to category %s', software['name'], tag['name'])
-            markdown_category = markdown_category + markdown_list_item + '\n'
-    return markdown_category
+            markdown_category = markdown_category + markdown_list_item
+    return markdown_category + '\n\n'
 
 
 def render_markdown_list_item(software):
@@ -81,7 +81,7 @@ def render_markdown_list_item(software):
     links = [link for link in links_list if link]
     markdown_links = ' ({})'.format(', '.join(links)) if links else ''
     # build markdown-formatted list item
-    markdown_list_item = '- [{}]({}) {}- {}{} {} {}'.format(
+    markdown_list_item = '- [{}]({}) {}- {}{} {} {}\n'.format(
         software['name'],
         software['website_url'],
         markdown_depends_3rdparty,
@@ -98,23 +98,11 @@ def load_yaml_tags(args):
     tags = list([])
     for file in sorted(list_files(args.source_directory + args.tags_directory)):
         source_file = args.source_directory + args.tags_directory + file
-        logging.info('loading tag data from %s', source_file)
+        logging.debug('loading tag data from %s', source_file)
         with open(source_file, 'r') as data:
             tags.append(yaml.load(data))
             tags = sorted(tags, key=lambda k: k['name'])
     return tags
-
-# DEBT factorize yaml loading from single/multiple files
-def load_yaml_software(args):
-    """load software projects definitions from yaml source files"""
-    software_list = []
-    for file in sorted(list_files(args.source_directory + args.software_directory)):
-        source_file = args.source_directory + args.software_directory + file
-        logging.info('loading software data from %s', source_file)
-        with open(source_file, 'r') as yaml_data:
-            software = yaml.load(yaml_data)
-            software_list.append(software)
-    return software_list
 
 # DEBT factorize yaml loading from single/multiple files
 def load_yaml_licenses(args):
@@ -166,14 +154,14 @@ def render_markdown_singlepage(args):
     """
     # pylint: disable=consider-using-with
     tags = load_yaml_tags(args)
-    software_list = load_yaml_software(args)
+    software_list = load_yaml_data(args.source_directory + args.software_directory)
     licenses = load_yaml_licenses(args)
     markdown_header = open(args.source_directory + '/markdown/header.md', 'r').read()
     markdown_footer = open(args.source_directory + '/markdown/footer.md', 'r').read()
     markdown_software_list = '## Software\n\n'
     for tag in tags:
         markdown_category = render_markdown_singlepage_category(tag, software_list)
-        markdown_software_list = markdown_software_list + markdown_category + '\n\n'
+        markdown_software_list = markdown_software_list + markdown_category
     markdown_licenses = render_markown_licenses(licenses)
     markdown_toc_section = render_markdown_toc(
         markdown_header,

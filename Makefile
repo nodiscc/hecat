@@ -20,6 +20,7 @@ pylint: install
 .PHONY: install # install in a virtualenv
 install: virtualenv
 	source .venv/bin/activate && \
+	pip3 install wheel && \
 	python3 setup.py install
 
 .PHONY: test_run # test import against actual data
@@ -31,7 +32,9 @@ test_run: install
 	# git -C awesome-selfhosted-data merge --allow-unrelated-histories --no-edit origin/import-git-history
 	# cp awesome-selfhosted/.github/.mailmap awesome-selfhosted/.mailmap
 	# cp awesome-selfhosted/.github/.mailmap awesome-selfhosted-data/.mailmap
+	# rm -f awesome-selfhosted-data/software/* awesome-selfhosted-data/tags/* awesome-selfhosted-data/platforms/*
 	source .venv/bin/activate && \
 	hecat import --source-file awesome-selfhosted/README.md --output-directory awesome-selfhosted-data && \
+	hecat process --processors github_metadata --source-directory awesome-selfhosted-data && \
 	hecat build --source-directory awesome-selfhosted-data --output-directory awesome-selfhosted --output-file README.md
 	cd awesome-selfhosted && git diff --color=always
