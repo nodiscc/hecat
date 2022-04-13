@@ -2,8 +2,10 @@
 import argparse
 import logging
 from .exporters import render_markdown_singlepage
+from .exporters import render_bookmarks_html
 from .exporters import render_markdown_authors
 from .importers import import_markdown_awesome
+from .importers import import_shaarli
 
 LOG_FORMAT = "%(levelname)s:%(filename)s: %(message)s"
 logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
@@ -16,6 +18,10 @@ def hecat_build(args):
         markdown_singlepage = render_markdown_singlepage(args)
         with open(args.output_directory + '/' + args.output_file, 'w+') as outfile:
             outfile.write(markdown_singlepage)
+    if args.exporter == 'bookmarks_html':
+        bookmarks_html = render_bookmarks_html(args)
+        with open(args.output_directory + '/' + args.output_file, 'w+') as outfile:
+            outfile.write(bookmarks_html)
     if args.authors:
         markdown_authors = render_markdown_authors(args)
         with open(args.output_directory + '/AUTHORS.md', 'w+') as outfile:
@@ -25,6 +31,8 @@ def hecat_import(args):
     """import initial data from other formats"""
     if args.importer == 'markdown_awesome':
         import_markdown_awesome(args)
+    if args.importer == 'shaarli':
+        import_shaarli(args)
 
 def hecat_process(args):
     """apply processing rules"""
@@ -44,6 +52,10 @@ def main():
     # command-line parsing
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers()
+
+    # TODO sub-subparser hecat import shaarli --source-file= --dest-dir=
+    #                    hecat import markdown_awesome --source-directory --output-directory --tags-directory --software-directory...
+    #                    hecat export markdown_singlepage --...
 
     build_parser = subparsers.add_parser('build', help='build markdown from YAML source files')
     build_parser.add_argument('--exporter', type=str, default='markdown_singlepage', choices=['markdown_singlepage'], help='exporter to use')
