@@ -41,7 +41,7 @@ def main():
     build_parser.add_argument('--output-file', required=True, type=str, help='output filename')
     build_parser.add_argument('--tags-directory', type=str, default='/tags/', help='source subdirectory for tags definitions')
     build_parser.add_argument('--software-directory', type=str, default='/software/', help='source subdirectory for software definitions')
-    build_parser.add_argument('--authors', type=bool, default=True, help='generate an AUTHORS.md file from the source git repository log')
+    build_parser.add_argument('--authors', type=bool, default=False, help='generate an AUTHORS.md file from the source git repository log')
     build_parser.set_defaults(action=hecat_build)
 
     import_parser = subparsers.add_parser('import', help='import initial data from other formats')
