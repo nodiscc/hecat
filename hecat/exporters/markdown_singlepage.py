@@ -127,7 +127,7 @@ def load_yaml_licenses(args):
 
 def render_markown_licenses(licenses):
     """render a markdown-formatted licenses list"""
-    markdown_licenses = '---------------------\n\n## List of Licenses\n\n**[`^        back to top        ^`](#)**\n\n'
+    markdown_licenses = '--------------------\n\n## List of Licenses\n\n**[`^        back to top        ^`](#)**\n\n'
     for _license in licenses:
         try:
             markdown_licenses += '- `{}` - [{}]({})\n'.format(
@@ -180,6 +180,6 @@ def render_markdown_singlepage(args):
         markdown_software_list,
         markdown_licenses,
         markdown_footer)
-    markdown = '{}\n\n{}\n\n{}\n\n{}\n\n{}'.format(
+    markdown = '{}\n\n{}\n\n{}{}\n\n{}'.format(
         markdown_header, markdown_toc_section, markdown_software_list, markdown_licenses, markdown_footer)
     return markdown
