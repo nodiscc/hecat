@@ -28,7 +28,7 @@ def render_markdown_singlepage_category(tag, software_list):
     if 'description' in tag and tag['description']:
         markdown_description = tag['description'] + '\n\n'
     if 'delegate_to' in tag and tag['delegate_to']:
-        markdown_delegate_to = '**Please visit {}**\n\n'.format(', '.join(
+        markdown_delegate_to = '**Please visit {}**\n'.format(', '.join(
             '[{}]({})'.format(
                 link['title'], link['url']
         ) for link in tag['delegate_to']))
