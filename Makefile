@@ -26,11 +26,11 @@ install: virtualenv
 test_run: install
 	git clone --depth=1 https://github.com/awesome-selfhosted/awesome-selfhosted
 	git clone https://github.com/awesome-selfhosted/awesome-selfhosted-data
-	git -C awesome-selfhosted-data config user.name "nodiscc"
-	git -C awesome-selfhosted-data config user.email "nodiscc@gmail.com"
-	git -C awesome-selfhosted-data merge --allow-unrelated-histories --no-edit origin/import-git-history
-	cp awesome-selfhosted/.github/.mailmap awesome-selfhosted/.mailmap
-	cp awesome-selfhosted/.github/.mailmap awesome-selfhosted-data/.mailmap
+	# git -C awesome-selfhosted-data config user.name "nodiscc"
+	# git -C awesome-selfhosted-data config user.email "nodiscc@gmail.com"
+	# git -C awesome-selfhosted-data merge --allow-unrelated-histories --no-edit origin/import-git-history
+	# cp awesome-selfhosted/.github/.mailmap awesome-selfhosted/.mailmap
+	# cp awesome-selfhosted/.github/.mailmap awesome-selfhosted-data/.mailmap
 	mkdir awesome-selfhosted-data/{tags,software,platforms}
 	source .venv/bin/activate && \
 	hecat import --source-file awesome-selfhosted/README.md --output-directory awesome-selfhosted-data && \
