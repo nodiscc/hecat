@@ -25,7 +25,7 @@ install: virtualenv
 .PHONY: test_run # test import against actual data
 test_run: install
 	git clone --depth=1 https://github.com/awesome-selfhosted/awesome-selfhosted
-	git clone https://github.com/nodiscc/awesome-selfhosted-data
+	git clone https://github.com/awesome-selfhosted/awesome-selfhosted-data
 	git -C awesome-selfhosted-data config user.name "nodiscc"
 	git -C awesome-selfhosted-data config user.email "nodiscc@gmail.com"
 	git -C awesome-selfhosted-data merge --allow-unrelated-histories --no-edit origin/import-git-history
