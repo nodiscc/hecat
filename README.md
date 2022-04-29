@@ -4,7 +4,7 @@ Software catalog generator. Built for [awesome-selfhosted](https://github.com/aw
 
 This program takes YAML data as input, and renders a single-page, _awesome_ markdown list. It will be extended to handle other output formats and input types.
 
-**Status: experimental**
+**Status: experimental** ![CI](https://github.com/nodiscc/hecat/actions/workflows/ci.yml/badge.svg)
 
 
 ## Installation
