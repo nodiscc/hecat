@@ -173,7 +173,7 @@ def render_markdown_singlepage(args):
     markdown_software_list = '## Software\n\n'
     for tag in tags:
         markdown_category = render_markdown_singlepage_category(tag, software_list)
-        markdown_software_list = markdown_software_list + markdown_category + '\n\n'
+        markdown_software_list = markdown_software_list + markdown_category + '\n'
     markdown_licenses = render_markown_licenses(licenses)
     markdown_toc_section = render_markdown_toc(
         markdown_header,
