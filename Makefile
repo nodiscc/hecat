@@ -31,7 +31,6 @@ test_run: install
 	# git -C awesome-selfhosted-data merge --allow-unrelated-histories --no-edit origin/import-git-history
 	# cp awesome-selfhosted/.github/.mailmap awesome-selfhosted/.mailmap
 	# cp awesome-selfhosted/.github/.mailmap awesome-selfhosted-data/.mailmap
-	mkdir awesome-selfhosted-data/{tags,software,platforms}
 	source .venv/bin/activate && \
 	hecat import --source-file awesome-selfhosted/README.md --output-directory awesome-selfhosted-data && \
 	hecat build --source-directory awesome-selfhosted-data --output-directory awesome-selfhosted --output-file README.md
