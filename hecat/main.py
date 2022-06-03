@@ -65,7 +65,7 @@ def main():
     export_parser.add_argument('--tags-directory', type=str, default='/tags/', help='source subdirectory for tags definitions')
     export_parser.add_argument('--software-directory', type=str, default='/software/', help='source subdirectory for software definitions')
     export_parser.add_argument('--authors', type=bool, default=False, help='generate an AUTHORS.md file from the source git repository log')
-    export_parser.set_defaults(action=hecat_export)
+    export_parser.set_defaults(command=hecat_export)
 
     import_parser = subparsers.add_parser('import', help='import initial data from other formats')
     import_parser.add_argument('--importer', type=str, default='markdown_awesome', choices=['markdown_awesome'], help='importer to use')
@@ -74,7 +74,7 @@ def main():
     import_parser.add_argument('--tags-directory', type=str, default='/tags/', help='destination subdirectory for tags definitions')
     import_parser.add_argument('--software-directory', type=str, default='/software/', help='destination subdirectory for software definitions')
     import_parser.add_argument('--platforms-directory', type=str, default='/platforms/', help='destination subdirectory for platforms definitions')
-    import_parser.set_defaults(action=hecat_import)
+    import_parser.set_defaults(command=hecat_import)
 
     process_parser = subparsers.add_parser('process', help='apply processing rules')
     process_parser.add_argument('--processors', required=True, type=str, help='processors to run, comma-separated (github_metadata)')
@@ -84,4 +84,4 @@ def main():
     process_parser.set_defaults(action=hecat_process)
 
     args = parser.parse_args()
-    args.action(args)
+    args.command(args)
