@@ -50,11 +50,11 @@ The program takes its configuration from command-line parameters. See [Usage](#u
 
 ```bash
 $ hecat --help
-usage: hecat [-h] {build,import} ...
+usage: hecat [-h] {export,import} ...
 
 positional arguments:
-  {build,import}
-    build         build markdown from YAML source files
+  {export,import}
+    export         export markdown from YAML source files
     import        import initial data from other formats
 
 optional arguments:
@@ -62,8 +62,8 @@ optional arguments:
 ```
 
 ```
-$  hecat build --help
-usage: hecat build [-h] [--exporter {markdown_singlepage}] --source-directory
+$  hecat export --help
+usage: hecat export [-h] [--exporter {markdown_singlepage}] --source-directory
                    SOURCE_DIRECTORY --output-directory OUTPUT_DIRECTORY
                    --output-file OUTPUT_FILE [--tags-directory TAGS_DIRECTORY]
                    [--software-directory SOFTWARE_DIRECTORY]
@@ -124,7 +124,7 @@ optional arguments:
   --options OPTIONS     list of processors options, comma-separated
 ```
 
-### Build a single page markdown list
+### export a single page markdown list
 
 See [hecat/exporters/README.md](hecat/exporters/README.md#markdown-singlepage)
 
@@ -132,7 +132,7 @@ See [hecat/exporters/README.md](hecat/exporters/README.md#markdown-singlepage)
 
 TODO github_metadata
 
-You can then rebuild the site using the `build` command.
+You can then rebuild the site using the `export` command.
 
 
 ### Import data from an awesome list

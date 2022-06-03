@@ -12,8 +12,8 @@ logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
 
 ##########################
 
-def hecat_build(args):
-    """build markdown from YAML source files"""
+def hecat_export(args):
+    """export markdown from YAML source files"""
     if args.exporter == 'markdown_singlepage':
         markdown_singlepage = render_markdown_singlepage(args)
         with open(args.output_directory + '/' + args.output_file, 'w+') as outfile:
@@ -57,15 +57,15 @@ def main():
     #                    hecat import markdown_awesome --source-directory --output-directory --tags-directory --software-directory...
     #                    hecat export markdown_singlepage --...
 
-    build_parser = subparsers.add_parser('build', help='build markdown from YAML source files')
-    build_parser.add_argument('--exporter', type=str, default='markdown_singlepage', choices=['markdown_singlepage'], help='exporter to use')
-    build_parser.add_argument('--source-directory', required=True, type=str, help='base directory for YAML data')
-    build_parser.add_argument('--output-directory', required=True, type=str, help='base directory for markdown output')
-    build_parser.add_argument('--output-file', required=True, type=str, help='output filename')
-    build_parser.add_argument('--tags-directory', type=str, default='/tags/', help='source subdirectory for tags definitions')
-    build_parser.add_argument('--software-directory', type=str, default='/software/', help='source subdirectory for software definitions')
-    build_parser.add_argument('--authors', type=bool, default=False, help='generate an AUTHORS.md file from the source git repository log')
-    build_parser.set_defaults(action=hecat_build)
+    export_parser = subparsers.add_parser('export', help='export markdown from YAML source files')
+    export_parser.add_argument('--exporter', type=str, default='markdown_singlepage', choices=['markdown_singlepage'], help='exporter to use')
+    export_parser.add_argument('--source-directory', required=True, type=str, help='base directory for YAML data')
+    export_parser.add_argument('--output-directory', required=True, type=str, help='base directory for markdown output')
+    export_parser.add_argument('--output-file', required=True, type=str, help='output filename')
+    export_parser.add_argument('--tags-directory', type=str, default='/tags/', help='source subdirectory for tags definitions')
+    export_parser.add_argument('--software-directory', type=str, default='/software/', help='source subdirectory for software definitions')
+    export_parser.add_argument('--authors', type=bool, default=False, help='generate an AUTHORS.md file from the source git repository log')
+    export_parser.set_defaults(action=hecat_export)
 
     import_parser = subparsers.add_parser('import', help='import initial data from other formats')
     import_parser.add_argument('--importer', type=str, default='markdown_awesome', choices=['markdown_awesome'], help='importer to use')

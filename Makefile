@@ -36,5 +36,5 @@ test_run: install
 	source .venv/bin/activate && \
 	hecat import --source-file awesome-selfhosted/README.md --output-directory awesome-selfhosted-data && \
 	hecat process --processors github_metadata --source-directory awesome-selfhosted-data && \
-	hecat build --source-directory awesome-selfhosted-data --output-directory awesome-selfhosted --output-file README.md
+	hecat export --source-directory awesome-selfhosted-data --output-directory awesome-selfhosted --output-file README.md
 	cd awesome-selfhosted && git diff --color=always

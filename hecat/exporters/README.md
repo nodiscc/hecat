@@ -3,7 +3,7 @@
 Generates a single markdown document from YAML data.
 
 ```bash
-hecat build --exporter markdown_singlepage --source-directory /path/to/source/directory --output-directory /path/to/output/directory --output-file README.md --options=authors
+hecat export --exporter markdown_singlepage --source-directory /path/to/source/directory --output-directory /path/to/output/directory --output-file README.md --options=authors
 ```
 
 Output directory structure:
