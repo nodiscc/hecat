@@ -11,6 +11,7 @@ Importers:
 
 Processors:
 - [github_metadata](hecat/processors/README.md#github_metadata)
+- [awesome_lint](hecat/processors/README.md#awesome_lint)
 
 Exporters:
 - [markdown_singlepage](hecat/exporters/README.md#markdown_singlepage)

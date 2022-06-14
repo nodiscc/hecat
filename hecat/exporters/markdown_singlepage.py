@@ -2,7 +2,7 @@
 
 import logging
 import ruamel.yaml
-from ..utils import list_files, to_kebab_case, load_yaml_data
+from ..utils import list_files, to_kebab_case, load_yaml_data, load_yaml_licenses
 
 yaml = ruamel.yaml.YAML(typ='safe')
 yaml.indent(sequence=4, offset=2)
@@ -103,15 +103,6 @@ def load_yaml_tags(args):
             tags.append(yaml.load(data))
             tags = sorted(tags, key=lambda k: k['name'])
     return tags
-
-# DEBT factorize yaml loading from single/multiple files
-def load_yaml_licenses(args):
-    """load license definitions from a single yaml source file"""
-    licenses_file = args.source_directory + '/licenses.yml'
-    logging.info('loading license data from %s', licenses_file)
-    with open(licenses_file, 'r') as data:
-        licenses = yaml.load(data)
-    return licenses
 
 def render_markown_licenses(licenses):
     """render a markdown-formatted licenses list"""

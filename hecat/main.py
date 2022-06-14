@@ -34,6 +34,9 @@ def hecat_process(args):
         from .processors import add_github_metadata, check_github_last_updated
         add_github_metadata(args, options)
         check_github_last_updated(args)
+    if 'awesome_lint' in args.processors:
+        from .processors import awesome_lint
+        awesome_lint(args, options)
 
 
 #######################
@@ -65,9 +68,10 @@ def main():
     import_parser.set_defaults(action=hecat_import)
 
     process_parser = subparsers.add_parser('process', help='apply processing rules')
-    process_parser.add_argument('--processors', required=True, type=str, help='processors to run, comma-separated (github_metadata)')
+    process_parser.add_argument('--processors', required=True, type=str, help='processors to run, comma-separated (github_metadata, awesome_lint)')
     process_parser.add_argument('--source-directory', required=True, type=str, help='base directory for YAML data')
     process_parser.add_argument('--software-directory', type=str, default='/software/', help='source subdirectory for software definitions')
+    process_parser.add_argument('--tags-directory', type=str, default='/tags/', help='source subdirectory for tags definitions')
     process_parser.add_argument('--options', type=str, default='', help='[OPTION1=VALUE,OPTION2=VALUE,...] processors options, comma-separated') #  --options=only-missing,option2
     process_parser.set_defaults(action=hecat_process)
 
