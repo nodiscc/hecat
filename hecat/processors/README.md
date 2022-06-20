@@ -1,6 +1,6 @@
 ## github_metadata
 
-- Gathers project/repository metdata from GitHub API and add it to YAML data.
+- Gathers project/repository metadata from GitHub API and add it to YAML data.
 - Checks the last `updated_at` date of GitHub projects against a "freshness" threshold in days.
 
 A Github access token (without privileges) must be defined in the `GITHUB_TOKEN` environment variable.

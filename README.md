@@ -10,7 +10,7 @@ Importers:
 - [markdown_awesome](hecat/importers/README.md#markdown_awesome)
 
 Processors:
-- [github_metdata](hecat/processors/README.md#github_metadata)
+- [github_metadata](hecat/processors/README.md#github_metadata)
 
 Exporters:
 - [markdown_singlepage](hecat/exporters/README.md#markdown_singlepage)
