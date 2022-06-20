@@ -16,6 +16,11 @@ Exporters:
 - [markdown_singlepage](hecat/exporters/README.md#markdown_singlepage)
 
 
+## Screenshots
+
+[![](https://i.imgur.com/NvCOeiK.png)](hecat/exporters/README.md#markdown_singlepage)
+[![](https://i.imgur.com/tMAxhLw.png)](hecat/importers/README.md#markdown_awesome)
+
 ## Installation
 
 ```bash

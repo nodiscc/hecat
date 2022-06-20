@@ -9,6 +9,8 @@ $ git clone https://github.com/awesome-selfhosted/awesome-selfhosted-data
 $ hecat import --importer markdown_awesome --source-file awesome-selfhosted/README.md --output-directory awesome-selfhosted-data
 ```
 
+![](https://i.imgur.com/E4ra3V8.png)
+
 In addition to the [list item format]([markdown format](https://github.com/awesome-selfhosted/awesome-selfhosted/blob/master/.github/PULL_REQUEST_TEMPLATE.md), the importer assumes a few things about the original markdown file:
 - all level 3 (`###`) titles/sections contain the actual list data/items, other sections must use level 2 headings
 - the list of licenses is available in a `## List of Licenses` section

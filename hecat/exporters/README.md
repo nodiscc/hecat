@@ -6,6 +6,8 @@ Generates a single markdown document from YAML data, suitable for [awesome](http
 hecat export --exporter markdown_singlepage --source-directory /path/to/source/directory --output-directory /path/to/output/directory --output-file README.md --options=authors
 ```
 
+![](https://i.imgur.com/rJyCEFw.png)
+
 Output directory structure:
 
 ```
