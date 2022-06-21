@@ -51,11 +51,12 @@ def add_github_metadata(args, options):
         if github_url:
             logging.debug('%s is a github project URL', github_url)
             if 'gh-metadata-only-missing' in options:
-                if ('stargazers_count' not in software) or ('updated_at' not in software):
+                if ('stargazers_count' not in software) or ('updated_at' not in software) or ('archived' not in software):
                     logging.info('Missing metadata for %s, gathering it from Github API', software['name'])
                     gh_metadata = get_gh_metadata(github_url, g)
                     software['stargazers_count'] = gh_metadata.stargazers_count
                     software['updated_at'] = datetime.strftime(gh_metadata.updated_at, "%Y-%m-%d")
+                    software['archived'] = gh_metadata.archived
                     write_software_yaml(args, software)
                 else:
                     logging.debug('all metadata already present, skipping %s', github_url)
@@ -64,6 +65,7 @@ def add_github_metadata(args, options):
                 gh_metadata = get_gh_metadata(github_url, g)
                 software['stargazers_count'] = gh_metadata.stargazers_count
                 software['updated_at'] = datetime.strftime(gh_metadata.updated_at, "%Y-%m-%d")
+                software['archived'] = gh_metadata.archived
                 write_software_yaml(args, software)
 
 def check_github_last_updated(args):
