@@ -2,30 +2,23 @@
 
 A catalog generator and management tool.
 
-**Status: experimental** ![CI](https://github.com/nodiscc/hecat/actions/workflows/ci.yml/badge.svg)
+**Status: experimental** [![CI](https://github.com/nodiscc/hecat/actions/workflows/ci.yml/badge.svg)](https://github.com/nodiscc/hecat/actions)
 
-This program uses YAML files to store data about various kind of items (software projects...). It can import data from various sources, run processing tasks on stored data, and export data to multiple human-readable formats:
+This program uses YAML files to store data about various kind of items (bookmarks, software projects, ...), and performs various import/export/processing tasks around this storage format through these modules:
 
-Importers:
-- [markdown_awesome](hecat/importers/README.md#markdown_awesome)
+- [importers/markdown_awesome](hecat/importers/markdown_awesome.py): import data from the awesome-selfhosted markdown format
+- [processors/github_metadata](hecat/processors/github_metadata.py): import/update software project metadata from GitHub API
+- [processors/awesome_lint](hecat/processors/awesome_lint.py): check all software entries against awesome-selfhosted formatting guidelines
+- [exporters/markdown_singlepage](hecat/exporters/markdown_singlepage.py): export data to single markdown document suitable for "awesome" lists
+- [exporters/markdown_authors](hecat/exporters/markdown_authors.py)
 
-Processors:
-- [github_metadata](hecat/processors/README.md#github_metadata)
-- [awesome_lint](hecat/processors/README.md#awesome_lint)
-
-Exporters:
-- [markdown_singlepage](hecat/exporters/README.md#markdown_singlepage)
-
-
-## Screenshots
-
-[![](https://i.imgur.com/NvCOeiK.png)](hecat/exporters/README.md#markdown_singlepage)
-[![](https://i.imgur.com/tMAxhLw.png)](hecat/importers/README.md#markdown_awesome)
+[![](https://i.imgur.com/NvCOeiK.png)](hecat/exporters/markdown_singlepage.py)
+[![](https://i.imgur.com/tMAxhLw.png)](hecat/importers/markdown_awesome.py)
 
 ## Installation
 
 ```bash
-# install pyvenv and pip
+# install requirements
 sudo apt install python3-venv python3-pip
 # create a python virtualenv
 python3 -m venv ~/.venv
@@ -35,7 +28,7 @@ source ~/.venv/bin/activate
 pip3 install git+https://gitlab.com/nodiscc/hecat.git
 ```
 
-If you want to install from a local copy instead:
+To install from a local copy instead:
 
 ```bash
 # grab a copy
@@ -44,96 +37,54 @@ git clone https://gitlab.com/nodiscc/hecat.git
 cd hecat && python3 setup.py install
 ```
 
-## Requirements
-
-
-
-## Configuration
-
-The program takes its configuration from command-line parameters. See [Usage](#usage)
-
 ## Usage
 
 ```bash
 $ hecat --help
-usage: hecat [-h] {export,import} ...
-
-positional arguments:
-  {export,import}
-    export        build markdown from YAML source files
-    import        import initial data from other formats
-
-optional arguments:
-  -h, --help      show this help message and exit
-```
-
-```
-$  hecat export --help
-usage: hecat export [-h] [--exporter {markdown_singlepage}] --source-directory
-                   SOURCE_DIRECTORY --output-directory OUTPUT_DIRECTORY
-                   --output-file OUTPUT_FILE [--tags-directory TAGS_DIRECTORY]
-                   [--software-directory SOFTWARE_DIRECTORY]
+usage: hecat [-h] [--config CONFIG_FILE]
 
 optional arguments:
   -h, --help            show this help message and exit
-  --exporter {markdown_singlepage}
-                        exporter to use
-  --source-directory SOURCE_DIRECTORY
-                        base directory for YAML data
-  --output-directory OUTPUT_DIRECTORY
-                        base directory for markdown output
-  --output-file OUTPUT_FILE
-                        output filename
-  --tags-directory TAGS_DIRECTORY
-                        source subdirectory for tags definitions
-  --software-directory SOFTWARE_DIRECTORY
-                        source subdirectory for software definitions
-
+  --config CONFIG_FILE  configuration file
 ```
 
+If no configuration file is specified, configuration is read from `.hecat.yml` in the current directory.
+
+
+## Configuration
+
+hecat executes all steps defined in the configuration file. For each step:
+- `name`: arbitrary for this step
+- `module`: the module to use, see list of modules above
+- `module_options`: a dict of options specific to the module, see module list above
+
+```yaml
+steps:
+  - name: import
+    module: importers/markdown_awesome
+    module_options:
+      source_file: awesome-selfhosted/README.md
+      output_directory: awesome-selfhosted-data
+
+  - name: update_github_metadata
+    module: processors/github_metadata
+    module_options:
+      source_directory: awesome-selfhosted-data
+      gh_metadata_only_missing: True # optional, default False
+
+  - name: lint
+    module: processors/awesome_lint
+    module_options:
+      source_directory: awesome-selfhosted-data
+
+  - name: export_markdown
+      module: exporters/markdown_singlepage
+      module_options:
+        source_directory: awesome-selfhosted-data
+        output_directory: awesome-selfhosted
+        output_file: README.md
+        authors_file: AUTHORS.md # optional, default no authors file
 ```
-$ hecat import --help
-usage: hecat import [-h] [--importer {markdown_awesome}] --source-file
-                    SOURCE_FILE --output-directory OUTPUT_DIRECTORY
-                    [--tags-directory TAGS_DIRECTORY]
-                    [--software-directory SOFTWARE_DIRECTORY]
-                    [--platforms-directory PLATFORMS_DIRECTORY]
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --importer {markdown_awesome}
-                        importer to use
-  --source-file SOURCE_FILE
-                        input markdown file
-  --output-directory OUTPUT_DIRECTORY
-                        base directory for YAML output
-  --tags-directory TAGS_DIRECTORY
-                        destination subdirectory for tags definitions
-  --software-directory SOFTWARE_DIRECTORY
-                        destination subdirectory for software definitions
-  --platforms-directory PLATFORMS_DIRECTORY
-                        destination subdirectory for platforms definitions
-```
-
-```
-$ hecat process --help
-usage: hecat process [-h] [--processors PROCESSORS] --source-directory SOURCE_DIRECTORY [--software-directory SOFTWARE_DIRECTORY] [--options OPTIONS]
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --processors PROCESSORS
-                        list of processors to run, comma-separated
-  --source-directory SOURCE_DIRECTORY
-                        base directory for YAML data
-  --software-directory SOFTWARE_DIRECTORY
-                        source subdirectory for software definitions
-  --options OPTIONS     list of processors options, comma-separated
-```
-
-
-
-
-
 
 ## Support
 

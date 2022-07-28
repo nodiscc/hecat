@@ -1,0 +1,6 @@
+steps:
+  - name: update_github_metadata
+    module: processors/github_metadata
+    module_options:
+      source_directory: awesome-selfhosted-data
+      gh_metadata_only_missing: True

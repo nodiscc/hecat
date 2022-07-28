@@ -4,27 +4,22 @@ SHELL := /bin/bash
 clean:
 	-rm -rf build/ dist/ hecat.egg-info/ awesome-selfhosted awesome-selfhosted-data
 
-.PHONY: virtualenv # setup python virtualenv
-virtualenv:
-	python3 -m venv .venv
-
-.PHONY: test # run tests
-test: pylint test_run
-
-.PHONY: pylint # run linter
-pylint: install
-	-source .venv/bin/activate && \
-	pip3 install pylint pyyaml && \
-	pylint --disable=too-many-locals hecat
-
 .PHONY: install # install in a virtualenv
-install: virtualenv
-	source .venv/bin/activate && \
+install:
+	python3 -m venv .venv && source .venv/bin/activate && \
 	pip3 install wheel && \
 	python3 setup.py install
 
-.PHONY: test_run # run all integration tests
-test_run: install test_import_as test_process_as test_export_as
+##### TESTS #####
+
+.PHONY: test # run tests
+test: test_pylint test_import_as test_process_as test_export_as
+
+.PHONY: test_pylint # run linter (non blocking)
+test_pylint: install
+	-source .venv/bin/activate && \
+	pip3 install pylint pyyaml && \
+	pylint --disable=too-many-locals hecat
 
 .PHONY: clone_as # clone awesome-selfhosted/awesome-selfhosted-data
 clone_as:
@@ -33,18 +28,21 @@ clone_as:
 
 .PHONY: test_import_as # test import from awesome-sefhosted
 test_import_as: clean install clone_as
+	rm -r awesome-selfhosted-data/{tags,software,platforms}
+	mkdir awesome-selfhosted-data/{tags,software,platforms}
 	source .venv/bin/activate && \
-	hecat import --source-file awesome-selfhosted/README.md --output-directory awesome-selfhosted-data
+	hecat --config tests/.hecat.import.yml && \
+	hecat --config tests/.hecat.github_metadata.yml
 
 .PHONY: test_process_as # test processing on awesome-selfhosted-data
 test_process_as: install
 	source .venv/bin/activate && \
-	hecat process --processors github_metadata --source-directory awesome-selfhosted-data --options gh-metadata-only-missing && \
-	hecat process --processors awesome_lint --source-directory awesome-selfhosted-data && \
-	cd awesome-selfhosted-data && git diff --color=always
+	hecat --config tests/.hecat.github_metadata.yml && \
+	hecat --config tests/.hecat.awesome_lint.yml
+	cd awesome-selfhosted-data && git --no-pager diff --color=always
 
 .PHONY: test_export_as # test export to singlepage markdown from awesome-selfhosted-data
 test_export_as: install
 	source .venv/bin/activate && \
-	hecat export --source-directory awesome-selfhosted-data --output-directory awesome-selfhosted --output-file README.md
-	cd awesome-selfhosted && git diff --color=always
+	hecat --config tests/.hecat.export_markdown_singlepage.yml && \
+	cd awesome-selfhosted && git --no-pager diff --color=always

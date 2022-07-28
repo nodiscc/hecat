@@ -1,11 +1,22 @@
 """awesome_lint processor
-Checks software entries against [awesome-selfhosted]https://github.com/awesome-selfhosted/awesome-selfhosted) formatting guidelines
+Checks software entries against awesome-selfhosted formatting guidelines
+https://github.com/awesome-selfhosted/awesome-selfhosted
+
+# .hecat.yml
+steps:
+  - name: lint
+    module: processors/awesome_lint
+    module_options:
+      source_directory: awesome-selfhosted-data
+      items_in_delegate_to_fatal: False # optional, default True
+
+If items_in_delegate_to_fatal is False, don't abort when entries are found in a section with 'delegate_to' set
 """
 
 import re
 import logging
 import sys
-from ..utils import load_yaml_data, load_yaml_licenses
+from ..utils import load_yaml_data
 
 def check_mandatory_fields(software, errors):
     """check that description/licenses/tags/website_url are defined and do not have length zero"""
@@ -102,15 +113,18 @@ def check_related_tags_in_tags_list(tag, tags_list, errors):
             errors.append(error_msg)
 
 
-def check_delegate_to_sections_empty(software, tags_with_delegate_to, errors):
+def check_delegate_to_sections_empty(step, software, tags_with_delegate_to, errors):
     """check that the first tag in the tags list does not match a tag with delegate_to set"""
     first_tag = software['tags'][0]
     try:
         assert first_tag not in tags_with_delegate_to
     except AssertionError:
         error_msg = "{}: the first tag {} points to a tag delegated to another list.".format(software['name'], first_tag)
-        logging.error(error_msg)
-        errors.append(error_msg)
+        if 'items_in_delegate_to_fatal' in step['module_options'].keys() and not step['module_options']['items_in_delegate_to_fatal']:
+            logging.warning(error_msg)
+        else:
+            logging.error(error_msg)
+            errors.append(error_msg)
 
 def check_external_link_syntax(software, errors):
     """check that external links are of the form [text](url)"""
@@ -138,12 +152,12 @@ def check_not_archived(software, errors):
         pass
 
 
-def awesome_lint(args, options):
+def awesome_lint(step):
     """check all software entries against awesome-selfhosted formatting guidelines"""
     logging.info('checking software entries/tags against awesome-selfhosted formatting guidelines.')
-    software_list = load_yaml_data(args.source_directory + args.software_directory)
-    licenses_list = load_yaml_licenses(args)
-    tags_list = load_yaml_data(args.source_directory + args.tags_directory)
+    software_list = load_yaml_data(step['module_options']['source_directory'] + '/software')
+    licenses_list = load_yaml_data(step['module_options']['source_directory'] + '/licenses.yml')
+    tags_list = load_yaml_data(step['module_options']['source_directory'] + '/tags')
     tags_with_delegate_to = []
     for tag in tags_list:
         if 'delegate_to' in tag and tag['delegate_to']:
@@ -155,7 +169,7 @@ def awesome_lint(args, options):
         check_licenses_in_licenses_list(software, licenses_list, errors)
         check_tags_in_tags_list(software, tags_list, errors)
         check_duplicate_urls(software, errors)
-        check_delegate_to_sections_empty(software, tags_with_delegate_to, errors)
+        check_delegate_to_sections_empty(step, software, tags_with_delegate_to, errors)
         check_external_link_syntax(software, errors)
         check_not_archived(software, errors)
     for tag in tags_list:

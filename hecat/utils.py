@@ -25,24 +25,36 @@ def to_kebab_case(string):
     return newstring
 
 # DEBT factorize yaml loading from single/multiple files
-def load_yaml_data(directory):
-    """load data from yaml source files"""
+def load_yaml_data(path, sort_key=False):
+    """load data from YAML source files
+    if the path is a file, data will be loaded directly from it
+    if the path is a directory, data will be loaded by adding the content of each file in the directory to a list
+    if sort_key=SOMEKEY is passed, items will be sorted alphabetically by the specified key"""
     yaml = ruamel.yaml.YAML(typ='rt')
     data = []
-    for file in sorted(list_files(directory)):
-        source_file = directory + file
-        logging.debug('loading data from %s', source_file)
-        with open(source_file, 'r') as yaml_data:
-            item = yaml.load(yaml_data)
-            data.append(item)
-    return data
+    if os.path.isfile(path):
+        logging.info('loading data from %s', path)
+        with open(path, 'r') as yaml_data:
+            data = yaml.load(yaml_data)
+        if sort_key:
+            data = sorted(data, key=lambda k: k[sort_key])
+        return data
+    if os.path.isdir(path):
+        for file in sorted(list_files(path)):
+            source_file = path + '/' + file
+            logging.debug('loading data from %s', source_file)
+            with open(source_file, 'r') as yaml_data:
+                item = yaml.load(yaml_data)
+                data.append(item)
+            if sort_key:
+                data = sorted(data, key=lambda k: k[sort_key])
+        return data
 
 # DEBT factorize yaml loading from single/multiple files
-def load_yaml_licenses(args):
-    """load license definitions from a single yaml source file"""
+def load_config(config_file):
+    """load steps/settings from a configuration file"""
     yaml = ruamel.yaml.YAML(typ='rt')
-    licenses_file = args.source_directory + '/licenses.yml'
-    logging.info('loading license data from %s', licenses_file)
-    with open(licenses_file, 'r') as data:
-        licenses = yaml.load(data)
-    return licenses
+    logging.debug('loading configuration from %s', config_file)
+    with open(config_file, 'r') as cfg:
+        config = yaml.load(cfg)
+    return config
