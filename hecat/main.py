@@ -17,7 +17,7 @@ def main():
         if step['module'] == 'importers/markdown_awesome':
             from .importers import import_markdown_awesome
             import_markdown_awesome(step)
-        if step['module'] == 'importers/shaarli_api':
+        elif step['module'] == 'importers/shaarli_api':
             from .importers import import_shaarli_json
             import_shaarli_json(step)
         elif step['module'] == 'processors/github_metadata':
@@ -27,6 +27,9 @@ def main():
         elif step['module'] == 'processors/awesome_lint':
             from .processors import awesome_lint
             awesome_lint(step)
+        elif step['module'] == 'processors/download_media':
+            from .processors import download_media
+            download_media(step)
         elif step['module'] == 'exporters/markdown_singlepage':
             from .exporters import render_markdown_singlepage
             render_markdown_singlepage(step)

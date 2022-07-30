@@ -81,8 +81,6 @@ delegate: # optional
 the authors_file, if set, will be generated from the `git shortlog` of your source directory.
 """
 
-# TODO rename module to exporters/markdown_awesome
-
 import logging
 import ruamel.yaml
 from ..utils import list_files, to_kebab_case, load_yaml_data

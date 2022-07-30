@@ -39,7 +39,7 @@ def load_yaml_data(path, sort_key=False):
         if sort_key:
             data = sorted(data, key=lambda k: k[sort_key])
         return data
-    if os.path.isdir(path):
+    elif os.path.isdir(path):
         for file in sorted(list_files(path)):
             source_file = path + '/' + file
             logging.debug('loading data from %s', source_file)
@@ -49,12 +49,18 @@ def load_yaml_data(path, sort_key=False):
             if sort_key:
                 data = sorted(data, key=lambda k: k[sort_key])
         return data
+    else:
+        logging.error('%s is not a file or directory', path)
+        exit(1)
 
 # DEBT factorize yaml loading from single/multiple files
 def load_config(config_file):
     """load steps/settings from a configuration file"""
     yaml = ruamel.yaml.YAML(typ='rt')
     logging.debug('loading configuration from %s', config_file)
+    if not os.path.isfile(config_file):
+        logging.error('configuration file %s does not exist')
+        exit(1)
     with open(config_file, 'r') as cfg:
         config = yaml.load(cfg)
     return config

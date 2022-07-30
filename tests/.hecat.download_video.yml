@@ -1,0 +1,12 @@
+steps:
+  - name: download video files
+    module: processors/download_media
+    module_options:
+      data_file: tests/shaarli.yml
+      only_tags: ['video']
+      exclude_tags: ['nodl'] # optional, don't download items tagged with any of these tags
+      output_directory: 'tests/video'
+      download_playlists: False # optional, default False
+      skip_when_filename_present: True # optional, default False
+      retry_items_with_error: False # optional, default True
+      only_audio: False # optional, default False

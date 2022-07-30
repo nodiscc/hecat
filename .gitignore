@@ -2,3 +2,6 @@
 hecat.egg-info/
 dist/
 build/
+tests/audio
+tests/video
+tests/shaarli.yml

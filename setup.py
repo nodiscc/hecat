@@ -25,7 +25,8 @@ setup(
     },
     install_requires=[
         'ruamel.yaml',
-        'PyGithub'
+        'PyGithub',
+        'yt_dlp'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',

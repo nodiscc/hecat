@@ -1,0 +1,11 @@
+steps:
+  - name: download audio files
+    module: processors/download_media
+    module_options:
+      data_file: tests/shaarli.yml
+      only_tags: ['music']
+      exclude_tags: ['nodl']
+      output_directory: 'tests/audio'
+      only_audio: True
+      skip_when_filename_present: True
+      retry_items_with_error: False

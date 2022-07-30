@@ -1,5 +1,5 @@
 """awesome_lint processor
-Checks software entries against awesome-selfhosted formatting guidelines
+Checks entries against awesome-selfhosted guidelines
 https://github.com/awesome-selfhosted/awesome-selfhosted
 
 # .hecat.yml
