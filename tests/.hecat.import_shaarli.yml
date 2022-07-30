@@ -1,0 +1,6 @@
+steps:
+  - name: import_shaarli
+    module: importers/shaarli_api
+    module_options:
+      source_file: shaarli.json
+      output_file: shaarli.yml
