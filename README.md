@@ -10,6 +10,8 @@ This program uses YAML files to store data about various kind of items (bookmark
 - [importers/shaarli_api](hecat/importers//shaarli_api.py): import data from a [Shaarli](https://github.com/shaarli/Shaarli) instance
 - [processors/github_metadata](hecat/processors/github_metadata.py): import/update software project metadata from GitHub API
 - [processors/awesome_lint](hecat/processors/awesome_lint.py): check all software entries against awesome-selfhosted formatting guidelines
+- [processors/download_video](hecat/processors/download_video.py): download video files using yt-dlp
+- [processors/download_audio](hecat/processors/download_audio.py): download audio files using yt-dlp
 - [exporters/markdown_singlepage](hecat/exporters/markdown_singlepage.py): export data to single markdown document suitable for "awesome" lists
 - [exporters/markdown_authors](hecat/exporters/markdown_authors.py)
 
@@ -89,8 +91,19 @@ steps:
   - name: import_shaarli
     module: importers/shaarli_api
     module_options:
-      source_file: shaarli.json
-      output_file: shaarli.yml
+      source_file: tests/shaarli.json
+      output_file: tests/shaarli.yml
+
+  - name: download_video
+    module: processors/download_video
+    module_options:
+      data_file: tests/shaarli.yml
+      only_tags: ['video']
+      output_directory: 'tests/video'
+      download_playlists: False # optional, default False
+      skip_when_filename_present: False # optional, default False
+      retry_items_with_error: True # optional, default True
+
 ```
 
 ## Support

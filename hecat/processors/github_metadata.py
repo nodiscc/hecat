@@ -35,7 +35,6 @@ from github import Github
 yaml = ruamel.yaml.YAML(typ='rt')
 yaml.indent(sequence=4, offset=2)
 
-GITHUB_TOKEN = os.environ['GITHUB_TOKEN']
 LAST_UPDATED_INFO_DAYS = 186 # ~6 months
 LAST_UPDATED_WARN_DAYS = 365
 
@@ -58,6 +57,7 @@ def add_github_metadata(step):
     """gather github project data and add it to source YAML files
     supports a list of options:
     """
+    GITHUB_TOKEN = os.environ['GITHUB_TOKEN']
     g = Github(GITHUB_TOKEN)
     software_list = load_yaml_data(step['module_options']['source_directory'] + '/software')
     logging.info('updating software data from Github API')

@@ -1,0 +1,10 @@
+steps:
+  - name: download_video
+    module: processors/download_video
+    module_options:
+      data_file: tests/shaarli.yml
+      only_tags: ['music']
+      output_directory: 'tests/audio'
+      download_playlists: False # optional, default False
+      skip_when_filename_present: True # optional, default False
+      retry_items_with_error: False # optional, default True
