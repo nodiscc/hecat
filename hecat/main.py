@@ -17,6 +17,9 @@ def main():
         if step['module'] == 'importers/markdown_awesome':
             from .importers import import_markdown_awesome
             import_markdown_awesome(step)
+        if step['module'] == 'importers/shaarli_api':
+            from .importers import import_shaarli_json
+            import_shaarli_json(step)
         elif step['module'] == 'processors/github_metadata':
             from .processors import add_github_metadata, check_github_last_updated
             add_github_metadata(step)

@@ -13,7 +13,7 @@ install:
 ##### TESTS #####
 
 .PHONY: test # run tests
-test: test_pylint test_import_as test_process_as test_export_as
+test: test_pylint test_import_awesome_selfhosted test_process_awesome_selfhosted test_export_awesome_selfhosted
 
 .PHONY: test_pylint # run linter (non blocking)
 test_pylint: install
@@ -21,28 +21,33 @@ test_pylint: install
 	pip3 install pylint pyyaml && \
 	pylint --disable=too-many-locals hecat
 
-.PHONY: clone_as # clone awesome-selfhosted/awesome-selfhosted-data
-clone_as:
+.PHONY: clone_awesome_selfhosted # clone awesome-selfhosted/awesome-selfhosted-data
+clone_awesome_selfhosted:
 	git clone --depth=1 https://github.com/awesome-selfhosted/awesome-selfhosted
 	git clone https://github.com/awesome-selfhosted/awesome-selfhosted-data
 
-.PHONY: test_import_as # test import from awesome-sefhosted
-test_import_as: clean install clone_as
+.PHONY: test_import_awesome_selfhosted # test import from awesome-sefhosted
+test_import_awesome_selfhosted: clean install clone_awesome_selfhosted
 	rm -r awesome-selfhosted-data/{tags,software,platforms}
 	mkdir awesome-selfhosted-data/{tags,software,platforms}
 	source .venv/bin/activate && \
-	hecat --config tests/.hecat.import.yml && \
+	hecat --config tests/.hecat.import_awesome_selfhosted.yml && \
 	hecat --config tests/.hecat.github_metadata.yml
 
-.PHONY: test_process_as # test processing on awesome-selfhosted-data
-test_process_as: install
+.PHONY: test_process_awesome_selfhosted # test processing on awesome-selfhosted-data
+test_process_awesome_selfhosted: install
 	source .venv/bin/activate && \
 	hecat --config tests/.hecat.github_metadata.yml && \
 	hecat --config tests/.hecat.awesome_lint.yml
 	cd awesome-selfhosted-data && git --no-pager diff --color=always
 
-.PHONY: test_export_as # test export to singlepage markdown from awesome-selfhosted-data
-test_export_as: install
+.PHONY: test_export_awesome_selfhosted # test export to singlepage markdown from awesome-selfhosted-data
+test_export_awesome_selfhosted: install
 	source .venv/bin/activate && \
 	hecat --config tests/.hecat.export_markdown_singlepage.yml && \
 	cd awesome-selfhosted && git --no-pager diff --color=always
+
+.PHONY: test_import_shaarli # test import from shaarli JSON
+test_import_shaarli: install
+	source .venv/bin/activate && \
+	hecat --config tests/.hecat.import_shaarli.yml
