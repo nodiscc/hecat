@@ -112,7 +112,6 @@ def check_related_tags_in_tags_list(tag, tags_list, errors):
             logging.error(error_msg)
             errors.append(error_msg)
 
-
 def check_delegate_to_sections_empty(step, software, tags_with_delegate_to, errors):
     """check that the first tag in the tags list does not match a tag with delegate_to set"""
     first_tag = software['tags'][0]

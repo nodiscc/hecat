@@ -8,6 +8,7 @@ steps:
     module_options:
       source_file: awesome-selfhosted/README.md
       output_directory: awesome-selfhosted-data
+      output_licenses_file: licenses.yml # optional, default licenses.yml
 
 Source directory structure:
 └── README.md
@@ -83,7 +84,7 @@ def load_markdown_list_sections(source_file):
         sections[-1]['text'] = sections[-1]['text'].split('## ')[0]
     return sections
 
-def import_software(section, step):
+def import_software(section, step, errors):
     """import all list items from a markdown section/category, to software yaml definitions/files"""
     entries = re.findall("^- .*", section['text'], re.MULTILINE)
     for line in entries:
@@ -98,8 +99,10 @@ def import_software(section, step):
             entry['platforms'] = matches.group('language').split('/')
             entry['tags'] = [section['title']]
         except AttributeError:
-            logging.exception('Missing required field in entry: %s', line)
-            raise
+            error_msg = 'Missing required field in entry: {}'.format(line)
+            logging.error(error_msg)
+            errors.append(error_msg)
+            continue
         if matches.group('links') is not None:
             source_code_url_match = re.match(r".*\[Source Code\]\(([^\)]+).*", matches.group('links'))
             if source_code_url_match is not None:
@@ -231,7 +234,9 @@ def convert_licenses(step):
             yaml_url = ('  url: {}\n'.format(matches.group('url')) if (matches.group('url')) is not None else '')
             yaml_list_item = '{}{}{}'.format(yaml_identifier, yaml_name, yaml_url)
             yaml_licenses = yaml_licenses + '\n' + yaml_list_item
-    dest_file = step['module_options']['output_directory'] + '/licenses.yml'
+    if 'output_licenses_file' not in step['module_options']:
+        step['module_options']['output_licenses_file'] = 'licenses.yml'
+    dest_file = step['module_options']['output_directory'] + '/' + step['module_options']['output_licenses_file']
     with open(dest_file, 'w+') as yaml_file:
         logging.debug('writing file %s', dest_file)
         yaml_file.write(yaml_licenses)
@@ -240,11 +245,14 @@ def import_markdown_awesome(step):
     """Import data from an "awesome"-formatted markdown list
     Original list sections must be level 3 titles (###)
     """
+    errors = []
     sections = load_markdown_list_sections(step['module_options']['source_file'])
-    # output yaml
     for section in sections:
-        import_software(section, step)
+        import_software(section, step, errors)
         import_tag(section, step)
+    if errors:
+        logging.error("There were errors during processing")
+        sys.exit(1)
     yaml_software_files = list_files(step['module_options']['output_directory'] + '/software')
     import_platforms(yaml_software_files, step)
     convert_licenses(step)

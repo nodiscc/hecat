@@ -1,0 +1,7 @@
+steps:
+  - name: import_awesome_selfhosted
+    module: importers/markdown_awesome
+    module_options:
+      source_file: awesome-selfhosted/non-free.md
+      output_directory: awesome-selfhosted-data
+      output_licenses_file: licenses-nonfree.yml

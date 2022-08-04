@@ -13,7 +13,7 @@ install:
 ##### TESTS #####
 
 .PHONY: test # run tests
-test: test_pylint test_import_awesome_selfhosted test_process_awesome_selfhosted test_export_awesome_selfhosted test_import_shaarli test_download_video
+test: test_pylint clean clone_awesome_selfhosted test_import_awesome_selfhosted test_process_awesome_selfhosted test_export_awesome_selfhosted test_import_shaarli test_download_video
 
 .PHONY: test_pylint # run linter (non blocking)
 test_pylint: install
@@ -27,12 +27,12 @@ clone_awesome_selfhosted:
 	git clone https://github.com/awesome-selfhosted/awesome-selfhosted-data
 
 .PHONY: test_import_awesome_selfhosted # test import from awesome-sefhosted
-test_import_awesome_selfhosted: clean install clone_awesome_selfhosted
-	rm -r awesome-selfhosted-data/{tags,software,platforms}
+test_import_awesome_selfhosted: install
+	rm -rf awesome-selfhosted-data/{tags,software,platforms}
 	mkdir awesome-selfhosted-data/{tags,software,platforms}
 	source .venv/bin/activate && \
 	hecat --config tests/.hecat.import_awesome_selfhosted.yml && \
-	hecat --config tests/.hecat.github_metadata.yml
+	hecat --config tests/.hecat.import_awesome_selfhosted_nonfree.yml
 
 .PHONY: test_process_awesome_selfhosted # test processing on awesome-selfhosted-data
 test_process_awesome_selfhosted: install
