@@ -76,7 +76,7 @@ def add_github_metadata(step):
                     logging.info('Missing metadata for %s, gathering it from Github API', software['name'])
                     gh_metadata = get_gh_metadata(github_url, g)
                     software['stargazers_count'] = gh_metadata.stargazers_count
-                    software['updated_at'] = datetime.strftime(gh_metadata.updated_at, "%Y-%m-%d")
+                    software['updated_at'] = datetime.strftime(gh_metadata.pushed_at, "%Y-%m-%d")
                     software['archived'] = gh_metadata.archived
                     write_software_yaml(step, software)
                 else:
