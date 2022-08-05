@@ -219,7 +219,7 @@ def import_platforms(yaml_software_files, step):
             logging.debug('writing file %s', dest_file)
             yaml_file.write('name: {}\ndescription: ""'.format(platform))
 
-def convert_licenses(step):
+def import_licenses(step):
     """builds a YAML list of licenses from the List of Licenses section of a markdown file"""
     yaml_licenses = ''
     with open(step['module_options']['source_file'], 'r') as markdown:
@@ -255,4 +255,4 @@ def import_markdown_awesome(step):
         sys.exit(1)
     yaml_software_files = list_files(step['module_options']['output_directory'] + '/software')
     import_platforms(yaml_software_files, step)
-    convert_licenses(step)
+    import_licenses(step)
