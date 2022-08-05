@@ -131,10 +131,11 @@ def render_markdown_singlepage_category(step, tag, software_list):
         markdown_related_tags,
         markdown_external_links
     )
-    # list all software whose first tag matches the current tag
+    # list all software whose first tag matches the current tag, and does not have a license excluded by module options
     for software in software_list:
-        if (software['tags'][0] == tag['name'] and
-            not any(license in item['licenses'] for license in step['module_options']['exclude_licenses'])):
+        if any(license in software['licenses'] for license in step['module_options']['exclude_licenses']):
+            logging.debug("%s has a license listed in exclude_licenses, skipping", software['name'])
+        elif software['tags'][0] == tag['name']:
             markdown_list_item = render_markdown_list_item(software)
             logging.debug('adding project %s to category %s', software['name'], tag['name'])
             markdown_category = markdown_category + markdown_list_item
