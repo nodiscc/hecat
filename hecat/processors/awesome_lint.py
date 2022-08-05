@@ -9,6 +9,9 @@ steps:
     module_options:
       source_directory: awesome-selfhosted-data
       items_in_delegate_to_fatal: False # optional, default True
+      licenses_files: # optional default ['licenses.yml']
+        - licenses.yml
+        - licenses-non-free.yml
 
 If items_in_delegate_to_fatal is False, don't abort when entries are found in a section with 'delegate_to' set
 """
@@ -86,7 +89,7 @@ def check_licenses_in_licenses_list(software, licenses_list, errors):
         try:
             assert any(license['identifier'] == license_name for license in licenses_list)
         except AssertionError:
-            error_msg = "{}: license {} is not listed in the main licenses list file".format(software['name'], license_name)
+            error_msg = "{}: license {} is not listed in the main licenses list".format(software['name'], license_name)
             logging.error(error_msg)
             errors.append(error_msg)
 
@@ -155,7 +158,11 @@ def awesome_lint(step):
     """check all software entries against awesome-selfhosted formatting guidelines"""
     logging.info('checking software entries/tags against awesome-selfhosted formatting guidelines.')
     software_list = load_yaml_data(step['module_options']['source_directory'] + '/software')
-    licenses_list = load_yaml_data(step['module_options']['source_directory'] + '/licenses.yml')
+    if 'licenses_files' not in step['module_options']:
+        step['module_options']['licenses_files'] = ['/licenses.yml']
+    licenses_list = []
+    for filename in step['module_options']['licenses_files']:
+        licenses_list = licenses_list + load_yaml_data(step['module_options']['source_directory'] + '/' + filename)
     tags_list = load_yaml_data(step['module_options']['source_directory'] + '/tags')
     tags_with_delegate_to = []
     for tag in tags_list:
