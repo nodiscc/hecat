@@ -1,5 +1,5 @@
 steps:
-  - name: import_awesome_selfhosted
+  - name: import awesome-selfhosted non-free.md to YAML
     module: importers/markdown_awesome
     module_options:
       source_file: awesome-selfhosted/non-free.md

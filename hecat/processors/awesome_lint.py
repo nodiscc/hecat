@@ -11,7 +11,7 @@ steps:
       items_in_delegate_to_fatal: False # optional, default True
       licenses_files: # optional default ['licenses.yml']
         - licenses.yml
-        - licenses-non-free.yml
+        - licenses-nonfree.yml
 
 If items_in_delegate_to_fatal is False, don't abort when entries are found in a section with 'delegate_to' set
 """

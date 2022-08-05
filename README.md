@@ -64,11 +64,13 @@ hecat executes all steps defined in the configuration file. For each step:
 # $ git clone https://github.com/awesome-selfhosted/awesome-selfhosted
 # $ git clone https://github.com/awesome-selfhosted/awesome-selfhosted-data
 steps:
-  - name: import data from awesome-selfhosted markdown
+  - name: import awesome-selfhosted README.md to YAML
     module: importers/markdown_awesome
     module_options:
       source_file: awesome-selfhosted/README.md
-      output_directory: awesome-selfhosted-data
+      output_directory: ./
+      output_licenses_file: licenses.yml # optional, default licenses.yml
+      overwrite_tags: False # optional, default False
 
   - name: update github metadata in awesome-selfhosted data
     module: processors/github_metadata
@@ -81,13 +83,17 @@ steps:
     module_options:
       source_directory: awesome-selfhosted-data
 
-  - name: export awesome-selfhosted markdown
-      module: exporters/markdown_singlepage
-      module_options:
-        source_directory: awesome-selfhosted-data
-        output_directory: awesome-selfhosted
-        output_file: README.md
-        authors_file: AUTHORS.md # optional, default no authors file
+  - step: export YAML data to single-page markdown
+    module: exporters/markdown_singlepage
+    module_options:
+      source_directory: awesome-selfhosted-data
+      output_directory: awesome-selfhosted
+      output_file: README.md
+      authors_file: AUTHORS.md # optional, default no authors file
+      exclude_licenses: # optional, default []
+        - 'CC-BY-NC-4.0'
+        - '⊘ Proprietary'
+        - 'SSPL-1.0'
 ```
 ```yaml
 # .hecat.yml
