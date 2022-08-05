@@ -44,9 +44,9 @@ def check_mandatory_fields(software, errors):
                     logging.error(error_msg)
                     errors.append(error_msg)
         except KeyError:
-                    error_msg = "{}: {} is undefined".format(software['name'], key)
-                    logging.error(error_msg)
-                    errors.append(error_msg)
+            error_msg = "{}: {} is undefined".format(software['name'], key)
+            logging.error(error_msg)
+            errors.append(error_msg)
 
 
 def check_duplicate_urls(software, errors):

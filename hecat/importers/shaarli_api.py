@@ -29,7 +29,7 @@ yaml.indent(sequence=2, offset=0)
 def import_shaarli_json(step):
     """Import data from the JSON output of Shaarli API"""
     with open(step['module_options']['source_file']) as json_file:
-      data = json.load(json_file)
+        data = json.load(json_file)
     with open(step['module_options']['output_file'], 'w+') as yaml_file:
         logging.debug('writing file %s', step['module_options']['output_file'])
         yaml.dump(data, yaml_file)
