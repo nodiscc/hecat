@@ -133,7 +133,7 @@ def check_external_link_syntax(software, errors):
     try:
         for link in software['external_links']:
             try:
-                assert re.match('^\[.*\]\(.*\)$', link)
+                assert re.match(r'^\[.*\]\(.*\)$', link)
             except AssertionError:
                 error_msg = ("{}: the syntax for external link {} is incorrect").format(software['name'], link)
                 logging.error(error_msg)
@@ -183,4 +183,3 @@ def awesome_lint(step):
     if errors:
         logging.error("There were errors during processing")
         sys.exit(1)
-

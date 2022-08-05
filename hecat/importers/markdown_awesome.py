@@ -145,7 +145,7 @@ def extract_related_tags(section):
 def extract_delegate_to(section):
     """extract 'Please visit' link titles/URLs from markdown"""
     delegate_to = []
-    delegate_to_markdown = re.findall("^\*\*Please visit.*\*\*", section['text'], re.MULTILINE)
+    delegate_to_markdown = re.findall(r'^\*\*Please visit.*\*\*', section['text'], re.MULTILINE)
     if delegate_to_markdown:
         matches = re.findall(r"\[([^\]]*)\]\(([^\)]*)\)", delegate_to_markdown[0])
         for match in matches:
@@ -165,7 +165,7 @@ def extract_external_links(section):
 def extract_description(section):
     """Extract section description from a markdown section"""
     description = ''
-    description_markdown = re.findall("^(?![#\*_\-\n]).*", section['text'], re.MULTILINE)
+    description_markdown = re.findall(r'^(?![#\*_\-\n]).*', section['text'], re.MULTILINE)
     if description_markdown:
         if len(description_markdown) == 1:
             logging.warning("%s has no description", section['title'])
