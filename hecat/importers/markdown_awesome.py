@@ -9,6 +9,7 @@ steps:
       source_file: awesome-selfhosted/README.md
       output_directory: awesome-selfhosted-data
       output_licenses_file: licenses.yml # optional, default licenses.yml
+      overwrite_tags: False # optional, default False
 
 Source directory structure:
 └── README.md
@@ -177,10 +178,16 @@ def extract_description(section):
 
 def import_tag(section, step):
     """create a tag/category yaml file given a source markdown section/category"""
+    if 'overwrite_tags' not in step['module_options']:
+        step['module_options']['overwrite_tags'] = False
     dest_file = '{}/{}'.format(
         step['module_options']['output_directory'] + '/tags', to_kebab_case(section['title']) + '.yml')
     if os.path.exists(dest_file):
-        logging.debug('overwriting target file %s', dest_file)
+        if not step['module_options']['overwrite_tags']:
+            logging.debug('file %s already exists, not overwriting it', dest_file)
+            return
+        else:
+            logging.debug('overwriting tag in %s', dest_file)
     related_tags = extract_related_tags(section)
     delegate_to = extract_delegate_to(section)
     description = extract_description(section)
