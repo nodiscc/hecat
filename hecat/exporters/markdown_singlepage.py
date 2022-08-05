@@ -16,6 +16,10 @@ steps:
       output_directory: awesome-selfhosted
       output_file: README.md
       authors_file: AUTHORS.md # optional, default no authors file
+      exclude_licenses: # optional, default []
+        - 'CC-BY-NC-4.0'
+        - '⊘ Proprietary'
+        - 'SSPL-1.0'
 
 Output directory structure:
 └── README.md
@@ -94,7 +98,7 @@ def to_markdown_anchor(string):
     markdown_anchor = '[{}](#{})'.format(string, anchor_url)
     return markdown_anchor
 
-def render_markdown_singlepage_category(tag, software_list):
+def render_markdown_singlepage_category(step, tag, software_list):
     """Render a category for the single page markdown output format"""
     logging.debug('rendering tag %s' % tag['name'])
     # check optional fields
@@ -129,7 +133,8 @@ def render_markdown_singlepage_category(tag, software_list):
     )
     # list all software whose first tag matches the current tag
     for software in software_list:
-        if software['tags'][0] == tag['name']:
+        if (software['tags'][0] == tag['name'] and
+            not any(license in item['licenses'] for license in step['module_options']['exclude_licenses'])):
             markdown_list_item = render_markdown_list_item(software)
             logging.debug('adding project %s to category %s', software['name'], tag['name'])
             markdown_category = markdown_category + markdown_list_item
@@ -235,8 +240,10 @@ def render_markdown_singlepage(step):
     markdown_header = open(step['module_options']['source_directory'] + '/markdown/header.md', 'r').read()
     markdown_footer = open(step['module_options']['source_directory'] + '/markdown/footer.md', 'r').read()
     markdown_software_list = '## Software\n\n'
+    if 'exclude_licenses' not in step['module_options']:
+        step['module_options']['exclude_licenses'] = []
     for tag in tags:
-        markdown_category = render_markdown_singlepage_category(tag, software_list)
+        markdown_category = render_markdown_singlepage_category(step, tag, software_list)
         markdown_software_list = markdown_software_list + markdown_category
     markdown_licenses = render_markown_licenses(licenses)
     markdown_toc_section = render_markdown_toc(
@@ -250,4 +257,3 @@ def render_markdown_singlepage(step):
         outfile.write(markdown)
     if 'authors_file' in step['module_options']:
         render_markdown_authors(step)
-        
