@@ -191,7 +191,7 @@ def render_markown_licenses(licenses):
                 _license['name'],
                 _license['url'])
         except KeyError as err:
-            logging.warning('missing fields in license, will not be inserted: %s: KeyError: %s'; _license, err)
+            logging.warning('missing fields in license, will not be inserted: %s: KeyError: %s', _license, err)
     return markdown_licenses
 
 def render_markdown_toc(*args):

@@ -26,7 +26,7 @@ SOFTWARE_REQUIRED_LISTS = ['licenses', 'tags']
 TAGS_REQUIRED_FIELDS = ['description']
 LICENSES_REQUIRED_FIELDS= ['identifier', 'name', 'url']
 
-def check_required_fields(item, errors, required_fields=[], required_lists=[], severity='error'):
+def check_required_fields(item, errors, required_fields=[], required_lists=[], severity=logging.error):
     """check that keys (required_fields) are defined and do not have length zero
        check that each item in required_lists is defined and does not have length zero
     """
@@ -34,38 +34,29 @@ def check_required_fields(item, errors, required_fields=[], required_lists=[], s
         try:
             assert len(item[key]) > 0
         except KeyError:
-            error_msg = "{}: {} is undefined".format(item['name'], key)
-            if severity == 'error':
-                logging.error(error_msg)
-                errors.append(error_msg)
-            else:
-                logging.warning(error_msg)
+            message = "{}: {} is undefined".format(item['name'], key)
+            log_exception(message, errors, severity)
         except AssertionError:
-            error_msg = "{}: {} is empty".format(item['name'], key)
-            if severity == 'error':
-                logging.error(error_msg)
-                errors.append(error_msg)
-            else:
-                logging.warning(error_msg)
+            message = "{}: {} is empty".format(item['name'], key)
+            log_exception(message, errors, severity)
     for key in required_lists:
         try:
             for value in item[key]:
                 try:
                     assert len(value) > 0
                 except AssertionError:
-                    error_msg = "{}: {} list contains an empty string".format(item['name'], key)
-                    if severity == 'error':
-                        logging.error(error_msg)
-                        errors.append(error_msg)
-                    else:
-                        logging.warning(error_msg)
+                    message = "{}: {} list contains an empty string".format(item['name'], key)
+                    log_exception(message, errors, severity)
         except KeyError:
-            error_msg = "{}: {} is undefined".format(item['name'], key)
-            if severity == 'error':
-                logging.error(error_msg)
-                errors.append(error_msg)
-            else:
-                logging.warning(error_msg)
+            message = "{}: {} is undefined".format(item['name'], key)
+            log_exception(message, errors, severity)
+
+
+def log_exception(message, errors, severity=logging.error):
+    """log a warning or error message, append the error to the global error list if severity=logging.error"""
+    severity(message)
+    if severity == logging.error:
+        errors.append(message)
 
 
 def check_description_syntax(software, errors):
@@ -73,22 +64,19 @@ def check_description_syntax(software, errors):
     try:
         assert len(software['description']) <= 250
     except AssertionError:
-        error_msg = "{}: description is longer than 250 characters".format(software['name'])
-        logging.error(error_msg)
-        errors.append(error_msg)
+        message = "{}: description is longer than 250 characters".format(software['name'])
+        log_exception(message, errors)
     # not blocking/only raise a warning since description might not start with a capital for a good reason (see üwave, groceri.es...)
     try:
         assert software['description'][0].isupper()
     except AssertionError:
-        warning_msg = ("{}: description does not start with a capital letter").format(software['name'])
-        logging.warning(warning_msg)
+        message = ("{}: description does not start with a capital letter").format(software['name'])
+        log_exception(message, errors, severity=logging.warning)
     try:
         assert software['description'].endswith('.')
     except AssertionError:
-        error_msg = ("{}: description does not end with a dot").format(software['name'])
-        logging.error(error_msg)
-        errors.append(error_msg)
-
+        message = ("{}: description does not end with a dot").format(software['name'])
+        log_exception(message, errors)
 
 def check_licenses_in_licenses_list(software, licenses_list, errors):
     """check that all licenses for a software item are listed in the main licenses list"""
@@ -96,9 +84,8 @@ def check_licenses_in_licenses_list(software, licenses_list, errors):
         try:
             assert any(license['identifier'] == license_name for license in licenses_list)
         except AssertionError:
-            error_msg = "{}: license {} is not listed in the main licenses list".format(software['name'], license_name)
-            logging.error(error_msg)
-            errors.append(error_msg)
+            message = "{}: license {} is not listed in the main licenses list".format(software['name'], license_name)
+            log_exception(message, errors)
 
 
 def check_tags_in_tags_list(software, tags_list, errors):
@@ -107,9 +94,8 @@ def check_tags_in_tags_list(software, tags_list, errors):
         try:
             assert any(tag['name'] == tag_name for tag in tags_list)
         except AssertionError:
-            error_msg = "{}: tag {} is not listed in the main tags list".format(software['name'], tag_name)
-            logging.error(error_msg)
-            errors.append(error_msg)
+            message = "{}: tag {} is not listed in the main tags list".format(software['name'], tag_name)
+            log_exception(message, errors)
 
 
 def check_related_tags_in_tags_list(tag, tags_list, errors):
@@ -118,9 +104,8 @@ def check_related_tags_in_tags_list(tag, tags_list, errors):
         try:
             assert any(tag2['name'] == related_tag_name for tag2 in tags_list)
         except AssertionError:
-            error_msg = "{}: related tag {} is not listed in the main tags list".format(tag['name'], related_tag_name)
-            logging.error(error_msg)
-            errors.append(error_msg)
+            message = "{}: related tag {} is not listed in the main tags list".format(tag['name'], related_tag_name)
+            log_exception(message, errors)
 
 def check_delegate_to_sections_empty(step, software, tags_with_delegate_to, errors):
     """check that the first tag in the tags list does not match a tag with delegate_to set"""
@@ -128,12 +113,12 @@ def check_delegate_to_sections_empty(step, software, tags_with_delegate_to, erro
     try:
         assert first_tag not in tags_with_delegate_to
     except AssertionError:
-        error_msg = "{}: the first tag {} points to a tag delegated to another list.".format(software['name'], first_tag)
+        message = "{}: the first tag {} points to a tag delegated to another list.".format(software['name'], first_tag)
         if 'items_in_delegate_to_fatal' in step['module_options'].keys() and not step['module_options']['items_in_delegate_to_fatal']:
-            logging.warning(error_msg)
+            log_exception(message, errors, severity=logging.warning)
         else:
-            logging.error(error_msg)
-            errors.append(error_msg)
+            log_exception(message, errors)
+
 
 def check_external_link_syntax(software, errors):
     """check that external links are of the form [text](url)"""
@@ -142,9 +127,8 @@ def check_external_link_syntax(software, errors):
             try:
                 assert re.match(r'^\[.*\]\(.*\)$', link)
             except AssertionError:
-                error_msg = ("{}: the syntax for external link {} is incorrect").format(software['name'], link)
-                logging.error(error_msg)
-                errors.append(error_msg)
+                message = ("{}: the syntax for external link {} is incorrect").format(software['name'], link)
+                log_exception(message, errors)
     except KeyError:
         pass
 
@@ -154,9 +138,8 @@ def check_not_archived(software, errors):
     try:
         assert not software['archived']
     except AssertionError:
-        error_msg = ("{}: the project is archived").format(software['name'])
-        logging.error(error_msg)
-        errors.append(error_msg)
+        message = ("{}: the project is archived").format(software['name'])
+        log_exception(message, errors)
     except KeyError:
         pass
 
@@ -186,7 +169,7 @@ def awesome_lint(step):
         check_not_archived(software, errors)
     for tag in tags_list:
         check_related_tags_in_tags_list(tag, tags_list, errors)
-        check_required_fields(tag, errors, required_fields=TAGS_REQUIRED_FIELDS, severity='warning')
+        check_required_fields(tag, errors, required_fields=TAGS_REQUIRED_FIELDS, severity=logging.warning)
     for license in licenses_list:
         check_required_fields(license, errors, required_fields=LICENSES_REQUIRED_FIELDS)
     if errors:
