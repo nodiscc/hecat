@@ -50,7 +50,7 @@ def write_software_yaml(step, software):
                                step['module_options']['source_directory'] + '/software',
                                to_kebab_case(software['name']) + '.yml')
     logging.debug('writing file %s', dest_file)
-    with open(dest_file, 'w+') as yaml_file:
+    with open(dest_file, 'w+', encoding="utf-8") as yaml_file:
         yaml.dump(software, yaml_file)
 
 def add_github_metadata(step):

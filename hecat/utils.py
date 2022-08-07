@@ -34,7 +34,7 @@ def load_yaml_data(path, sort_key=False):
     data = []
     if os.path.isfile(path):
         logging.info('loading data from %s', path)
-        with open(path, 'r') as yaml_data:
+        with open(path, 'r', encoding="utf-8")) as yaml_data:
             data = yaml.load(yaml_data)
         if sort_key:
             data = sorted(data, key=lambda k: k[sort_key])
@@ -43,7 +43,7 @@ def load_yaml_data(path, sort_key=False):
         for file in sorted(list_files(path)):
             source_file = path + '/' + file
             logging.debug('loading data from %s', source_file)
-            with open(source_file, 'r') as yaml_data:
+            with open(source_file, 'r', encoding="utf-8") as yaml_data:
                 item = yaml.load(yaml_data)
                 data.append(item)
             if sort_key:
@@ -61,6 +61,6 @@ def load_config(config_file):
     if not os.path.isfile(config_file):
         logging.error('configuration file %s does not exist')
         exit(1)
-    with open(config_file, 'r') as cfg:
+    with open(config_file, 'r', encoding="utf-8") as cfg:
         config = yaml.load(cfg)
     return config

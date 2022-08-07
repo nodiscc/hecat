@@ -80,7 +80,7 @@ YDL_DEFAULT_OPTS = {
 
 def write_data_file(step, items):
     """write updated data back to the data file"""
-    with open(step['module_options']['data_file'] + '.tmp', 'w') as temp_yaml_file:
+    with open(step['module_options']['data_file'] + '.tmp', 'w', encoding="utf-8") as temp_yaml_file:
         logging.info('writing temporary data file %s', step['module_options']['data_file'] + '.tmp')
         yaml.dump(items, temp_yaml_file)
     logging.info('writing data file %s', step['module_options']['data_file'])

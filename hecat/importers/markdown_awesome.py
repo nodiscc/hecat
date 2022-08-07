@@ -73,7 +73,7 @@ def load_markdown_list_sections(source_file):
        title: section title
        text: full section text
     """
-    with open(source_file) as src_file:
+    with open(source_file, 'r', encoding="utf-8") as src_file:
         src = src_file.read()
         sections = []
         for section in src.split('### '):
@@ -128,7 +128,7 @@ def import_software(section, step, errors):
             logging.debug('overwriting target file %s', dest_file)
         while True:
             try:
-                with open(dest_file, 'w+') as yaml_file:
+                with open(dest_file, 'w+', encoding="utf-8") as yaml_file:
                     logging.debug('section %s: writing file %s', section['title'], dest_file)
                     yaml.dump(entry, yaml_file)
                     break
@@ -198,7 +198,7 @@ def import_tag(section, step):
     external_links = extract_external_links(section)
     while True:
         try:
-            with open(dest_file, 'w+') as yaml_file:
+            with open(dest_file, 'w+', encoding="utf-8") as yaml_file:
                 logging.debug('section %s: writing file %s', section['title'], dest_file)
                 output_dict = {
                     'name': section['title'],
@@ -217,7 +217,7 @@ def import_platforms(yaml_software_files, step):
     creates corresponding platform/*.yml files"""
     platforms = []
     for file in yaml_software_files:
-        with open(step['module_options']['output_directory'] + '/software/' + file, 'r') as file:
+        with open(step['module_options']['output_directory'] + '/software/' + file, 'r', encoding="utf-8") as file:
             data = yaml.load(file)
             platforms = platforms + data['platforms']
     platforms = list(set(platforms))
@@ -226,14 +226,14 @@ def import_platforms(yaml_software_files, step):
             step['module_options']['output_directory'] + '/platforms', to_kebab_case(platform) + '.yml')
         if os.path.exists(dest_file):
             logging.debug('overwriting target file %s', dest_file)
-        with open(dest_file, 'w+') as yaml_file:
+        with open(dest_file, 'w+', encoding="utf-8") as yaml_file:
             logging.debug('writing file %s', dest_file)
             yaml_file.write('name: {}\ndescription: ""'.format(platform))
 
 def import_licenses(step):
     """builds a YAML list of licenses from the List of Licenses section of a markdown file"""
     yaml_licenses = ''
-    with open(step['module_options']['source_file'], 'r') as markdown:
+    with open(step['module_options']['source_file'], 'r', encoding="utf-8") as markdown:
         data = markdown.read()
         licenses_section = data.split('## List of Licenses')[1].split('## ')[0]
         entries = re.findall("^- .*", licenses_section, re.MULTILINE)
@@ -248,7 +248,7 @@ def import_licenses(step):
     if 'output_licenses_file' not in step['module_options']:
         step['module_options']['output_licenses_file'] = 'licenses.yml'
     dest_file = step['module_options']['output_directory'] + '/' + step['module_options']['output_licenses_file']
-    with open(dest_file, 'w+') as yaml_file:
+    with open(dest_file, 'w+', encoding="utf-8") as yaml_file:
         logging.debug('writing file %s', dest_file)
         yaml_file.write(yaml_licenses)
 

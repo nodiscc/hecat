@@ -225,7 +225,7 @@ def render_markdown_authors(step):
     authors, err = git_process.communicate()
     authors = re.sub(r"^\s*(\d*?)\s(.*?)$", r"|\1|\2|", authors)
     markdown_authors = '{}\n{}'.format(table_header, authors)
-    with open(step['module_options']['output_directory'] + '/AUTHORS.md', 'w+') as outfile:
+    with open(step['module_options']['output_directory'] + '/AUTHORS.md', 'w+', encoding="utf-8") as outfile:
         outfile.write(markdown_authors)
 
 def render_markdown_singlepage(step):
@@ -254,7 +254,7 @@ def render_markdown_singlepage(step):
         markdown_footer)
     markdown = '{}\n\n{}\n\n{}{}\n\n{}'.format(
         markdown_header, markdown_toc_section, markdown_software_list, markdown_licenses, markdown_footer)
-    with open(step['module_options']['output_directory'] + '/' + step['module_options']['output_file'], 'w+') as outfile:
+    with open(step['module_options']['output_directory'] + '/' + step['module_options']['output_file'], 'w+', encoding="utf-8") as outfile:
         outfile.write(markdown)
     if 'authors_file' in step['module_options']:
         render_markdown_authors(step)
