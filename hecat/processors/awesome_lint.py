@@ -21,32 +21,51 @@ import logging
 import sys
 from ..utils import load_yaml_data
 
-def check_mandatory_fields(software, errors):
-    """check that description/licenses/tags/website_url are defined and do not have length zero"""
-    for key in ['description', 'website_url', 'source_code_url', 'licenses', 'tags']:
+SOFTWARE_REQUIRED_FIELDS = ['description', 'website_url', 'source_code_url', 'licenses', 'tags']
+SOFTWARE_REQUIRED_LISTS = ['licenses', 'tags']
+TAGS_REQUIRED_FIELDS = ['description']
+LICENSES_REQUIRED_FIELDS= ['identifier', 'name', 'url']
+
+def check_required_fields(item, errors, required_fields=[], required_lists=[], severity='error'):
+    """check that keys (required_fields) are defined and do not have length zero
+       check that each item in required_lists is defined and does not have length zero
+    """
+    for key in required_fields:
         try:
-            assert len(software[key]) > 0
+            assert len(item[key]) > 0
         except KeyError:
-            error_msg = "{}: {} is undefined".format(software['name'], key)
-            logging.error(error_msg)
-            errors.append(error_msg)
+            error_msg = "{}: {} is undefined".format(item['name'], key)
+            if severity == 'error':
+                logging.error(error_msg)
+                errors.append(error_msg)
+            else:
+                logging.warning(error_msg)
         except AssertionError:
-            error_msg = "{}: {} is empty".format(software['name'], key)
-            logging.error(error_msg)
-            errors.append(error_msg)
-    for key in ['licenses', 'tags']:
+            error_msg = "{}: {} is empty".format(item['name'], key)
+            if severity == 'error':
+                logging.error(error_msg)
+                errors.append(error_msg)
+            else:
+                logging.warning(error_msg)
+    for key in required_lists:
         try:
-            for value in software[key]:
+            for value in item[key]:
                 try:
                     assert len(value) > 0
                 except AssertionError:
-                    error_msg = "{}: {} contains an empty string".format(software['name'], key, value)
-                    logging.error(error_msg)
-                    errors.append(error_msg)
+                    error_msg = "{}: {} list contains an empty string".format(item['name'], key, value)
+                    if severity == 'error':
+                        logging.error(error_msg)
+                        errors.append(error_msg)
+                    else:
+                        logging.warning(error_msg)
         except KeyError:
-            error_msg = "{}: {} is undefined".format(software['name'], key)
-            logging.error(error_msg)
-            errors.append(error_msg)
+            error_msg = "{}: {} is undefined".format(item['name'], key)
+            if severity == 'error':
+                logging.error(error_msg)
+                errors.append(error_msg)
+            else:
+                logging.warning(error_msg)
 
 
 def check_description_syntax(software, errors):
@@ -158,7 +177,7 @@ def awesome_lint(step):
             tags_with_delegate_to.append(tag['name'])
     errors = []
     for software in software_list:
-        check_mandatory_fields(software, errors)
+        check_required_fields(software, errors, required_fields=SOFTWARE_REQUIRED_FIELDS, required_lists=SOFTWARE_REQUIRED_LISTS)
         check_description_syntax(software, errors)
         check_licenses_in_licenses_list(software, licenses_list, errors)
         check_tags_in_tags_list(software, tags_list, errors)
@@ -167,6 +186,9 @@ def awesome_lint(step):
         check_not_archived(software, errors)
     for tag in tags_list:
         check_related_tags_in_tags_list(tag, tags_list, errors)
+        check_required_fields(tag, errors, required_fields=TAGS_REQUIRED_FIELDS, severity='warning')
+    for license in licenses_list:
+        check_required_fields(license, errors, required_fields=LICENSES_REQUIRED_FIELDS)
     if errors:
         logging.error("There were errors during processing")
         sys.exit(1)
