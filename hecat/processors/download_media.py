@@ -56,7 +56,6 @@ Output directory structure:
 
 import os
 import logging
-import json
 import ruamel.yaml
 import yt_dlp
 from ..utils import load_yaml_data

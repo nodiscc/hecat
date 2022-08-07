@@ -27,7 +27,6 @@ import ruamel.yaml
 import logging
 import re
 import os
-from collections import OrderedDict
 from datetime import datetime, timedelta
 from ..utils import load_yaml_data, to_kebab_case
 from github import Github

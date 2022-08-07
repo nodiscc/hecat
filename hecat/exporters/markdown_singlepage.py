@@ -87,7 +87,7 @@ the authors_file, if set, will be generated from the `git shortlog` of your sour
 
 import logging
 import ruamel.yaml
-from ..utils import list_files, to_kebab_case, load_yaml_data
+from ..utils import to_kebab_case, load_yaml_data
 
 yaml = ruamel.yaml.YAML(typ='safe')
 yaml.indent(sequence=4, offset=2)
