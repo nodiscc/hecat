@@ -1,17 +1,19 @@
 # hecat
 
-A catalog generator and management tool.
+A generic automation tool around data stored as plaintext YAML files.
 
 **Status: experimental** [![CI](https://github.com/nodiscc/hecat/actions/workflows/ci.yml/badge.svg)](https://github.com/nodiscc/hecat/actions)
 
-This program uses YAML files to store data about various kind of items (bookmarks, software projects, ...), and performs various import/export/processing tasks around this storage format through these modules:
+This program uses YAML files to store data about various kind of items (bookmarks, software projects, ...). It is able to import data from various input formats, perform processing tasks (enrich data, run consistency checks...), and export it back to other formats.
+
+## Modules
 
 - [importers/markdown_awesome](hecat/importers/markdown_awesome.py): import data from the [awesome-selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted) markdown format
-- [importers/shaarli_api](hecat/importers//shaarli_api.py): import data from a [Shaarli](https://github.com/shaarli/Shaarli) instance
-- [processors/github_metadata](hecat/processors/github_metadata.py): import/update software project metadata from GitHub API
-- [processors/awesome_lint](hecat/processors/awesome_lint.py): check data against [awesome-selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted) guidelines
-- [processors/download_media](hecat/processors/download_media.py): download video/audio files using [yt-dlp](https://github.com/yt-dlp/yt-dlp)
-- [exporters/markdown_singlepage](hecat/exporters/markdown_singlepage.py): export data from the [awesome-selfhosted-data](format) to a single markdown document
+- [importers/shaarli_api](hecat/importers//shaarli_api.py): import data from a [Shaarli](https://github.com/shaarli/Shaarli) instance using the [API](https://shaarli.github.io/api-documentation/)
+- [processors/github_metadata](hecat/processors/github_metadata.py): enrich software project metadata from GitHub API (stars, last commit date...)
+- [processors/awesome_lint](hecat/processors/awesome_lint.py): check data against [awesome-selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted) consistency/completeness guidelines
+- [processors/download_media](hecat/processors/download_media.py): download video/audio files using [yt-dlp](https://github.com/yt-dlp/yt-dlp) for bookmarks imported from Shaarli
+- [exporters/markdown_singlepage](hecat/exporters/markdown_singlepage.py): export data from the [awesome-selfhosted-data](https://github.com/awesome-selfhosted/awesome-selfhosted-data) format to a single markdown document
 
 [![](https://i.imgur.com/NvCOeiK.png)](hecat/exporters/markdown_singlepage.py)
 [![](https://i.imgur.com/tMAxhLw.png)](hecat/importers/markdown_awesome.py)
@@ -55,9 +57,19 @@ If no configuration file is specified, configuration is read from `.hecat.yml` i
 ## Configuration
 
 hecat executes all steps defined in the configuration file. For each step:
-- `name`: arbitrary for this step
-- `module`: the module to use, see list of modules above
-- `module_options`: a dict of options specific to the module, see list of modules above
+
+```yaml
+steps:
+  - name: example step # arbitrary name for this step
+    module: processor/example # the module to use, see list of modules above
+    module_options: # a dict of options specific to the module, see list of modules above
+      option1: True
+      option2: some_value
+```
+
+### Examples
+
+Import data from [awesome-selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted), apply processing steps, export to single-page markdown again
 
 ```yaml
 # .hecat.yml
@@ -95,6 +107,9 @@ steps:
         - '⊘ Proprietary'
         - 'SSPL-1.0'
 ```
+
+Import data from a Shaarli instance, download video/audio files identified by specific tags:
+
 ```yaml
 # .hecat.yml
 # $ python3 -m venv .venv && source .venv/bin/activate && pip3 install shaarli-client
