@@ -34,7 +34,7 @@ def load_yaml_data(path, sort_key=False):
     data = []
     if os.path.isfile(path):
         logging.info('loading data from %s', path)
-        with open(path, 'r', encoding="utf-8")) as yaml_data:
+        with open(path, 'r', encoding="utf-8") as yaml_data:
             data = yaml.load(yaml_data)
         if sort_key:
             data = sorted(data, key=lambda k: k[sort_key])

@@ -100,7 +100,7 @@ def to_markdown_anchor(string):
 
 def render_markdown_singlepage_category(step, tag, software_list):
     """Render a category for the single page markdown output format"""
-    logging.debug('rendering tag %s' % tag['name'])
+    logging.debug('rendering tag %s', tag['name'])
     # check optional fields
     markdown_delegate_to = ''
     markdown_related_tags = ''
@@ -191,7 +191,7 @@ def render_markown_licenses(licenses):
                 _license['name'],
                 _license['url'])
         except KeyError as err:
-            logging.warning('missing fields in license, will not be inserted: %s: KeyError: %s' % (_license, err))
+            logging.warning('missing fields in license, will not be inserted: %s: KeyError: %s'; _license, err)
     return markdown_licenses
 
 def render_markdown_toc(*args):
