@@ -53,7 +53,7 @@ def check_required_fields(item, errors, required_fields=[], required_lists=[], s
                 try:
                     assert len(value) > 0
                 except AssertionError:
-                    error_msg = "{}: {} list contains an empty string".format(item['name'], key, value)
+                    error_msg = "{}: {} list contains an empty string".format(item['name'], key)
                     if severity == 'error':
                         logging.error(error_msg)
                         errors.append(error_msg)
