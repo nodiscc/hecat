@@ -49,7 +49,7 @@ Files containing software data must be formatted as follows:
 # software/my-awesome-software.yml
 name: "My awesome software" # required
 website_url: "https://my.awesome.softwar.e" # required
-source_code_url: "https://gitlab.com/awesome/software" # optional
+source_code_url: "https://gitlab.com/awesome/software" # required
 description: "A description of my awesome software." # required
 licenses: # required, all licenses must be listed in licenses.yml
   - Apache-2.0
@@ -150,7 +150,7 @@ def render_markdown_list_item(software):
         markdown_demo = '[Demo]({})'.format(software['demo_url'])
     else:
         markdown_demo = ''
-    if 'source_code_url' in software:
+    if not software['source_code_url'] == software['website_url']:
         markdown_source_code = '[Source Code]({})'.format(software['source_code_url'])
     else:
         markdown_source_code = ''

@@ -23,7 +23,7 @@ from ..utils import load_yaml_data
 
 def check_mandatory_fields(software, errors):
     """check that description/licenses/tags/website_url are defined and do not have length zero"""
-    for key in ['description', 'website_url', 'licenses', 'tags']:
+    for key in ['description', 'website_url', 'source_code_url', 'licenses', 'tags']:
         try:
             assert len(software[key]) > 0
         except KeyError:
@@ -47,18 +47,6 @@ def check_mandatory_fields(software, errors):
             error_msg = "{}: {} is undefined".format(software['name'], key)
             logging.error(error_msg)
             errors.append(error_msg)
-
-
-def check_duplicate_urls(software, errors):
-    """check that source_code_url and website_url are different"""
-    try:
-        assert software['website_url'] != software['source_code_url']
-    except KeyError:
-        pass
-    except AssertionError:
-        error_msg = "{}: website_url and source_code_url are identical".format(software['name'])
-        logging.error(error_msg)
-        errors.append(error_msg)
 
 
 def check_description_syntax(software, errors):
@@ -174,7 +162,6 @@ def awesome_lint(step):
         check_description_syntax(software, errors)
         check_licenses_in_licenses_list(software, licenses_list, errors)
         check_tags_in_tags_list(software, tags_list, errors)
-        check_duplicate_urls(software, errors)
         check_delegate_to_sections_empty(step, software, tags_with_delegate_to, errors)
         check_external_link_syntax(software, errors)
         check_not_archived(software, errors)
