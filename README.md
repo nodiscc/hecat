@@ -4,7 +4,7 @@ A generic automation tool around data stored as plaintext YAML files.
 
 **Status: experimental** [![CI](https://github.com/nodiscc/hecat/actions/workflows/ci.yml/badge.svg)](https://github.com/nodiscc/hecat/actions)
 
-This program uses YAML files to store data about various kind of items (bookmarks, software projects, ...). It is able to import data from various input formats, perform processing tasks (enrich data, run consistency checks...), and export it back to other formats.
+This program uses YAML files to store data about various kind of items (bookmarks, software projects, ...). It is able to import data from various input formats, perform processing tasks (enrich data, run consistency checks...), and export data to other formats.
 
 ## Modules
 
