@@ -13,7 +13,25 @@ steps:
         - licenses.yml
         - licenses-nonfree.yml
 
-If items_in_delegate_to_fatal is False, don't abort when entries are found in a section with 'delegate_to' set
+source_directory: path to directory where data can be found. Directory structure:
+├── software
+│   ├── mysoftware.yml # .yml files containing software data
+│   ├── someothersoftware.yml
+│   └── ...
+├── platforms
+│   ├── bash.yml # .yml files containing language/platforms data
+│   ├── python.yml
+│   └── ...
+├── tags
+│   ├── groupware.yml # .yml files containing tags/categories data
+│   ├── enterprise-resource-planning.yml
+│   └── ...
+├── licenses.yml # yaml list of licenses
+└── licenses-nonfree.yml # yaml list of licenses
+
+items_in_delegate_to_fatal: if False, only warn/don't fail when entries have a tag with 'delegate_to' set as their first tag
+
+licenses_files: path to files containings lists of licenses
 """
 
 import re

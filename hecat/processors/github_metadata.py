@@ -8,12 +8,21 @@ steps:
     module: processors/github_metadata
     module_options:
       source_directory: awesome-selfhosted-data
-      gh_metadata_only_missing: True # optional, default False
+      gh_metadata_only_missing: False # optional, default False
 
-If gh_metadata_only_missing is True, metadata will only be gathered/added for software entries missing one of:
-stargazers_count, updated_at, archived
+source_directory: path to directory where data files reside. Directory structure:
+├── software
+│   ├── mysoftware.yml # .yml files containing software data
+│   ├── someothersoftware.yml
+│   └── ...
+├── platforms
+├── tags
+└── ...
 
-A Github access token (without privileges) must be defined in the `GITHUB_TOKEN` environment variable.
+gh_metadata_only_missing: if True, only gather metadata for software entries in which one of stargazers_count,
+updated_at, archived is missing.
+
+A Github access token (without privileges) must be defined in the `GITHUB_TOKEN` environment variable:
 $ GITHUB_TOKEN=AAAbbbCCCdd... hecat -c .hecat.yml
 
 On Github Actions a token is created automatically for each job. To make it available in the environment use the following workflow configuration:
@@ -53,9 +62,7 @@ def write_software_yaml(step, software):
         yaml.dump(software, yaml_file)
 
 def add_github_metadata(step):
-    """gather github project data and add it to source YAML files
-    supports a list of options:
-    """
+    """gather github project data and add it to source YAML files"""
     GITHUB_TOKEN = os.environ['GITHUB_TOKEN']
     g = Github(GITHUB_TOKEN)
     software_list = load_yaml_data(step['module_options']['source_directory'] + '/software')
