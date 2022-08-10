@@ -84,13 +84,13 @@ steps:
       output_licenses_file: licenses.yml # optional, default licenses.yml
       overwrite_tags: False # optional, default False
 
-  - name: update github metadata in awesome-selfhosted data
+  - name: update github projects metadata
     module: processors/github_metadata
     module_options:
       source_directory: awesome-selfhosted-data
       gh_metadata_only_missing: True # optional, default False
 
-  - name: check awesome-selfhosted data
+  - name: check data against awesome-selfhosted guidelines
     module: processors/awesome_lint
     module_options:
       source_directory: awesome-selfhosted-data
@@ -141,6 +141,50 @@ Import data from a Shaarli instance, download video/audio files identified by sp
       output_directory: 'tests/audio'
       only_audio: True
 
+```
+
+Schedule automatic metadata update every hour from Github Actions:
+
+```yaml
+# .github/workflows/update-metadata.yml
+on:
+  schedule:
+    - cron: '22 * * * *'
+
+env:
+  GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+jobs:
+  test_schedule:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: install hecat
+        run: |
+          python3 -m venv .venv
+          source .venv/bin/activate
+          pip3 install wheel
+          pip3 install --force git+https://github.com/nodiscc/hecat.git@master
+      - name: update all metadata from Github API
+        run: source .venv/bin/activate && hecat --config .hecat.update_metadata.yml
+      - name: commit and push changes
+        run: |
+          git config user.name awesome-selfhosted-bot
+          git config user.email github-actions@github.com
+          git add software/ tags/ platforms/ licenses*.yml
+          git diff-index --quiet HEAD || git commit -m "[bot] update projects metadata"
+          git push
+```
+
+```yaml
+# .hecat.update_metadata.yml
+steps:
+  - name: update all metadata from Github API
+    module: processors/github_metadata
+    module_options:
+      source_directory: ./
+      gh_metadata_only_missing: False
 ```
 
 ## Support
