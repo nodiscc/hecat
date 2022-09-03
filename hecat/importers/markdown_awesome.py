@@ -135,7 +135,7 @@ def import_software(section, step, errors):
             except FileNotFoundError:
                 os.mkdir(step['module_options']['output_directory'] + '/software')
 
-# DEBT factorize extract_external_links, extract_related_tags, extract_delegate_to
+# DEBT factorize extract_external_links, extract_related_tags, extract_redirect
 def extract_related_tags(section):
     """Extract 'Related:' tags from markdown section"""
     related_tags = []
@@ -146,15 +146,15 @@ def extract_related_tags(section):
             related_tags.append(match[0])
     return related_tags
 
-def extract_delegate_to(section):
+def extract_redirect(section):
     """extract 'Please visit' link titles/URLs from markdown"""
-    delegate_to = []
-    delegate_to_markdown = re.findall(r'^\*\*Please visit.*\*\*', section['text'], re.MULTILINE)
-    if delegate_to_markdown:
-        matches = re.findall(r"\[([^\]]*)\]\(([^\)]*)\)", delegate_to_markdown[0])
+    redirect = []
+    redirect_markdown = re.findall(r'^\*\*Please visit.*\*\*', section['text'], re.MULTILINE)
+    if redirect_markdown:
+        matches = re.findall(r"\[([^\]]*)\]\(([^\)]*)\)", redirect_markdown[0])
         for match in matches:
-            delegate_to.append({ 'title': match[0], 'url': match[1]})
-    return delegate_to
+            redirect.append({ 'title': match[0], 'url': match[1]})
+    return redirect
 
 def extract_external_links(section):
     """Extract 'See also:' links titles/URLs from markdown section"""
@@ -193,7 +193,7 @@ def import_tag(section, step):
         else:
             logging.debug('overwriting tag in %s', dest_file)
     related_tags = extract_related_tags(section)
-    delegate_to = extract_delegate_to(section)
+    redirect = extract_redirect(section)
     description = extract_description(section)
     external_links = extract_external_links(section)
     while True:
@@ -204,7 +204,7 @@ def import_tag(section, step):
                     'name': section['title'],
                     'description': description,
                     'related_tags': related_tags,
-                    'delegate_to': delegate_to,
+                    'redirect': redirect,
                     'external_links': external_links
                 }
                 yaml.dump(output_dict, yaml_file)

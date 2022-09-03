@@ -78,7 +78,7 @@ description: "[Document management systems (DMS)](https://en.wikipedia.org/wiki/
 related_tags: # optional
   - E-books and Integrated Library Systems (ILS)
   - Archiving and Digital Preservation
-delegate: # optional
+redirect: # optional, URLs of other collaborative lists which should be used instead
   - https://another.awesome.li.st
   - https://gitlab.com/user/awesome-list
 
@@ -102,7 +102,7 @@ def render_markdown_singlepage_category(step, tag, software_list):
     """Render a category for the single page markdown output format"""
     logging.debug('rendering tag %s', tag['name'])
     # check optional fields
-    markdown_delegate_to = ''
+    markdown_redirect = ''
     markdown_related_tags = ''
     markdown_description = ''
     markdown_external_links = ''
@@ -112,11 +112,11 @@ def render_markdown_singlepage_category(step, tag, software_list):
             to_markdown_anchor(related_tag) for related_tag in tag['related_tags']))
     if 'description' in tag and tag['description']:
         markdown_description = tag['description'] + '\n\n'
-    if 'delegate_to' in tag and tag['delegate_to']:
-        markdown_delegate_to = '**Please visit {}**\n\n'.format(', '.join(
+    if 'redirect' in tag and tag['redirect']:
+        markdown_redirect = '**Please visit {}**\n\n'.format(', '.join(
             '[{}]({})'.format(
                 link['title'], link['url']
-        ) for link in tag['delegate_to']))
+        ) for link in tag['redirect']))
     if 'external_links' in tag and tag['external_links']:
         markdown_external_links = '_See also: {}_\n\n'.format(', '.join(
             '[{}]({})'.format(
@@ -127,7 +127,7 @@ def render_markdown_singlepage_category(step, tag, software_list):
         tag['name'] + '\n\n',
         '**[`^        back to top        ^`](#)**\n\n',
         markdown_description,
-        markdown_delegate_to,
+        markdown_redirect,
         markdown_related_tags,
         markdown_external_links
     )

@@ -8,7 +8,7 @@ steps:
     module: processors/awesome_lint
     module_options:
       source_directory: awesome-selfhosted-data
-      items_in_delegate_to_fatal: False # optional, default True
+      items_in_redirect_fatal: False # optional, default True
       licenses_files: # optional default ['licenses.yml']
         - licenses.yml
         - licenses-nonfree.yml
@@ -29,7 +29,7 @@ source_directory: path to directory where data can be found. Directory structure
 ├── licenses.yml # yaml list of licenses
 └── licenses-nonfree.yml # yaml list of licenses
 
-items_in_delegate_to_fatal: if False, only warn/don't fail when entries have a tag with 'delegate_to' set as their first tag
+items_in_redirect_fatal: if False, only warn/don't fail when entries have a tag with 'redirect' set as their first tag
 
 licenses_files: path to files containings lists of licenses
 """
@@ -135,20 +135,20 @@ def check_tag_has_at_least_items(tag, software_list, errors, minitems=3):
         assert tag_items_count >= minitems
         logging.debug('{} items tagged {}'.format(tag_items_count, tag['name']))
     except AssertionError:
-        if not tag['delegate_to']:
+        if not tag['redirect']:
             message = "{} items tagged {}, each tag must have at least {} items attached".format(tag_items_count, tag['name'], minitems)
             log_exception(message, errors)
         else:
             logging.debug('{} items tagged {}, less than {} but ignoring since this tag is redirected'.format(tag_items_count, tag['name'], minitems))
 
-def check_delegate_to_sections_empty(step, software, tags_with_delegate_to, errors):
-    """check that the first tag in the tags list does not match a tag with delegate_to set"""
+def check_redirect_sections_empty(step, software, tags_with_redirect, errors):
+    """check that the first tag in the tags list does not match a tag with redirect set"""
     first_tag = software['tags'][0]
     try:
-        assert first_tag not in tags_with_delegate_to
+        assert first_tag not in tags_with_redirect
     except AssertionError:
-        message = "{}: the first tag {} points to a tag delegated to another list.".format(software['name'], first_tag)
-        if 'items_in_delegate_to_fatal' in step['module_options'].keys() and not step['module_options']['items_in_delegate_to_fatal']:
+        message = "{}: the first tag {} points to a tag which redirects to another list.".format(software['name'], first_tag)
+        if 'items_in_redirect_fatal' in step['module_options'].keys() and not step['module_options']['items_in_redirect_fatal']:
             log_exception(message, errors, severity=logging.warning)
         else:
             log_exception(message, errors)
@@ -188,17 +188,17 @@ def awesome_lint(step):
     for filename in step['module_options']['licenses_files']:
         licenses_list = licenses_list + load_yaml_data(step['module_options']['source_directory'] + '/' + filename)
     tags_list = load_yaml_data(step['module_options']['source_directory'] + '/tags')
-    tags_with_delegate_to = []
+    tags_with_redirect = []
     for tag in tags_list:
-        if 'delegate_to' in tag and tag['delegate_to']:
-            tags_with_delegate_to.append(tag['name'])
+        if 'redirect' in tag and tag['redirect']:
+            tags_with_redirect.append(tag['name'])
     errors = []
     for software in software_list:
         check_required_fields(software, errors, required_fields=SOFTWARE_REQUIRED_FIELDS, required_lists=SOFTWARE_REQUIRED_LISTS)
         check_description_syntax(software, errors)
         check_licenses_in_licenses_list(software, licenses_list, errors)
         check_tags_in_tags_list(software, tags_list, errors)
-        check_delegate_to_sections_empty(step, software, tags_with_delegate_to, errors)
+        check_redirect_sections_empty(step, software, tags_with_redirect, errors)
         check_external_link_syntax(software, errors)
         check_not_archived(software, errors)
     for tag in tags_list:
