@@ -125,6 +125,22 @@ def check_related_tags_in_tags_list(tag, tags_list, errors):
             message = "{}: related tag {} is not listed in the main tags list".format(tag['name'], related_tag_name)
             log_exception(message, errors)
 
+def check_tag_has_at_least_items(tag, software_list, errors, minitems=3):
+    """check that a tag has at least N software items attached to it"""
+    tag_items_count = 0
+    for software in software_list:
+        if tag['name'] in software['tags']:
+            tag_items_count += 1
+    try:
+        assert tag_items_count >= minitems
+        logging.debug('{} items tagged {}'.format(tag_items_count, tag['name']))
+    except AssertionError:
+        if not tag['delegate_to']:
+            message = "{} items tagged {}, each tag must have at least {} items attached".format(tag_items_count, tag['name'], minitems)
+            log_exception(message, errors)
+        else:
+            logging.debug('{} items tagged {}, less than {} but ignoring since this tag is redirected'.format(tag_items_count, tag['name'], minitems))
+
 def check_delegate_to_sections_empty(step, software, tags_with_delegate_to, errors):
     """check that the first tag in the tags list does not match a tag with delegate_to set"""
     first_tag = software['tags'][0]
@@ -188,6 +204,7 @@ def awesome_lint(step):
     for tag in tags_list:
         check_related_tags_in_tags_list(tag, tags_list, errors)
         check_required_fields(tag, errors, required_fields=TAGS_REQUIRED_FIELDS, severity=logging.warning)
+        check_tag_has_at_least_items(tag, software_list, errors, minitems=3)
     for license in licenses_list:
         check_required_fields(license, errors, required_fields=LICENSES_REQUIRED_FIELDS)
     if errors:
