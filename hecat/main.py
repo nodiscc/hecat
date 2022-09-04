@@ -21,12 +21,12 @@ def main():
             from .importers import import_shaarli_json
             import_shaarli_json(step)
         elif step['module'] == 'processors/github_metadata':
-            from .processors import add_github_metadata, check_github_last_updated
+            from .processors import add_github_metadata
             add_github_metadata(step)
-            check_github_last_updated(step)
         elif step['module'] == 'processors/awesome_lint':
-            from .processors import awesome_lint
+            from .processors import awesome_lint, check_github_last_updated
             awesome_lint(step)
+            check_github_last_updated(step)
         elif step['module'] == 'processors/download_media':
             from .processors import download_media
             download_media(step)
