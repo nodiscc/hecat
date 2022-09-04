@@ -1,6 +1,5 @@
 """github_metadata processor
 Gathers project/repository metadata from GitHub API and adds some fields to YAML data (`updated_at`, `stargazers_count`, `archived`).
-Checks the last `updated_at` date of GitHub projects against a "freshness" threshold in days.
 
 # hecat.yml
 steps:
@@ -36,15 +35,12 @@ import ruamel.yaml
 import logging
 import re
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 from ..utils import load_yaml_data, to_kebab_case
 from github import Github
 
 yaml = ruamel.yaml.YAML(typ='rt')
 yaml.indent(sequence=4, offset=2)
-
-LAST_UPDATED_INFO_DAYS = 186 # ~6 months
-LAST_UPDATED_WARN_DAYS = 365
 
 def get_gh_metadata(github_url, g):
     """get github project metadata from Github API"""
@@ -95,17 +91,3 @@ def add_github_metadata(step):
                 software['archived'] = gh_metadata.archived
                 write_software_yaml(step, software)
 
-def check_github_last_updated(step):
-    """checks the date of last update to a project, warn if older than configured threshold"""
-    logging.info('checking software last update dates against info (%s days)/warning (%s days) thresholds', LAST_UPDATED_INFO_DAYS, LAST_UPDATED_WARN_DAYS)
-    software_list = load_yaml_data(step['module_options']['source_directory'] + '/software')
-    for software in software_list:
-        if 'updated_at' in software:
-            last_update_time = datetime.strptime(software['updated_at'], "%Y-%m-%d")
-            time_since_last_update = last_update_time - datetime.now()
-            if last_update_time < datetime.now() - timedelta(days=LAST_UPDATED_WARN_DAYS):
-                logging.warning('%s: last updated %s ago, older than %s days', software['name'], time_since_last_update, LAST_UPDATED_WARN_DAYS)
-            elif last_update_time < datetime.now() - timedelta(days=LAST_UPDATED_INFO_DAYS):
-                logging.info('%s: last updated %s ago, older than %s days', software['name'], time_since_last_update, LAST_UPDATED_INFO_DAYS)
-            else:
-                logging.debug('%s: last updated %s ago', software['name'], time_since_last_update)

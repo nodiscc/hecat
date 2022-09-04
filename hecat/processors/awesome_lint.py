@@ -37,12 +37,15 @@ licenses_files: path to files containings lists of licenses
 import re
 import logging
 import sys
+from datetime import datetime, timedelta
 from ..utils import load_yaml_data
 
 SOFTWARE_REQUIRED_FIELDS = ['description', 'website_url', 'source_code_url', 'licenses', 'tags']
 SOFTWARE_REQUIRED_LISTS = ['licenses', 'tags']
 TAGS_REQUIRED_FIELDS = ['description']
 LICENSES_REQUIRED_FIELDS= ['identifier', 'name', 'url']
+LAST_UPDATED_INFO_DAYS = 186 # ~6 months
+LAST_UPDATED_WARN_DAYS = 365
 
 def check_required_fields(item, errors, required_fields=[], required_lists=[], severity=logging.error):
     """check that keys (required_fields) are defined and do not have length zero
@@ -177,6 +180,20 @@ def check_not_archived(software, errors):
     except KeyError:
         pass
 
+def check_github_last_updated(step):
+    """checks the date of last update to a project, warn if older than configured threshold"""
+    logging.info('checking software last update dates against info (%s days)/warning (%s days) thresholds', LAST_UPDATED_INFO_DAYS, LAST_UPDATED_WARN_DAYS)
+    software_list = load_yaml_data(step['module_options']['source_directory'] + '/software')
+    for software in software_list:
+        if 'updated_at' in software:
+            last_update_time = datetime.strptime(software['updated_at'], "%Y-%m-%d")
+            time_since_last_update = last_update_time - datetime.now()
+            if last_update_time < datetime.now() - timedelta(days=LAST_UPDATED_WARN_DAYS):
+                logging.warning('%s: last updated %s ago, older than %s days', software['name'], time_since_last_update, LAST_UPDATED_WARN_DAYS)
+            elif last_update_time < datetime.now() - timedelta(days=LAST_UPDATED_INFO_DAYS):
+                logging.info('%s: last updated %s ago, older than %s days', software['name'], time_since_last_update, LAST_UPDATED_INFO_DAYS)
+            else:
+                logging.debug('%s: last updated %s ago', software['name'], time_since_last_update)
 
 def awesome_lint(step):
     """check all software entries against awesome-selfhosted formatting guidelines"""
