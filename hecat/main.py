@@ -6,7 +6,7 @@ from .utils import load_yaml_data
 from .importers import import_markdown_awesome, import_shaarli_json
 from .processors import add_github_metadata, awesome_lint, check_github_last_updated, check_urls,download_media
 from .exporters import render_markdown_singlepage, render_html_table
-
+from .exporters import render_markdown_multipage
 
 LOG_FORMAT = "%(levelname)s:%(filename)s: %(message)s"
 LOG_LEVEL_MAPPING = {
@@ -48,6 +48,8 @@ def main():
             render_markdown_singlepage(step)
         elif step['module'] == 'exporters/html_table':
             render_html_table(step)
+        elif step['module'] == 'exporters/markdown_multipage':
+            render_markdown_multipage(step)
         else:
             logging.error('step %s: unknown module %s', step['name'], step['module'])
             sys.exit(1)

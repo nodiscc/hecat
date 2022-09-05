@@ -28,7 +28,10 @@ setup(
         'PyGithub',
         'yt_dlp',
         'jinja2',
-        'Markdown'
+        'Markdown',
+        'furo',
+        'myst-parser',
+        'sphinx-design'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
