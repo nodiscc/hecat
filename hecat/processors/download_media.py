@@ -14,7 +14,7 @@ steps:
       exclude_tags: ['nodl'] # optional, don't download items tagged with any of these tags
       output_directory: 'tests/video'
       download_playlists: False # optional, default False
-      skip_when_filename_present: False # optional, default False
+      skip_when_filename_present: True # optional, default True, skip processing when item already has a 'video_filename': key
       retry_items_with_error: True # optional, default True
       only_audio: False # optional, default False
 
