@@ -86,8 +86,8 @@ def write_data_file(step, items):
     os.rename(step['module_options']['data_file'] + '.tmp', step['module_options']['data_file'])
 
 def download_media(step, ydl_opts=YDL_DEFAULT_OPTS):
-    """download videos from the step['url'], if it matches specified step['only_tags'],
-    write downloaded filenames to a new key in the original data file for each downloaded item
+    """download videos from the each item's 'url', if it matches one of step['only_tags'],
+    write downloaded filenames to a new key audio_filename/video_filename in the original data file for each downloaded item
     """
     filename_key = 'video_filename'
     error_key = 'video_download_error'
@@ -110,12 +110,12 @@ def download_media(step, ydl_opts=YDL_DEFAULT_OPTS):
     items = load_yaml_data(step['module_options']['data_file'])
     logging.info('starting download of video files')
     for item in items:
-        # skip download when skip_when_filename_present = True and video/audio_filename already in item keys
+        # skip download when skip_when_filename_present = True, and video/audio_filename key already exists
         if ('skip_when_filename_present' in step['module_options'].keys() and
                 step['module_options']['skip_when_filename_present'] and
                 filename_key in item.keys()):
             logging.info('skipping %s (id %s): %s already recorded in the data file', item['url'], item['id'], filename_key)
-        # skip download when retry_items_with_error = False and video/audio_download_error already in item keys
+        # skip download when retry_items_with_error = False, and video/audio_download_error key alraedy exists
         elif ('retry_items_with_error' in step['module_options'] and
                 not step['module_options']['retry_items_with_error'] and
                 error_key in item.keys()):
