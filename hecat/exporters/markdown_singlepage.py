@@ -9,7 +9,7 @@ $ hecat
 
 # .hecat.yml
 steps:
-  - step: export YAML data to single-page markdown
+  - name: export YAML data to single-page markdown
     module: exporters/markdown_singlepage
     module_options:
       source_directory: awesome-selfhosted-data
