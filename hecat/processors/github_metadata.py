@@ -90,4 +90,3 @@ def add_github_metadata(step):
                 software['updated_at'] = datetime.strftime(gh_metadata.updated_at, "%Y-%m-%d")
                 software['archived'] = gh_metadata.archived
                 write_software_yaml(step, software)
-
