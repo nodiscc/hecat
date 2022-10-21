@@ -145,7 +145,6 @@ def render_markdown_singlepage_category(step, tag, software_list):
 def render_markdown_list_item(software):
     """render a software project info as a markdown list item"""
     # check optional fields
-    # DEBT use ternary operator
     if 'demo_url' in software:
         markdown_demo = '[Demo]({})'.format(software['demo_url'])
     else:
@@ -178,8 +177,6 @@ def render_markdown_list_item(software):
         '`' + '/'.join(software['platforms']) + '`'
         )
     return markdown_list_item
-
-
 
 def render_markown_licenses(licenses):
     """render a markdown-formatted licenses list"""
