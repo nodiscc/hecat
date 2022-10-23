@@ -120,6 +120,7 @@ Import data from a Shaarli instance, download video/audio files identified by sp
     module_options:
       source_file: tests/shaarli.json
       output_file: tests/shaarli.yml
+      skip_existing: True # optional, default True
 
   - name: download video files
     module: processors/download_media
