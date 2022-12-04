@@ -5,3 +5,4 @@ build/
 tests/audio
 tests/video
 tests/shaarli.yml
+tests/html-table

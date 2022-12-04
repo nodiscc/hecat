@@ -15,6 +15,7 @@ This program uses YAML files to store data about various kind of items (bookmark
 - [processors/download_media](hecat/processors/download_media.py): download video/audio files using [yt-dlp](https://github.com/yt-dlp/yt-dlp) for bookmarks imported from Shaarli
 - [processors/url_check](hecat/processors/url_check.py): check data for dead links
 - [exporters/markdown_singlepage](hecat/exporters/markdown_singlepage.py): export data from the [awesome-selfhosted-data](https://github.com/awesome-selfhosted/awesome-selfhosted-data) format to a single markdown document
+- [exporters/html_table](hecat/exporters/html_table.py): render data as single-page HTML table
 
 [![](https://i.imgur.com/NvCOeiK.png)](hecat/exporters/markdown_singlepage.py)
 [![](https://i.imgur.com/tMAxhLw.png)](hecat/importers/markdown_awesome.py)
@@ -171,7 +172,7 @@ steps:
 
 #### Shaarli
 
-Import data from a Shaarli instance, download video/audio files identified by specific tags, check for dead links:
+Import data from a Shaarli instance, download video/audio files identified by specific tags, check for dead links, export to single-page HTML page/table:
 
 ```yaml
 # .hecat.yml
@@ -179,7 +180,7 @@ Import data from a Shaarli instance, download video/audio files identified by sp
 # $ mkdir -p ~/.config/shaarli/ && nano ~/.config/shaarli/client.ini
 # $ shaarli get-links --limit=all >| tests/shaarli.json
 steps:
-  - name: import data shaarli from shaarli API JSON
+  - name: import data from shaarli API JSON
       module: importers/shaarli_api
       module_options:
         source_file: shaarli-export.json
@@ -218,6 +219,13 @@ steps:
         errors_are_fatal: True
         exclude_regex:
           - '^https://www.youtube.com/watch.*$' # don't check youtube video URLs, always returns HTTP 200 even for unavailable videos```
+
+  - name: export shaarli data to HTML table
+    module: importers/shaarli_api
+    module_options:
+      source_file: shaarli.yml # file from which data will be loaded
+      output_file: index.html # (default index.html) output HTML table file
+      html_title: "Shaarli export - shaarli.example.org" # (default "hecat HTML export") output HTML title
 ```
 
 [ffmpeg](https://ffmpeg.org/) must be installed for audio/video conversion support.

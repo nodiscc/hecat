@@ -36,6 +36,9 @@ def main():
         elif step['module'] == 'exporters/markdown_singlepage':
             from .exporters import render_markdown_singlepage
             render_markdown_singlepage(step)
+        elif step['module'] == 'exporters/html_table':
+            from .exporters import render_html_table
+            render_html_table(step)
         else:
             logging.error('step %s: unknown module %s', step['name'], step['module'])
             exit(1)

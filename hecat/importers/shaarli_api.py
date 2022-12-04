@@ -6,7 +6,7 @@
 # $ python3 -m venv .venv && source .venv/bin/activate && pip3 install shaarli-client && shaarli get-links --limit=all >| shaarli.json
 # $ cat hecat.yml
 steps:
-  - name: import_shaarli
+  - name: import data from shaarli API JSON
     module: importers/shaarli_api
     module_options:
       source_file: shaarli.json

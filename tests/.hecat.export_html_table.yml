@@ -1,0 +1,7 @@
+steps:
+    - name: export shaarli data to HTML table
+      module: exporters/html_table
+      module_options:
+        source_file: tests/shaarli.yml
+        output_file: tests/html-table/index.html
+        html_title: 'test HTML table export'

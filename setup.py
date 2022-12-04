@@ -26,7 +26,9 @@ setup(
     install_requires=[
         'ruamel.yaml',
         'PyGithub',
-        'yt_dlp'
+        'yt_dlp',
+        'jinja2',
+        'Markdown'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',

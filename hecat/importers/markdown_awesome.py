@@ -134,6 +134,7 @@ def import_software(section, step, errors):
                     break
             except FileNotFoundError:
                 os.mkdir(step['module_options']['output_directory'] + '/software')
+                # TODO incomplete exception handling
 
 # DEBT factorize extract_external_links, extract_related_tags, extract_redirect
 def extract_related_tags(section):
