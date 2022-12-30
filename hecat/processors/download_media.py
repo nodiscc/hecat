@@ -14,7 +14,7 @@ steps:
       exclude_tags: ['nodl'] # optional, don't download items tagged with any of these tags
       output_directory: 'tests/video'
       download_playlists: False # optional, default False
-      skip_when_filename_present: True # optional, default True, skip processing when item already has a 'video_filename': key
+      skip_when_filename_present: True # optional, default True, skip processing when item already has a 'video_filename/audio_filename': key
       retry_items_with_error: True # optional, default True
       only_audio: False # optional, default False
 
@@ -111,7 +111,7 @@ def download_media(step, ydl_opts=YDL_DEFAULT_OPTS):
     logging.info('starting download of video files')
     for item in items:
         # skip download when skip_when_filename_present = True, and video/audio_filename key already exists
-        if ('skip_when_filename_present' in step['module_options'].keys() and
+        if ('skip_when_filename_present' not in step['module_options'].keys() or
                 step['module_options']['skip_when_filename_present'] and
                 filename_key in item.keys()):
             logging.info('skipping %s (id %s): %s already recorded in the data file', item['url'], item['id'], filename_key)
