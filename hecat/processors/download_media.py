@@ -9,14 +9,14 @@ steps:
   - name: download video files
     module: processors/download_media
     module_options:
-      data_file: tests/shaarli.yml
+      data_file: tests/shaarli.yml # path to the YAML data file
       only_tags: ['video'] # only download items tagged with all these tags
       exclude_tags: ['nodl'] # optional, don't download items tagged with any of these tags
-      output_directory: 'tests/video'
-      download_playlists: False # optional, default False
+      output_directory: 'tests/video' # path to the output directory for media files
+      download_playlists: False # optional, default False, download playlists
       skip_when_filename_present: True # optional, default True, skip processing when item already has a 'video_filename/audio_filename': key
-      retry_items_with_error: True # optional, default True
-      only_audio: False # optional, default False
+      retry_items_with_error: True # optional, default True, retry downloading items for which an error was previously recorded
+      only_audio: False # optional, default False, download the 'bestaudio' format instead of the default 'best'
 
 # $ cat tests/.hecat.download_audio.yml
 steps:
@@ -41,7 +41,6 @@ Data file format (output of import_shaarli module):
     - tag2
     - video
     - music
-    - nodl
   ...
   video_filename: 'Philipp_Hagemeister - youtube-dl_test_video_a - youtube-BaW_jenozKc.webm' # added automatically
 
