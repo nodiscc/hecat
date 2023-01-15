@@ -110,7 +110,6 @@ def download_media(step, ydl_opts=YDL_DEFAULT_OPTS):
     logging.info('starting download of video files')
     for item in items:
         # skip download when skip_when_filename_present = True, and video/audio_filename key already exists
-        logging.info('DEBUG: filename_key present: %s', filename_key in item.keys())
         if (('skip_when_filename_present' not in step['module_options'].keys() or
                 step['module_options']['skip_when_filename_present']) and
                 filename_key in item.keys()):
