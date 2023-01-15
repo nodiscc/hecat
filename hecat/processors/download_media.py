@@ -17,6 +17,7 @@ steps:
       skip_when_filename_present: True # optional, default True, skip processing when item already has a 'video_filename/audio_filename': key
       retry_items_with_error: True # optional, default True, retry downloading items for which an error was previously recorded
       only_audio: False # optional, default False, download the 'bestaudio' format instead of the default 'best'
+      use_download_archive: True # optional, default True, use a yt-dlp archive file to record downloaded items, skip them if already downloaded
 
 # $ cat tests/.hecat.download_audio.yml
 steps:
@@ -91,7 +92,7 @@ def download_media(step, ydl_opts=YDL_DEFAULT_OPTS):
     filename_key = 'video_filename'
     error_key = 'video_download_error'
     # add specific options when only_audio = True
-    if 'only_audio' in step ['module_options'] and step['module_options']['only_audio']:
+    if 'only_audio' in step['module_options'] and step['module_options']['only_audio']:
         ydl_opts['postprocessors'] =  [ {'key': 'FFmpegExtractAudio'} ]
         ydl_opts['keepvideo'] = False
         ydl_opts['format'] = 'bestaudio'
@@ -103,6 +104,9 @@ def download_media(step, ydl_opts=YDL_DEFAULT_OPTS):
     full_download_archive = step['module_options']['output_directory'] + '/' + ydl_opts['download_archive']
     ydl_opts['outtmpl'] = full_outtmpl
     ydl_opts['download_archive'] = full_download_archive
+    # remove the download_archive option if use_download_archive is set to False
+    if 'use_download_archive' in step['module_options'] and not step['module_options']['use_download_archive']:
+        del ydl_opts['download_archive']
     # set noplaylist option depending on step['download_playlists']
     if 'download_playlists' in step.keys() and step['download_playlists']:
         ydl_opts['noplaylist'] == False
