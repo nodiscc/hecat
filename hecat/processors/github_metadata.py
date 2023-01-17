@@ -46,7 +46,8 @@ def get_gh_metadata(github_url, g):
     """get github project metadata from Github API"""
     project = re.sub('https://github.com/', '', github_url)
     gh_metadata = g.get_repo(project)
-    return gh_metadata
+    latest_commit_date = gh_metadata.get_commits()[0].commit.author.date
+    return gh_metadata, latest_commit_date
 
 def write_software_yaml(step, software):
     """write software data to yaml file"""
@@ -76,17 +77,17 @@ def add_github_metadata(step):
             if 'gh_metadata_only_missing' in step['module_options'].keys() and step['module_options']['gh_metadata_only_missing']:
                 if ('stargazers_count' not in software) or ('updated_at' not in software) or ('archived' not in software):
                     logging.info('Missing metadata for %s, gathering it from Github API', software['name'])
-                    gh_metadata = get_gh_metadata(github_url, g)
+                    gh_metadata, latest_commit_date = get_gh_metadata(github_url, g)
                     software['stargazers_count'] = gh_metadata.stargazers_count
-                    software['updated_at'] = datetime.strftime(gh_metadata.pushed_at, "%Y-%m-%d")
+                    software['updated_at'] = datetime.strftime(latest_commit_date, "%Y-%m-%d")
                     software['archived'] = gh_metadata.archived
                     write_software_yaml(step, software)
                 else:
                     logging.debug('all metadata already present, skipping %s', github_url)
             else:
                 logging.info('Gathering metadata for %s from Github API', github_url)
-                gh_metadata = get_gh_metadata(github_url, g)
+                gh_metadata, latest_commit_date = get_gh_metadata(github_url, g)
                 software['stargazers_count'] = gh_metadata.stargazers_count
-                software['updated_at'] = datetime.strftime(gh_metadata.updated_at, "%Y-%m-%d")
+                software['updated_at'] = datetime.strftime(latest_commit_date, "%Y-%m-%d")
                 software['archived'] = gh_metadata.archived
                 write_software_yaml(step, software)
