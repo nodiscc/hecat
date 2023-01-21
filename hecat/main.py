@@ -27,6 +27,9 @@ def main():
             from .processors import awesome_lint, check_github_last_updated
             awesome_lint(step)
             check_github_last_updated(step)
+        elif step['module'] == 'processors/url_check':
+            from .processors import check_urls
+            check_urls(step)
         elif step['module'] == 'processors/download_media':
             from .processors import download_media
             download_media(step)

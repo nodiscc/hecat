@@ -13,6 +13,7 @@ This program uses YAML files to store data about various kind of items (bookmark
 - [processors/github_metadata](hecat/processors/github_metadata.py): enrich software project metadata from GitHub API (stars, last commit date...)
 - [processors/awesome_lint](hecat/processors/awesome_lint.py): check data against [awesome-selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted) consistency/completeness guidelines
 - [processors/download_media](hecat/processors/download_media.py): download video/audio files using [yt-dlp](https://github.com/yt-dlp/yt-dlp) for bookmarks imported from Shaarli
+- [processors/url_check](hecat/processors/url_check.py): check URL return codes
 - [exporters/markdown_singlepage](hecat/exporters/markdown_singlepage.py): export data from the [awesome-selfhosted-data](https://github.com/awesome-selfhosted/awesome-selfhosted-data) format to a single markdown document
 
 [![](https://i.imgur.com/NvCOeiK.png)](hecat/exporters/markdown_singlepage.py)
@@ -83,6 +84,22 @@ steps:
       output_directory: ./
       output_licenses_file: licenses.yml # optional, default licenses.yml
       overwrite_tags: False # optional, default False
+
+  - name: check URLs
+    module: processors/url_check
+    module_options:
+      source_directories: # check URLs in all .yml files under these directories
+        - awesome-selfhosted-data/software
+        - awesome-selfhosted-data/tags
+      source_files: # check URLs in these files
+        - awesome-selfhosted-data/licenses.yml
+      check_keys: # (list) YAML keys containing URLs to check, if they exist
+        - url
+        - source_code_url
+        - website_url
+        - demo_url
+      exclude_regex: # don't check URLs matching these regular expressions
+        - '^https://github.com/[\w\.\-]+/[\w\.\-]+$' # don't check URLs that will be processed by the github_metadata module
 
   - name: update github projects metadata
     module: processors/github_metadata

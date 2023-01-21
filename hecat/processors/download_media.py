@@ -110,6 +110,7 @@ def download_media(step, ydl_opts=YDL_DEFAULT_OPTS):
     # set noplaylist option depending on step['download_playlists']
     if 'download_playlists' in step.keys() and step['download_playlists']:
         ydl_opts['noplaylist'] == False
+
     items = load_yaml_data(step['module_options']['data_file'])
     logging.info('starting download of video files')
     for item in items:

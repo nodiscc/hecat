@@ -1,0 +1,16 @@
+steps:
+  - name: check URLs
+    module: processors/url_check
+    module_options:
+      source_directories: # check URLs in all .yml files under these directories
+        - awesome-selfhosted-data/software
+        - awesome-selfhosted-data/tags
+      source_files: # check URLs in these files
+        - awesome-selfhosted-data/licenses.yml
+      check_keys: # (list) YAML keys containing URLs to check, if they exist
+        - url
+        - source_code_url
+        - website_url
+        - demo_url
+      exclude_regex: # (list, default empty) don't check URLs matching these regular expressions
+        - '^https://github.com/[\w\.\-]+/[\w\.\-]+$' # don't check URLs that will be processed by the github_metadata module

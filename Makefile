@@ -37,6 +37,7 @@ test_import_awesome_selfhosted: install
 .PHONY: test_process_awesome_selfhosted # test processing on awesome-selfhosted-data
 test_process_awesome_selfhosted: install
 	source .venv/bin/activate && \
+	hecat --config tests/.hecat.url_check.yml && \
 	hecat --config tests/.hecat.github_metadata.yml && \
 	hecat --config tests/.hecat.awesome_lint.yml
 	cd awesome-selfhosted-data && git --no-pager diff --color=always
