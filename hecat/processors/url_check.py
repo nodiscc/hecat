@@ -17,6 +17,7 @@ steps:
         - source_code_url
         - website_url
         - demo_url
+      errors_are_fatal: False # (default False) if True exit with error code 1 at the end of processing, if any checks were unsuccessful
       exclude_regex: # (list, default empty) don't check URLs matching these regular expressions
         - '^https://github.com/[\w\.\-]+/[\w\.\-]+$' # don't check URLs that will be processed by the github_metadata module
 """
@@ -35,14 +36,14 @@ def check_return_code(url, errors):
     try:
         response = requests.get(url, headers={"Range": "bytes=0-200"}, timeout=10)
         if response.status_code in VALID_HTTP_CODES:
-            logging.debug('%s: HTTP %s', url, response.status_code)
+            logging.info('%s: HTTP %s', url, response.status_code)
         else:
             error_msg = '{} - HTTP {}'.format(url, response.status_code)
-            logging.warning(error_msg)
+            logging.error(error_msg)
             errors.append(error_msg)
     except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout) as connection_error:
         error_msg = 'URL {} : {}'.format(url, connection_error)
-        logging.warning(error_msg)
+        logging.error(error_msg)
         errors.append(error_msg)
 
 def check_urls(step):
@@ -72,4 +73,6 @@ def check_urls(step):
                     pass
     if errors:
         logging.error("There were errors during processing")
-        sys.exit(1)
+        print('\n'.join(errors))
+        if 'errors_are_fatal' in step['module_options'].keys() and step['module_options']['errors_are_fatal']:
+            sys.exit(1)
