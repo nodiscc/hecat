@@ -35,14 +35,14 @@ def check_return_code(url, errors):
     try:
         response = requests.get(url, headers={"Range": "bytes=0-200"}, timeout=10)
         if response.status_code in VALID_HTTP_CODES:
-            logging.info('%s: HTTP %s', url, response.status_code)
+            logging.debug('%s: HTTP %s', url, response.status_code)
         else:
             error_msg = '{} - HTTP {}'.format(url, response.status_code)
-            logging.error(error_msg)
+            logging.warning(error_msg)
             errors.append(error_msg)
     except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout) as connection_error:
         error_msg = 'URL {} : {}'.format(url, connection_error)
-        logging.error(error_msg)
+        logging.warning(error_msg)
         errors.append(error_msg)
 
 def check_urls(step):
@@ -72,5 +72,4 @@ def check_urls(step):
                     pass
     if errors:
         logging.error("There were errors during processing")
-        print('\n'.join(errors))
         sys.exit(1)
