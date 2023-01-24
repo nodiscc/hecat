@@ -85,22 +85,6 @@ steps:
       output_licenses_file: licenses.yml # optional, default licenses.yml
       overwrite_tags: False # optional, default False
 
-  - name: check URLs
-    module: processors/url_check
-    module_options:
-      source_directories: # check URLs in all .yml files under these directories
-        - awesome-selfhosted-data/software
-        - awesome-selfhosted-data/tags
-      source_files: # check URLs in these files
-        - awesome-selfhosted-data/licenses.yml
-      check_keys: # (list) YAML keys containing URLs to check, if they exist
-        - url
-        - source_code_url
-        - website_url
-        - demo_url
-      exclude_regex: # don't check URLs matching these regular expressions
-        - '^https://github.com/[\w\.\-]+/[\w\.\-]+$' # don't check URLs that will be processed by the github_metadata module
-
   - name: update github projects metadata
     module: processors/github_metadata
     module_options:
@@ -123,6 +107,24 @@ steps:
         - 'CC-BY-NC-4.0'
         - '⊘ Proprietary'
         - 'SSPL-1.0'
+
+  - name: check URLs
+    module: processors/url_check
+    module_options:
+      source_directories: # check URLs in all .yml files under these directories
+        - awesome-selfhosted-data/software
+        - awesome-selfhosted-data/tags
+      source_files: # check URLs in these files
+        - awesome-selfhosted-data/licenses.yml
+      check_keys: # (list) YAML keys containing URLs to check, if they exist
+        - url
+        - source_code_url
+        - website_url
+        - demo_url
+      errors_are_fatal: True # exit with error code 1 if any checks are unsuccessful
+      exclude_regex: # don't check URLs matching these regular expressions
+        - '^https://github.com/[\w\.\-]+/[\w\.\-]+$' # don't check URLs that will be processed by the github_metadata module
+
 ```
 
 Import data from a Shaarli instance, download video/audio files identified by specific tags:
