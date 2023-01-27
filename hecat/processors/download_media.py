@@ -91,6 +91,10 @@ def download_media(step, ydl_opts=YDL_DEFAULT_OPTS):
     """
     filename_key = 'video_filename'
     error_key = 'video_download_error'
+    # initialize counters
+    skipped_count = 0
+    downloaded_count = 0
+    error_count = 0
     # add specific options when only_audio = True
     if 'only_audio' in step['module_options'] and step['module_options']['only_audio']:
         ydl_opts['postprocessors'] =  [ {'key': 'FFmpegExtractAudio'} ]
@@ -119,15 +123,18 @@ def download_media(step, ydl_opts=YDL_DEFAULT_OPTS):
                 step['module_options']['skip_when_filename_present']) and
                 filename_key in item.keys()):
             logging.info('skipping %s (id %s): %s already recorded in the data file', item['url'], item['id'], filename_key)
+            skipped_count = skipped_count +1
         # skip download when retry_items_with_error = False, and video/audio_download_error key alraedy exists
         elif ('retry_items_with_error' in step['module_options'] and
                 not step['module_options']['retry_items_with_error'] and
                 error_key in item.keys()):
             logging.info('skipping %s (id %s): not retrying download on items with %s set', item['url'], item['id'], error_key)
+            skipped_count = skipped_count +1
         # skip download when one of the item's tags matches a tag in exclude_tags
         elif ('exclude_tags' in step['module_options'] and
                 any(tag in item['tags'] for tag in step['module_options']['exclude_tags'])):
             logging.info('skipping %s (id %s): one or more tags are present in exclude_tags', item['url'], item['id'])
+            skipped_count = skipped_count +1
         # download if all tags in only_tags are present in the item's tags
         elif list(set(step['module_options']['only_tags']) & set(item['tags'])):
             logging.info('downloading %s (id %s)', item['url'], item ['id'])
@@ -143,9 +150,13 @@ def download_media(step, ydl_opts=YDL_DEFAULT_OPTS):
                                 item.pop(error_key, False)
                                 break
                         write_data_file(step, items)
+                    downloaded_count = downloaded_count +1
                 except (yt_dlp.utils.DownloadError, AttributeError) as e:
                     logging.error('%s (id %s): %s', item['url'], item['id'], str(e))
                     item[error_key] = str(e)
                     write_data_file(step, items)
+                    error_count = error_count + 1
         else:
             logging.info('skipping %s (id %s): no tags matching only_tags', item['url'], item['id'])
+            skipped_count = skipped_count + 1
+    logging.info('processing complete. Downloaded: %s - Skipped: %s - Errors %s', downloaded_count, skipped_count, error_count)
