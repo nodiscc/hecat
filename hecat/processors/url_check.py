@@ -41,7 +41,7 @@ def check_return_code(url, errors):
             error_msg = '{} - HTTP {}'.format(url, response.status_code)
             logging.error(error_msg)
             errors.append(error_msg)
-    except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout) as connection_error:
+    except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout, requests.exceptions.ContentDecodingError) as connection_error:
         error_msg = 'URL {} : {}'.format(url, connection_error)
         logging.error(error_msg)
         errors.append(error_msg)
