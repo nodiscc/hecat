@@ -36,7 +36,7 @@ def check_return_code(url, errors):
     try:
         response = requests.get(url, headers={"Range": "bytes=0-200", "User-Agent": "hecat/0.0.1"}, timeout=10)
         if response.status_code in VALID_HTTP_CODES:
-            logging.info('%s: HTTP %s', url, response.status_code)
+            logging.info('%s HTTP %s', url, response.status_code)
         else:
             error_msg = '{} - HTTP {}'.format(url, response.status_code)
             logging.error(error_msg)
