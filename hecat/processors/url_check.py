@@ -1,5 +1,5 @@
 """url_check processor
-Check URL return codes
+Check data for dead links/URLs not responding
 
 # .hecat.yml
 steps:

@@ -13,7 +13,7 @@ This program uses YAML files to store data about various kind of items (bookmark
 - [processors/github_metadata](hecat/processors/github_metadata.py): enrich software project metadata from GitHub API (stars, last commit date...)
 - [processors/awesome_lint](hecat/processors/awesome_lint.py): check data against [awesome-selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted) consistency/completeness guidelines
 - [processors/download_media](hecat/processors/download_media.py): download video/audio files using [yt-dlp](https://github.com/yt-dlp/yt-dlp) for bookmarks imported from Shaarli
-- [processors/url_check](hecat/processors/url_check.py): check URL return codes
+- [processors/url_check](hecat/processors/url_check.py): check data for dead links
 - [exporters/markdown_singlepage](hecat/exporters/markdown_singlepage.py): export data from the [awesome-selfhosted-data](https://github.com/awesome-selfhosted/awesome-selfhosted-data) format to a single markdown document
 
 [![](https://i.imgur.com/NvCOeiK.png)](hecat/exporters/markdown_singlepage.py)
