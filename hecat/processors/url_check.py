@@ -60,17 +60,16 @@ def check_urls(step):
         data = data + new_data
     for item in data:
         for key_name in step['module_options']['check_keys']:
-            for regex in step['module_options']['exclude_regex']:
-                try:
-                    if re.search(regex, item[key_name]):
-                        logging.debug('skipping URL %s, matches exclude_regex', item[key_name])
-                        continue
-                    else:
-                        if item[key_name] not in checked_urls:
-                            check_return_code(item[key_name], errors)
-                            checked_urls.append(item[key_name])
-                except KeyError:
-                    pass
+            try:
+                if any(re.search(regex, item[key_name]) for regex in step['module_options']['exclude_regex']):
+                    logging.debug('skipping URL %s, matches exclude_regex', item[key_name])
+                    continue
+                else:
+                    if item[key_name] not in checked_urls:
+                        check_return_code(item[key_name], errors)
+                        checked_urls.append(item[key_name])
+            except KeyError:
+                pass
     if errors:
         logging.error("There were errors during processing")
         print('\n'.join(errors))
