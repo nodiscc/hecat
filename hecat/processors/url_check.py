@@ -1,5 +1,5 @@
 """url_check processor
-Check data for dead links/URLs not responding
+Check data for dead links (HTTP error codes, timeouts, SSL/TLS errors...)
 
 # .hecat.yml
 steps:
