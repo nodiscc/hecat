@@ -34,15 +34,15 @@ def import_shaarli_json(step):
     if 'skip_existing' not in step['module_options']:
         step['module_options']['skip_existing'] = True
     with open(step['module_options']['source_file'], 'r', encoding="utf-8") as json_file:
-        data = json.load(json_file)
+        new_data = json.load(json_file)
     if os.path.exists(step['module_options']['output_file']) and step['module_options']['skip_existing']:
         logging.info('loading existing data from %s', step['module_options']['output_file'])
         previous_data = load_yaml_data(step['module_options']['output_file'])
-        final_data = sorted({x["url"]: x for x in (data + previous_data)}.values(), key=lambda x: x["url"])
+        final_data = sorted({x["url"]: x for x in (new_data + previous_data)}.values(), key=lambda x: x["url"])
         with open(step['module_options']['output_file'], 'w+', encoding="utf-8") as yaml_file:
             logging.debug('writing file %s', step['module_options']['output_file'])
             yaml.dump(final_data, yaml_file)
     else:
         with open(step['module_options']['output_file'], 'w+', encoding="utf-8") as yaml_file:
             logging.debug('writing file %s', step['module_options']['output_file'])
-            yaml.dump(data, yaml_file)
+            yaml.dump(new_data, yaml_file)
