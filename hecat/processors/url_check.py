@@ -6,19 +6,19 @@ steps:
   - name: check URLs
     module: processors/url_check
     module_options:
-      source_directories: # check URLs in all .yml files under these directories
+      source_directories: # (default []) check URLs in all .yml files under these directories
         - awesome-selfhosted-data/software
         - awesome-selfhosted-data/tags
-      source_files: # check URLs in these files
+      source_files: # (default []) check URLs in these files
         - shaarli.yml
         - awesome-selfhosted-data/licenses.yml
-      check_keys: # (list) YAML keys containing URLs to check, if they exist
+      check_keys: # (default ['url', 'source_code_url', 'website_url', 'demo_url']) YAML keys containing URLs to check, if they exist
         - url
         - source_code_url
         - website_url
         - demo_url
       errors_are_fatal: False # (default False) if True exit with error code 1 at the end of processing, if any checks were unsuccessful
-      exclude_regex: # (list, default empty) don't check URLs matching these regular expressions
+      exclude_regex: # (default []) don't check URLs matching these regular expressions
         - '^https://github.com/[\w\.\-]+/[\w\.\-]+$' # don't check URLs that will be processed by the github_metadata module
 """
 
@@ -52,6 +52,12 @@ def check_urls(step):
     checked_urls = []
     if 'exclude_regex' not in step['module_options'].keys():
         step['module_options']['exclude_regex'] = []
+    if 'source_directories' not in step['module_options'].keys():
+        step['module_options']['source_directories'] = []
+    if 'source_files' not in step['module_options'].keys():
+        step['module_options']['source_files'] = []
+    if 'check_keys' not in step['module_options'].keys():
+        step['module_options']['check_keys'] = ['url', 'source_code_url', 'website_url', 'demo_url']
     for source_directory in step['module_options']['source_directories']: # TODO factorize
         new_data = load_yaml_data(source_directory)
         data = data + new_data
