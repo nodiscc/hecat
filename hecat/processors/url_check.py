@@ -20,6 +20,7 @@ steps:
       errors_are_fatal: False # (default False) if True exit with error code 1 at the end of processing, if any checks were unsuccessful
       exclude_regex: # (default []) don't check URLs matching these regular expressions
         - '^https://github.com/[\w\.\-]+/[\w\.\-]+$' # don't check URLs that will be processed by the github_metadata module
+        - '^https://www.youtube.com/watch.*$' # don't check youtube video URLs, always returns HTTP 200 even for unavailable videos
 """
 
 import sys

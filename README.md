@@ -164,6 +164,8 @@ Import data from a Shaarli instance, download video/audio files identified by sp
       check_keys:
         - url
       errors_are_fatal: True
+      exclude_regex:
+        - '^https://www.youtube.com/watch.*$' # don't check youtube video URLs, always returns HTTP 200 even for unavailable videos
 ```
 
 Schedule automatic metadata update every hour from Github Actions:
