@@ -33,18 +33,18 @@ import requests
 VALID_HTTP_CODES = [200, 206]
 # INVALID_HTTP_CODES = [403, 404, 500]
 
-def check_return_code(url, errors):
+def check_return_code(url, current_item_index, total_item_count, errors):
     try:
         response = requests.get(url, headers={"Range": "bytes=0-200", "User-Agent": "hecat/0.0.1"}, timeout=10)
         if response.status_code in VALID_HTTP_CODES:
-            logging.info('%s HTTP %s', url, response.status_code)
+            logging.info('[%s/%s] %s HTTP %s', current_item_index, total_item_count, url, response.status_code)
         else:
             error_msg = '{} - HTTP {}'.format(url, response.status_code)
-            logging.error(error_msg)
+            logging.error('[%s/%s] %s', current_item_index, total_item_count, error_msg)
             errors.append(error_msg)
     except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout, requests.exceptions.ContentDecodingError) as connection_error:
         error_msg = 'URL {} : {}'.format(url, connection_error)
-        logging.error(error_msg)
+        logging.error('[%s/%s] %s', current_item_index, total_item_count, error_msg)
         errors.append(error_msg)
 
 def check_urls(step):
@@ -65,16 +65,20 @@ def check_urls(step):
     for source_file in step['module_options']['source_files']:
         new_data = load_yaml_data(source_file)
         data = data + new_data
+    total_item_count = len(data)
+    logging.info('loaded %s items', total_item_count)
+    current_item_index = 1
     for item in data:
         for key_name in step['module_options']['check_keys']:
             try:
                 if any(re.search(regex, item[key_name]) for regex in step['module_options']['exclude_regex']):
-                    logging.debug('skipping URL %s, matches exclude_regex', item[key_name])
+                    logging.debug('[%s/%s] skipping URL %s, matches exclude_regex', current_item_index, total_item_count, item[key_name])
                     continue
                 else:
                     if item[key_name] not in checked_urls:
-                        check_return_code(item[key_name], errors)
+                        check_return_code(item[key_name], current_item_index, total_item_count, errors)
                         checked_urls.append(item[key_name])
+                current_item_index = current_item_index + 1
             except KeyError:
                 pass
     if errors:
