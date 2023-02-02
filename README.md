@@ -122,7 +122,7 @@ steps:
 
 ```
 
-Import data from a Shaarli instance, download video/audio files identified by specific tags:
+Import data from a Shaarli instance, download video/audio files identified by specific tags, check for dead links:
 
 ```yaml
 # .hecat.yml
@@ -156,6 +156,14 @@ Import data from a Shaarli instance, download video/audio files identified by sp
       output_directory: 'tests/audio'
       only_audio: True
 
+  - name: check URLs
+    module: processors/url_check
+    module_options:
+      source_files:
+        - /home/live/Nextcloud/data/shaarli.yml
+      check_keys:
+        - url
+      errors_are_fatal: True
 ```
 
 Schedule automatic metadata update every hour from Github Actions:
