@@ -31,22 +31,37 @@ env:
   GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 """
 
+import sys
 import ruamel.yaml
 import logging
 import re
 import os
 from datetime import datetime
 from ..utils import load_yaml_data, to_kebab_case
-from github import Github
+import github
 
 yaml = ruamel.yaml.YAML(typ='rt')
 yaml.indent(sequence=4, offset=2)
 
-def get_gh_metadata(github_url, g):
+class dummy_gh_metadata(dict):
+    """a dummy metdata object that will be returned when fetching metadata from github API fails"""
+    def __init__(self):
+        self.stargazers_count = 0
+        self.archived = False
+    pass
+
+def get_gh_metadata(github_url, g, errors):
     """get github project metadata from Github API"""
     project = re.sub('https://github.com/', '', github_url)
-    gh_metadata = g.get_repo(project)
-    latest_commit_date = gh_metadata.get_commits()[0].commit.author.date
+    try:
+        gh_metadata = g.get_repo(project)
+        latest_commit_date = gh_metadata.get_commits()[0].commit.author.date
+    except github.GithubException as github_error:
+        error_msg = '{} : {}'.format(github_url, github_error)
+        logging.error(error_msg)
+        errors.append(error_msg)
+        gh_metadata = dummy_gh_metadata()
+        latest_commit_date = datetime.strptime('1970-01-01', '%Y-%m-%d')
     return gh_metadata, latest_commit_date
 
 def write_software_yaml(step, software):
@@ -61,7 +76,8 @@ def write_software_yaml(step, software):
 def add_github_metadata(step):
     """gather github project data and add it to source YAML files"""
     GITHUB_TOKEN = os.environ['GITHUB_TOKEN']
-    g = Github(GITHUB_TOKEN)
+    g = github.Github(GITHUB_TOKEN)
+    errors = []
     software_list = load_yaml_data(step['module_options']['source_directory'] + '/software')
     logging.info('updating software data from Github API')
     for software in software_list:
@@ -77,7 +93,7 @@ def add_github_metadata(step):
             if 'gh_metadata_only_missing' in step['module_options'].keys() and step['module_options']['gh_metadata_only_missing']:
                 if ('stargazers_count' not in software) or ('updated_at' not in software) or ('archived' not in software):
                     logging.info('Missing metadata for %s, gathering it from Github API', software['name'])
-                    gh_metadata, latest_commit_date = get_gh_metadata(github_url, g)
+                    gh_metadata, latest_commit_date = get_gh_metadata(github_url, g, errors)
                     software['stargazers_count'] = gh_metadata.stargazers_count
                     software['updated_at'] = datetime.strftime(latest_commit_date, "%Y-%m-%d")
                     software['archived'] = gh_metadata.archived
@@ -86,8 +102,12 @@ def add_github_metadata(step):
                     logging.debug('all metadata already present, skipping %s', github_url)
             else:
                 logging.info('Gathering metadata for %s from Github API', github_url)
-                gh_metadata, latest_commit_date = get_gh_metadata(github_url, g)
+                gh_metadata, latest_commit_date = get_gh_metadata(github_url, g, errors)
                 software['stargazers_count'] = gh_metadata.stargazers_count
                 software['updated_at'] = datetime.strftime(latest_commit_date, "%Y-%m-%d")
                 software['archived'] = gh_metadata.archived
                 write_software_yaml(step, software)
+    if errors:
+        logging.error("There were errors during processing")
+        print('\n'.join(errors))
+        sys.exit(1)
