@@ -29,6 +29,7 @@ from ..utils import load_yaml_data
 
 yaml = ruamel.yaml.YAML()
 yaml.indent(sequence=2, offset=0)
+yaml.width = 99999
 
 def import_shaarli_json(step):
     """Import data from the JSON output of Shaarli API"""
