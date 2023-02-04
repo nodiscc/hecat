@@ -35,15 +35,16 @@ VALID_HTTP_CODES = [200, 206]
 
 def check_return_code(url, current_item_index, total_item_count, errors):
     try:
+        # GET only first 200 bytes when possible, servers that do not support the Range: header will simply return the entire page
         response = requests.get(url, headers={"Range": "bytes=0-200", "User-Agent": "hecat/0.0.1"}, timeout=10)
         if response.status_code in VALID_HTTP_CODES:
             logging.info('[%s/%s] %s HTTP %s', current_item_index, total_item_count, url, response.status_code)
         else:
-            error_msg = '{} - HTTP {}'.format(url, response.status_code)
+            error_msg = '{} : HTTP {}'.format(url, response.status_code)
             logging.error('[%s/%s] %s', current_item_index, total_item_count, error_msg)
             errors.append(error_msg)
     except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout, requests.exceptions.ContentDecodingError) as connection_error:
-        error_msg = 'URL {} : {}'.format(url, connection_error)
+        error_msg = '{} : {}'.format(url, connection_error)
         logging.error('[%s/%s] %s', current_item_index, total_item_count, error_msg)
         errors.append(error_msg)
 
