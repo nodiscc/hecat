@@ -70,6 +70,8 @@ steps:
 
 ### Examples
 
+#### Awesome lists
+
 Import data from [awesome-selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted), apply processing steps, export to single-page markdown again
 
 ```yaml
@@ -122,6 +124,53 @@ steps:
 
 ```
 
+Schedule automatic metadata update every hour from Github Actions:
+
+```yaml
+# .github/workflows/update-metadata.yml
+on:
+  schedule:
+    - cron: '22 * * * *'
+
+env:
+  GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+jobs:
+  test_schedule:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: install hecat
+        run: |
+          python3 -m venv .venv
+          source .venv/bin/activate
+          pip3 install wheel
+          pip3 install --force git+https://github.com/nodiscc/hecat.git@master
+      - name: update all metadata from Github API
+        run: source .venv/bin/activate && hecat --config .hecat.update_metadata.yml
+      - name: commit and push changes
+        run: |
+          git config user.name awesome-selfhosted-bot
+          git config user.email github-actions@github.com
+          git add software/ tags/ platforms/ licenses*.yml
+          git diff-index --quiet HEAD || git commit -m "[bot] update projects metadata"
+          git push
+```
+
+```yaml
+# .hecat.update_metadata.yml
+steps:
+  - name: update all metadata from Github API
+    module: processors/github_metadata
+    module_options:
+      source_directory: ./
+      gh_metadata_only_missing: False
+```
+
+
+#### Shaarli
+
 Import data from a Shaarli instance, download video/audio files identified by specific tags, check for dead links:
 
 ```yaml
@@ -171,49 +220,6 @@ steps:
           - '^https://www.youtube.com/watch.*$' # don't check youtube video URLs, always returns HTTP 200 even for unavailable videos```
 ```
 
-Schedule automatic metadata update every hour from Github Actions:
-
-```yaml
-# .github/workflows/update-metadata.yml
-on:
-  schedule:
-    - cron: '22 * * * *'
-
-env:
-  GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-
-jobs:
-  test_schedule:
-    runs-on: ubuntu-latest
-    steps:
-      - name: checkout
-        uses: actions/checkout@v3
-      - name: install hecat
-        run: |
-          python3 -m venv .venv
-          source .venv/bin/activate
-          pip3 install wheel
-          pip3 install --force git+https://github.com/nodiscc/hecat.git@master
-      - name: update all metadata from Github API
-        run: source .venv/bin/activate && hecat --config .hecat.update_metadata.yml
-      - name: commit and push changes
-        run: |
-          git config user.name awesome-selfhosted-bot
-          git config user.email github-actions@github.com
-          git add software/ tags/ platforms/ licenses*.yml
-          git diff-index --quiet HEAD || git commit -m "[bot] update projects metadata"
-          git push
-```
-
-```yaml
-# .hecat.update_metadata.yml
-steps:
-  - name: update all metadata from Github API
-    module: processors/github_metadata
-    module_options:
-      source_directory: ./
-      gh_metadata_only_missing: False
-```
 
 ## Support
 
