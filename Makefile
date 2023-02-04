@@ -13,7 +13,7 @@ install:
 ##### TESTS #####
 
 .PHONY: test # run tests
-test: test_pylint clean clone_awesome_selfhosted test_import_awesome_selfhosted test_process_awesome_selfhosted test_export_awesome_selfhosted test_import_shaarli test_download_video test_download_audio test_export_html_table
+test: test_pylint clean test_import_shaarli test_download_video test_download_audio test_export_html_table clone_awesome_selfhosted test_import_awesome_selfhosted test_process_awesome_selfhosted test_export_awesome_selfhosted
 
 .PHONY: test_pylint # run linter (non blocking)
 test_pylint: install
