@@ -33,6 +33,21 @@
         "url": "https://en.wikipedia.org/wiki/SMACS_J0723.3%E2%80%937327"
     },
     {
+        "created": "2020-07-23T19:54:15+02:00",
+        "description": "```\r\n   rescue:\r\n     - debug:\r\n         msg: 'I caught an error, can do stuff here to fix it, :-)'\r\n   always:\r\n     - debug:\r\n         msg: \"This always executes, :-)\"\r\n```",
+        "id": 232,
+        "private": false,
+        "shorturl": "oJmZFg",
+        "tags": [
+            "doc",
+            "admin",
+            "ansible"
+        ],
+        "title": "Blocks \u2014 Ansible Documentation",
+        "updated": "2023-01-25T15:02:16+01:00",
+        "url": "https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_blocks.html"
+    },
+    {
         "created": "2017-07-13T03:05:20+02:00",
         "description": "&gt;    That gibberish he talked was Cityspeak, gutter talk, a mishmash of Japanese, Spanish, German, what have you. I didn\u2019t really need a translator. I knew the lingo, every good cop did. But I wasn\u2019t going to make it easier for him.",
         "id": 2083,
