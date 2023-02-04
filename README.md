@@ -134,7 +134,8 @@ Import data from a Shaarli instance, download video/audio files identified by sp
     module_options:
       source_file: tests/shaarli.json
       output_file: tests/shaarli.yml
-      skip_existing: True # optional, default True
+      skip_existing: True # (default True) skip importing items whose 'url:' already exists in the output file
+      clean_removed: False # (default False) remove items from the output file, whose 'url:' was not found in the input file
 
   - name: download video files
     module: processors/download_media

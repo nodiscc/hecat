@@ -4,4 +4,5 @@ steps:
     module_options:
       source_file: tests/shaarli.json
       output_file: tests/shaarli.yml
-      skip_existing: True # optional, default True
+      skip_existing: True
+      clean_removed: True
