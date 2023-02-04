@@ -129,44 +129,46 @@ Import data from a Shaarli instance, download video/audio files identified by sp
 # $ python3 -m venv .venv && source .venv/bin/activate && pip3 install shaarli-client
 # $ mkdir -p ~/.config/shaarli/ && nano ~/.config/shaarli/client.ini
 # $ shaarli get-links --limit=all >| tests/shaarli.json
+steps:
   - name: import data shaarli from shaarli API JSON
-    module: importers/shaarli_api
-    module_options:
-      source_file: tests/shaarli.json
-      output_file: tests/shaarli.yml
-      skip_existing: True # (default True) skip importing items whose 'url:' already exists in the output file
-      clean_removed: False # (default False) remove items from the output file, whose 'url:' was not found in the input file
+      module: importers/shaarli_api
+      module_options:
+        source_file: shaarli-export.json
+        output_file: shaarli.yml
+        skip_existing: True # (default True) skip importing items whose 'url:' already exists in the output file
+        clean_removed: False # (default False) remove items from the output file, whose 'url:' was not found in the input file
 
   - name: download video files
-    module: processors/download_media
-    module_options:
-      data_file: tests/shaarli.yml
-      only_tags: ['video']
-      exclude_tags: ['nodl'] # optional, don't download items tagged with any of these tags
-      output_directory: 'tests/video'
-      download_playlists: False # optional, default False
-      skip_when_filename_present: False # optional, default False
-      retry_items_with_error: True # optional, default True
+      module: processors/download_media
+      module_options:
+        data_file: shaarli.yml # path to the YAML data file
+        only_tags: ['video'] # only download items tagged with all these tags
+        exclude_tags: ['nodl'] # (default []), don't download items tagged with any of these tags
+        output_directory: '/path/to/video/directory' # path to the output directory for media files
+        download_playlists: False # (default False) download playlists
+        skip_when_filename_present: True # (default True) skip processing when item already has a 'video_filename/audio_filename': key
+        retry_items_with_error: True # (default True) retry downloading items for which an error was previously recorded
+        use_download_archive: True # (default True) use a yt-dlp archive file to record downloaded items, skip them if already downloaded
 
-  - name: download audio files
-    module: processors/download_media
-    module_options:
-      data_file: tests/shaarli.yml
-      only_tags: ['music']
-      exclude_tags: ['nodl']
-      output_directory: 'tests/audio'
-      only_audio: True
+    - name: download audio files
+      module: processors/download_media
+      module_options:
+        data_file: shaarli.yml
+        only_tags: ['music']
+        exclude_tags: ['nodl']
+        output_directory: '/path/to/audio/directory'
+        only_audio: True # (default False) download the 'bestaudio' format instead of the default 'best'
 
-  - name: check URLs
-    module: processors/url_check
-    module_options:
-      source_files:
-        - /home/live/Nextcloud/data/shaarli.yml
-      check_keys:
-        - url
-      errors_are_fatal: True
-      exclude_regex:
-        - '^https://www.youtube.com/watch.*$' # don't check youtube video URLs, always returns HTTP 200 even for unavailable videos
+    - name: check URLs
+      module: processors/url_check
+      module_options:
+        source_files:
+          - shaarli.yml
+        check_keys:
+          - url
+        errors_are_fatal: True
+        exclude_regex:
+          - '^https://www.youtube.com/watch.*$' # don't check youtube video URLs, always returns HTTP 200 even for unavailable videos```
 ```
 
 Schedule automatic metadata update every hour from Github Actions:

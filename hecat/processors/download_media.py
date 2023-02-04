@@ -11,13 +11,13 @@ steps:
     module_options:
       data_file: tests/shaarli.yml # path to the YAML data file
       only_tags: ['video'] # only download items tagged with all these tags
-      exclude_tags: ['nodl'] # optional, don't download items tagged with any of these tags
+      exclude_tags: ['nodl'] # (default []), don't download items tagged with any of these tags
       output_directory: 'tests/video' # path to the output directory for media files
-      download_playlists: False # optional, default False, download playlists
-      skip_when_filename_present: True # optional, default True, skip processing when item already has a 'video_filename/audio_filename': key
-      retry_items_with_error: True # optional, default True, retry downloading items for which an error was previously recorded
-      only_audio: False # optional, default False, download the 'bestaudio' format instead of the default 'best'
-      use_download_archive: True # optional, default True, use a yt-dlp archive file to record downloaded items, skip them if already downloaded
+      download_playlists: False # (default False) download playlists
+      skip_when_filename_present: True # (default True) skip processing when item already has a 'video_filename/audio_filename': key
+      retry_items_with_error: True # (default True) retry downloading items for which an error was previously recorded
+      only_audio: False # (default False) download the 'bestaudio' format instead of the default 'best'
+      use_download_archive: True # (default True) use a yt-dlp archive file to record downloaded items, skip them if already downloaded
 
 # $ cat tests/.hecat.download_audio.yml
 steps:
