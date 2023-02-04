@@ -9,14 +9,14 @@ from setuptools import find_packages, setup
 setup(
     name='hecat',
     version='0.0.1',
-    description='Software catalog generator',
-    long_description='Software catalog generator',
+    description='generic automation tool around data stored as plaintext YAML files',
+    long_description='generic automation tool around data stored as plaintext YAML files',
     author='nodiscc',
     maintainer='nodiscc',
     maintainer_email='nodiscc@gmail.com',
     license='GPL-3.0',
     url='https://gitlab.com/nodiscc/hecat',
-    keywords='yaml generator alternative software list',
+    keywords='yaml,generator,awesome,list,software,catalog,archiving,shaarli,downloader,yt-dlp,markdown,html',
     packages=find_packages(exclude=['tests.*', 'tests']),
     entry_points={
         'console_scripts': [
