@@ -46,14 +46,16 @@ def import_shaarli_json(step):
             logging.info('writing file %s', step['module_options']['output_file'])
             yaml.dump(final_data, yaml_file)
         logging.info('checking for URLs that are present in the output file, but not in the source file')
+        items_were_removed = False
         for final_item in final_data:
             if not any(new_item['url'] == final_item['url'] for new_item in new_data):
                 if step['module_options']['clean_removed']:
                     logging.info('item with URL %s not found in %s. Deleting from output file: %s.', final_item['url'], step['module_options']['source_file'], final_item)
                     final_data.remove(final_item)
+                    items_were_removed = True
                 else:
                     logging.warning('item with URL %s not found in %s. Consider deleting it manually or using clean_removed: True.', final_item['url'], step['module_options']['source_file'])
-        if step['module_options']['clean_removed']:
+        if step['module_options']['clean_removed'] and items_were_removed:
             with open(step['module_options']['output_file'], 'w+', encoding="utf-8") as yaml_file:
                 logging.info('writing file %s', step['module_options']['output_file'])
                 yaml.dump(final_data, yaml_file)
