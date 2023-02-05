@@ -19,6 +19,7 @@ import os
 import logging
 from jinja2 import Template
 from ..utils import load_yaml_data
+from datetime import datetime
 import markdown
 
 HTML_JINJA = """
@@ -53,6 +54,11 @@ HTML_JINJA = """
 
   tr:hover {
     background-color: #E6F3F9;
+  }
+
+  thead {
+    font-weight: bold;
+    background-color: #EAEAEA;
   }
 
   code {
@@ -133,13 +139,20 @@ function myFunctionTag() {
 <span>{{ link_count }} links</span>
 <span style="font-size: 75%; color: #666; text-align: 'right';">Built with <a href="https://github.com/nodiscc/hecat">hecat</a></span>
 </div>
-</div>
 <table id="myTable">
+  <thead>
+    <tr>
+      <td>Title</td>
+      <td>Date</td>
+      <td>Tags</td>
+    </tr>
+  </thead>
 {% for item in items %}
 <tr>
   <td><a href='{{ item['url'] }}'>{{ item['title'] }}</a>
   {% if item['description'] is defined and item['description'] %}<br/><details><summary></summary>{{ jinja_markdown(item['description']) }}</details>{% endif %}
   </td>
+  <td>{{ simple_datetime(item.created) }}</td>
   <td><code>@{{ '</code> <code>@'.join(item['tags']) }}</code></td>
 <tr/>
 {% endfor %}
@@ -153,6 +166,9 @@ def jinja_markdown(text):
   """wrapper for using the markdown library from inside the jinja2 template"""
   return markdown.markdown(text)
 
+def simple_datetime(date):
+  return datetime.strftime(datetime.strptime(date, "%Y-%m-%dT%H:%M:%S%z"), "%Y-%m-%d %H:%M:%S")
+
 def render_html_table(step):
     """render the list data as a HTML table"""
     if 'output_file' not in step['module_options']:
@@ -163,6 +179,7 @@ def render_html_table(step):
     link_count = len(data)
     html_template = Template(HTML_JINJA)
     html_template.globals['jinja_markdown'] = jinja_markdown
+    html_template.globals['simple_datetime'] = simple_datetime
     with open(step['module_options']['output_file'], 'w+', encoding="utf-8") as html_file:
         logging.info('writing file %s', step['module_options']['output_file'])
         html_file.write(html_template.render(items=data,link_count=link_count,html_title=step['module_options']['html_title']))
