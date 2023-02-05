@@ -48,7 +48,6 @@ class DummyGhMetadata(dict):
     def __init__(self):
         self.stargazers_count = 0
         self.archived = False
-    pass
 
 def get_gh_metadata(github_url, g, errors):
     """get github project metadata from Github API"""
