@@ -23,8 +23,8 @@ Output directory structure:
 
 import os
 import logging
-import ruamel.yaml
 import json
+import ruamel.yaml
 from ..utils import load_yaml_data
 
 yaml = ruamel.yaml.YAML()
