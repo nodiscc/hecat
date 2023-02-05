@@ -1,4 +1,5 @@
 """hecat CLI entrypoint"""
+import sys
 import argparse
 import logging
 from .utils import load_yaml_data
@@ -37,7 +38,7 @@ def main():
             render_html_table(step)
         else:
             logging.error('step %s: unknown module %s', step['name'], step['module'])
-            exit(1)
+            sys.exit(1)
     logging.info('all steps completed')
 
 if __name__ == "__main__":
