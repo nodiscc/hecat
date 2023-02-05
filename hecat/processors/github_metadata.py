@@ -43,7 +43,7 @@ import github
 yaml = ruamel.yaml.YAML(typ='rt')
 yaml.indent(sequence=4, offset=2)
 
-class dummy_gh_metadata(dict):
+class DummyGhMetadata(dict):
     """a dummy metdata object that will be returned when fetching metadata from github API fails"""
     def __init__(self):
         self.stargazers_count = 0
@@ -60,7 +60,7 @@ def get_gh_metadata(github_url, g, errors):
         error_msg = '{} : {}'.format(github_url, github_error)
         logging.error(error_msg)
         errors.append(error_msg)
-        gh_metadata = dummy_gh_metadata()
+        gh_metadata = DummyGhMetadata()
         latest_commit_date = datetime.strptime('1970-01-01', '%Y-%m-%d')
     return gh_metadata, latest_commit_date
 
