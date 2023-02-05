@@ -32,13 +32,13 @@ env:
 """
 
 import sys
-import ruamel.yaml
 import logging
 import re
 import os
 from datetime import datetime
-from ..utils import load_yaml_data, to_kebab_case
+import ruamel.yaml
 import github
+from ..utils import load_yaml_data, to_kebab_case
 
 yaml = ruamel.yaml.YAML(typ='rt')
 yaml.indent(sequence=4, offset=2)
