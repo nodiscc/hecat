@@ -191,8 +191,7 @@ def import_tag(section, step):
         if not step['module_options']['overwrite_tags']:
             logging.debug('file %s already exists, not overwriting it', dest_file)
             return
-        else:
-            logging.debug('overwriting tag in %s', dest_file)
+        logging.debug('overwriting tag in %s', dest_file)
     related_tags = extract_related_tags(section)
     redirect = extract_redirect(section)
     description = extract_description(section)
