@@ -79,9 +79,9 @@ def check_urls(step):
                     if item[key_name] not in checked_urls:
                         check_return_code(item[key_name], current_item_index, total_item_count, errors)
                         checked_urls.append(item[key_name])
-                current_item_index = current_item_index + 1
             except KeyError:
                 pass
+        current_item_index = current_item_index + 1
     if errors:
         logging.error("There were errors during processing")
         print('\n'.join(errors))
