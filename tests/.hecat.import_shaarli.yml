@@ -1,5 +1,5 @@
 steps:
-  - name: import_shaarli
+  - name: import shaarli data
     module: importers/shaarli_api
     module_options:
       source_file: tests/shaarli.json

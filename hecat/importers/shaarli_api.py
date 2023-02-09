@@ -13,6 +13,8 @@ steps:
       output_file: shaarli.yml
       skip_existing: True # (default True) skip importing items whose 'url:' already exists in the output file
       clean_removed: False # (default False) remove items from the output file, whose 'url:' was not found in the input file
+      sort_by: created # (default 'created') key by which to sort the output list
+      sort_reverse: True # (default True) sort the output list in reverse order
 
 Source directory structure:
 └── shaarli.json
@@ -37,12 +39,18 @@ def import_shaarli_json(step):
         step['module_options']['skip_existing'] = True
     if 'clean_removed' not in step['module_options']:
         step['module_options']['clean_removed'] = False
+    if 'sort_by' not in step['module_options']:
+        step['module_options']['sort_by'] = 'created'
+    if 'sort_reverse' not in step['module_options']:
+        step['module_options']['sort_reverse'] = True
     with open(step['module_options']['source_file'], 'r', encoding="utf-8") as json_file:
         new_data = json.load(json_file)
     if os.path.exists(step['module_options']['output_file']) and step['module_options']['skip_existing']:
         logging.info('loading existing data from %s', step['module_options']['output_file'])
         previous_data = load_yaml_data(step['module_options']['output_file'])
-        final_data = sorted({x["url"]: x for x in (new_data + previous_data)}.values(), key=lambda x: x["url"])
+        final_data = sorted({x["url"]: x for x in (new_data + previous_data)}.values(),
+                             key=lambda x: x[step['module_options']['sort_by']],
+                             reverse=step['module_options']['sort_reverse'])
         with open(step['module_options']['output_file'], 'w+', encoding="utf-8") as yaml_file:
             logging.info('writing file %s', step['module_options']['output_file'])
             yaml.dump(final_data, yaml_file)
