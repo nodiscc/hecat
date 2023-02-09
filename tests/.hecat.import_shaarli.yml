@@ -6,3 +6,11 @@ steps:
       output_file: tests/shaarli.yml
       skip_existing: True
       clean_removed: True
+
+  - name: import updated shaarli data
+    module: importers/shaarli_api
+    module_options:
+      source_file: tests/shaarli-duplicate.json
+      output_file: tests/shaarli.yml
+      skip_existing: True
+      clean_removed: True
