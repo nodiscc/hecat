@@ -220,6 +220,8 @@ steps:
           - '^https://www.youtube.com/watch.*$' # don't check youtube video URLs, always returns HTTP 200 even for unavailable videos```
 ```
 
+[ffmpeg](https://ffmpeg.org/) must be installed for audio/video conversion support.
+
 
 ## Support
 

@@ -1,6 +1,7 @@
 """downloads videos/audio in `url` keys, using yt-dlp
 writes downloaded file names back to the original data file in 'filename' key
 Supported sites: https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md
+ffmpeg (https://ffmpeg.org/) must be installed for audio/video conversion support
 
 # $ python3 -m venv .venv && source .venv/bin/activate && pip3 install shaarli-client && shaarli get-links --limit=all >| shaarli.json
 # $ hecat --config tests/.hecat.import_shaarli.yml
