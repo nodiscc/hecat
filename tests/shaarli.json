@@ -30,7 +30,8 @@
         ],
         "title": "SMACS J0723.3\u20137327 - Wikipedia",
         "updated": "2022-07-27T22:18:23+02:00",
-        "url": "https://en.wikipedia.org/wiki/SMACS_J0723.3%E2%80%937327"
+        "url": "https://en.wikipedia.org/wiki/SMACS_J0723.3%E2%80%937327",
+        "some_key": "an example key, which should not be deleted by importing the duplicate/updated item in shaarli-duplicate.json"
     },
     {
         "created": "2020-07-23T19:54:15+02:00",

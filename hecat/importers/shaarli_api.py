@@ -48,9 +48,12 @@ def import_shaarli_json(step):
     if os.path.exists(step['module_options']['output_file']) and step['module_options']['skip_existing']:
         logging.info('loading existing data from %s', step['module_options']['output_file'])
         previous_data = load_yaml_data(step['module_options']['output_file'])
-        final_data = sorted({x["url"]: x for x in (new_data + previous_data)}.values(),
-                             key=lambda x: x[step['module_options']['sort_by']],
-                             reverse=step['module_options']['sort_reverse'])
+        previous_data = {d['url']: d for d in previous_data}
+        for d in new_data:
+            previous_data.setdefault(d['url'], dict()).update(d)
+        final_data = sorted(list(previous_data.values()),
+                            key=lambda x: x[step['module_options']['sort_by']],
+                            reverse=step['module_options']['sort_reverse'])
         with open(step['module_options']['output_file'], 'w+', encoding="utf-8") as yaml_file:
             logging.info('writing file %s', step['module_options']['output_file'])
             yaml.dump(final_data, yaml_file)
