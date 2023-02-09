@@ -67,6 +67,7 @@ from ..utils import list_files, to_kebab_case
 
 yaml = ruamel.yaml.YAML()
 yaml.indent(sequence=4, offset=2)
+yaml.width = 99999
 
 def load_markdown_list_sections(source_file):
     """return original markdown list sections, as a list of dicts:
