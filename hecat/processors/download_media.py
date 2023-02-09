@@ -116,7 +116,6 @@ def download_media(step, ydl_opts=YDL_DEFAULT_OPTS):
         ydl_opts['noplaylist'] == False
 
     items = load_yaml_data(step['module_options']['data_file'])
-    logging.info('starting download of video files')
     for item in items:
         # skip download when skip_when_filename_present = True, and video/audio_filename key already exists
         if (('skip_when_filename_present' not in step['module_options'].keys() or
