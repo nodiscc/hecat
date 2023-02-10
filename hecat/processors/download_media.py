@@ -105,10 +105,8 @@ def download_media(step, ydl_opts=YDL_DEFAULT_OPTS):
         filename_key = 'audio_filename'
         error_key = 'audio_download_error'
     # prepend output directory to the output filename template/archive filename
-    full_outtmpl = step['module_options']['output_directory'] + '/' + ydl_opts['outtmpl']
-    full_download_archive = step['module_options']['output_directory'] + '/' + ydl_opts['download_archive']
-    ydl_opts['outtmpl'] = full_outtmpl
-    ydl_opts['download_archive'] = full_download_archive
+    ydl_opts['outtmpl'] = step['module_options']['output_directory'] + '/' + ydl_opts['outtmpl']
+    ydl_opts['download_archive'] = step['module_options']['output_directory'] + '/' + ydl_opts['download_archive']
     # remove the download_archive option if use_download_archive is set to False
     if 'use_download_archive' in step['module_options'] and not step['module_options']['use_download_archive']:
         del ydl_opts['download_archive']
@@ -142,7 +140,7 @@ def download_media(step, ydl_opts=YDL_DEFAULT_OPTS):
                 try:
                     info = ydl.extract_info(item['url'], download=True)
                     if info is not None:
-                        # TODO does not get the real, final filename after audio extraction https://github.com/ytdl-org/youtube-dl/issues/5710
+                        # TODO does not get the real, final filename after audio extraction https://github.com/ytdl-org/youtube-dl/issues/5710, https://github.com/ytdl-org/youtube-dl/issues/7137
                         outpath = ydl.prepare_filename(info)
                         for item2 in items:
                             if item2['id'] == item['id']:
