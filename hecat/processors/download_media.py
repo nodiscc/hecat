@@ -65,19 +65,6 @@ yaml = ruamel.yaml.YAML()
 yaml.indent(sequence=2, offset=0)
 yaml.width = 4096 # don't wrap long lines in the output file
 
-# print(help(yt_dlp.YoutubeDL))
-# exit(1)
-YDL_DEFAULT_OPTS = {
-    'outtmpl': '%(uploader)s - %(title)s - %(extractor)s-%(id)s.%(ext)s', # without directory
-    'trim_file_name': 180,
-    'writeinfojson': True,
-    'writesubtitles': True,
-    'restrictfilenames': True,
-    'compat_opts': ['no-live-chat'],
-    'download_archive': 'yt-dlp.video.archive',
-    'noplaylist': True
-}
-
 def write_data_file(step, items):
     """write updated data back to the data file"""
     with open(step['module_options']['data_file'] + '.tmp', 'w', encoding="utf-8") as temp_yaml_file:
@@ -86,13 +73,24 @@ def write_data_file(step, items):
     logging.info('writing data file %s', step['module_options']['data_file'])
     os.rename(step['module_options']['data_file'] + '.tmp', step['module_options']['data_file'])
 
-def download_media(step, ydl_opts=YDL_DEFAULT_OPTS):
+def download_media(step):
     """download videos from the each item's 'url', if it matches one of step['only_tags'],
     write downloaded filenames to a new key audio_filename/video_filename in the original data file for each downloaded item
     """
+    # print(help(yt_dlp.YoutubeDL))
+    # exit(1)
+    ydl_opts = {
+        'outtmpl': '%(uploader)s - %(title)s - %(extractor)s-%(id)s.%(ext)s', # without directory
+        'trim_file_name': 180,
+        'writeinfojson': True,
+        'writesubtitles': True,
+        'restrictfilenames': True,
+        'compat_opts': ['no-live-chat'],
+        'download_archive': 'yt-dlp.video.archive',
+        'noplaylist': True
+    }
     filename_key = 'video_filename'
     error_key = 'video_download_error'
-    # initialize counters
     skipped_count = 0
     downloaded_count = 0
     error_count = 0
@@ -104,13 +102,10 @@ def download_media(step, ydl_opts=YDL_DEFAULT_OPTS):
         ydl_opts['download_archive'] = 'yt-dlp.audio.archive'
         filename_key = 'audio_filename'
         error_key = 'audio_download_error'
-    # prepend output directory to the output filename template/archive filename
     ydl_opts['outtmpl'] = step['module_options']['output_directory'] + '/' + ydl_opts['outtmpl']
     ydl_opts['download_archive'] = step['module_options']['output_directory'] + '/' + ydl_opts['download_archive']
-    # remove the download_archive option if use_download_archive is set to False
     if 'use_download_archive' in step['module_options'] and not step['module_options']['use_download_archive']:
         del ydl_opts['download_archive']
-    # set noplaylist option depending on step['download_playlists']
     if 'download_playlists' in step.keys() and step['download_playlists']:
         ydl_opts['noplaylist'] == False
 
