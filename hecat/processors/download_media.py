@@ -78,9 +78,8 @@ def download_media(step):
     write downloaded filenames to a new key audio_filename/video_filename in the original data file for each downloaded item
     """
     # print(help(yt_dlp.YoutubeDL))
-    # exit(1)
     ydl_opts = {
-        'outtmpl': '%(uploader)s - %(title)s - %(extractor)s-%(id)s.%(ext)s', # without directory
+        'outtmpl': '%(uploader)s - %(title)s - %(extractor)s-%(id)s.%(ext)s',
         'trim_file_name': 180,
         'writeinfojson': True,
         'writesubtitles': True,
