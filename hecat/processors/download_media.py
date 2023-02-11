@@ -63,7 +63,7 @@ from ..utils import load_yaml_data
 
 yaml = ruamel.yaml.YAML()
 yaml.indent(sequence=2, offset=0)
-yaml.width = 4096 # don't wrap long lines in the output file
+yaml.width = 99999
 
 def write_data_file(step, items):
     """write updated data back to the data file"""
