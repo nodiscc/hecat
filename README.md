@@ -230,7 +230,7 @@ steps:
       html_title: "Shaarli export - shaarli.example.org" # (default "hecat HTML export") output HTML title
 ```
 
-[ffmpeg](https://ffmpeg.org/) must be installed for audio/video conversion support.
+[ffmpeg](https://ffmpeg.org/) must be installed for audio/video conversion support. [jdupes](https://github.com/jbruchon/jdupes), [soundalike](https://github.com/derat/soundalike) and [videoduplicatefinder](https://github.com/0x90d/videoduplicatefinder) may further help dealing with duplicate files and media.
 
 
 ## Support
