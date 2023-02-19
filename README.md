@@ -178,7 +178,7 @@ Import data from a Shaarli instance, download video/audio files identified by sp
 # .hecat.yml
 # $ python3 -m venv .venv && source .venv/bin/activate && pip3 install shaarli-client
 # $ mkdir -p ~/.config/shaarli/ && nano ~/.config/shaarli/client.ini
-# $ shaarli get-links --limit=all >| tests/shaarli.json
+# $ shaarli --outfile tests/shaarli.json get-links --limit=all
 steps:
   - name: import data from shaarli API JSON
       module: importers/shaarli_api
