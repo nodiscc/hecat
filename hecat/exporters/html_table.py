@@ -81,10 +81,10 @@ HTML_JINJA = """
   .searchbar {
     background-color: #EAEAEA;
     padding: 10px;
+  }
 
   .date-column {
     min-width: 130px;
-  }
   }
 </style>
 
