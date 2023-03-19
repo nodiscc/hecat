@@ -202,25 +202,25 @@ steps:
         retry_items_with_error: True # (default True) retry downloading items for which an error was previously recorded
         use_download_archive: True # (default True) use a yt-dlp archive file to record downloaded items, skip them if already downloaded
 
-    - name: download audio files
-      module: processors/download_media
-      module_options:
-        data_file: shaarli.yml
-        only_tags: ['music']
-        exclude_tags: ['nodl']
-        output_directory: '/path/to/audio/directory'
-        only_audio: True # (default False) download the 'bestaudio' format instead of the default 'best'
+  - name: download audio files
+    module: processors/download_media
+    module_options:
+      data_file: shaarli.yml
+      only_tags: ['music']
+      exclude_tags: ['nodl']
+      output_directory: '/path/to/audio/directory'
+      only_audio: True # (default False) download the 'bestaudio' format instead of the default 'best'
 
-    - name: check URLs
-      module: processors/url_check
-      module_options:
-        source_files:
-          - shaarli.yml
-        check_keys:
-          - url
-        errors_are_fatal: True
-        exclude_regex:
-          - '^https://www.youtube.com/watch.*$' # don't check youtube video URLs, always returns HTTP 200 even for unavailable videos```
+  - name: check URLs
+    module: processors/url_check
+    module_options:
+      source_files:
+        - shaarli.yml
+      check_keys:
+        - url
+      errors_are_fatal: True
+      exclude_regex:
+        - '^https://www.youtube.com/watch.*$' # don't check youtube video URLs, always returns HTTP 200 even for unavailable videos```
 
   - name: export shaarli data to HTML table
     module: importers/shaarli_api
