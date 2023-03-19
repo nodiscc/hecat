@@ -174,16 +174,30 @@ steps:
 
 Import data from a Shaarli instance, download video/audio files identified by specific tags, check for dead links, export to single-page HTML page/table:
 
+```bash
+# hecat consumes output from https://github.com/shaarli/python-shaarli-client
+# install the python API client
+python3 -m venv .venv && source .venv/bin/activate && pip3 install shaarli-client
+# edit python-shaarli-client configuration file
+mkdir -p ~/.config/shaarli/ && nano ~/.config/shaarli/client.ini
+```
+```ini
+# ~/.config/shaarli/client.ini
+[shaarli]
+url = https://links.example.org
+secret = AAAbbbZZZvvvSSStttUUUvvVXYZ
+```
+```bash
+# download data from your shaarli instance
+shaarli --outfile /path/to/shaarli-export.json get-links --limit=all
+```
 ```yaml
 # .hecat.yml
-# $ python3 -m venv .venv && source .venv/bin/activate && pip3 install shaarli-client
-# $ mkdir -p ~/.config/shaarli/ && nano ~/.config/shaarli/client.ini
-# $ shaarli --outfile tests/shaarli.json get-links --limit=all
 steps:
   - name: import data from shaarli API JSON
       module: importers/shaarli_api
       module_options:
-        source_file: shaarli-export.json
+        source_file: /path/to/shaarli-export.json
         output_file: shaarli.yml
         skip_existing: True # (default True) skip importing items whose 'url:' already exists in the output file
         clean_removed: False # (default False) remove items from the output file, whose 'url:' was not found in the input file
