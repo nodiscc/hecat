@@ -7,6 +7,7 @@ steps:
       source_file: shaarli.yml # file from which data will be loaded
       output_file: index.html # (default index.html) output HTML table file
       html_title: "hecat HTML export" # (default "hecat HTML export") output HTML title
+      favicon_base64: "iVBORw0KGgoAAAAN..." # (defaults to the default favicon) base64-encoded png favicon
 
 Source directory structure:
 └── shaarli.yml
@@ -26,7 +27,7 @@ HTML_JINJA = """
 <html>
 <head>
 <title>{{ html_title }}</title>
-<link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAB3RJTUUH5wIEFgEeyYiWTQAAAAlQTFRFAAAALi4u////gGfi/AAAAAF0Uk5TAEDm2GYAAAABYktHRAJmC3xkAAAAKUlEQVQI12NggAPR0NAQBqlVq5YwSIaGpjBILsVFhK1MgSgBKwZrgwMAswcRaNWVOXAAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjMtMDItMDRUMjI6MDE6MzArMDA6MDB1Hpz/AAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIzLTAyLTA0VDIyOjAxOjMwKzAwOjAwBEMkQwAAAABJRU5ErkJggg==">
+<link rel="icon" href="data:image/png;base64,{{ favicon_base64 }}">
 <style>
   body {
     margin: 10px 20px;
@@ -179,6 +180,8 @@ def render_html_table(step):
         step['module_options']['output_file'] = 'index.html'
     if 'html_title' not in step['module_options']:
         step['module_options']['html_title'] = 'hecat HTML export'
+    if 'favicon_base64' not in step['module_options']:
+        step['module_options']['favicon_base64'] = 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAB3RJTUUH5wIEFgEeyYiWTQAAAAlQTFRFAAAALi4u////gGfi/AAAAAF0Uk5TAEDm2GYAAAABYktHRAJmC3xkAAAAKUlEQVQI12NggAPR0NAQBqlVq5YwSIaGpjBILsVFhK1MgSgBKwZrgwMAswcRaNWVOXAAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjMtMDItMDRUMjI6MDE6MzArMDA6MDB1Hpz/AAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIzLTAyLTA0VDIyOjAxOjMwKzAwOjAwBEMkQwAAAABJRU5ErkJggg=='
     data = load_yaml_data(step['module_options']['source_file'])
     link_count = len(data)
     html_template = Template(HTML_JINJA)
@@ -186,4 +189,8 @@ def render_html_table(step):
     html_template.globals['simple_datetime'] = simple_datetime
     with open(step['module_options']['output_file'], 'w+', encoding="utf-8") as html_file:
         logging.info('writing file %s', step['module_options']['output_file'])
-        html_file.write(html_template.render(items=data,link_count=link_count,html_title=step['module_options']['html_title']))
+        html_file.write(html_template.render(items=data,
+                                            link_count=link_count,
+                                            html_title=step['module_options']['html_title'],
+                                            favicon_base64=step['module_options']['favicon_base64']
+                                            ))
