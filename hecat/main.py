@@ -9,13 +9,20 @@ from .exporters import render_markdown_singlepage, render_html_table
 
 
 LOG_FORMAT = "%(levelname)s:%(filename)s: %(message)s"
-logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
+LOG_LEVEL_MAPPING = {
+                    'DEBUG': logging.DEBUG,
+                    'INFO': logging.INFO,
+                    'WARNING': logging.WARNING,
+                    'ERROR': logging.ERROR,
+                    }
 
 def main():
     """Main loop"""
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', dest='config_file', type=str, default='.hecat.yml', help='configuration file')
+    parser.add_argument('--config', dest='config_file', type=str, default='.hecat.yml', help='configuration file (default .hecat.yml)')
+    parser.add_argument('--log-level', dest='log_level', type=str, default='INFO', help='log level (default INFO)', choices=['ERROR', 'WARNING', 'INFO', 'DEBUG'])
     args = parser.parse_args()
+    logging.basicConfig(level=LOG_LEVEL_MAPPING.get(args.log_level), format=LOG_FORMAT)
     config = load_yaml_data(args.config_file)
     for step in config['steps']:
         logging.info('running step %s', step['name'])

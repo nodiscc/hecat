@@ -46,11 +46,12 @@ cd hecat && python3 setup.py install
 
 ```bash
 $ hecat --help
-usage: hecat [-h] [--config CONFIG_FILE]
+usage: hecat [-h] [--config CONFIG_FILE] [--log-level {ERROR,WARNING,INFO,DEBUG}]
 
 optional arguments:
   -h, --help            show this help message and exit
-  --config CONFIG_FILE  configuration file
+  --config CONFIG_FILE  configuration file (default .hecat.yml)
+  --log-level {ERROR,WARNING,INFO,DEBUG} log level (default INFO)
 ```
 
 If no configuration file is specified, configuration is read from `.hecat.yml` in the current directory.
