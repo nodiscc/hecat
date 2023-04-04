@@ -8,6 +8,7 @@ steps:
       output_file: index.html # (default index.html) output HTML table file
       html_title: "hecat HTML export" # (default "hecat HTML export") output HTML title
       favicon_base64: "iVBORw0KGgoAAAAN..." # (defaults to the default favicon) base64-encoded png favicon
+      description_format: paragraph # (details/paragraph, default details) wrap the description in a HTML details tag
 
 Source directory structure:
 └── shaarli.yml
@@ -16,6 +17,7 @@ Output directory structure:
 └── index.html
 """
 
+import sys
 import os
 import logging
 from jinja2 import Template
@@ -155,7 +157,7 @@ function myFunctionTag() {
 {% for item in items %}
 <tr>
   <td><a href='{{ item['url'] }}'>{{ item['title'] }}</a>
-  {% if item['description'] is defined and item['description'] %}<br/><details><summary></summary>{{ jinja_markdown(item['description']) }}</details>{% endif %}
+  {% if item['description'] is defined and item['description'] %}<br/>{% if description_format == 'details' %}<details><summary></summary>{% elif description_format == 'paragraph' %}<p>{% endif %}{{ jinja_markdown(item['description']) }}{% if description_format == 'details' %}</details>{% elif description_format == 'paragraph' %}</p>{% endif %}{% endif %}
   </td>
   <td>{{ simple_datetime(item.created) }}</td>
   <td><code>@{{ '</code> <code>@'.join(item['tags']) }}</code></td>
@@ -182,6 +184,11 @@ def render_html_table(step):
         step['module_options']['html_title'] = 'hecat HTML export'
     if 'favicon_base64' not in step['module_options']:
         step['module_options']['favicon_base64'] = 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAB3RJTUUH5wIEFgEeyYiWTQAAAAlQTFRFAAAALi4u////gGfi/AAAAAF0Uk5TAEDm2GYAAAABYktHRAJmC3xkAAAAKUlEQVQI12NggAPR0NAQBqlVq5YwSIaGpjBILsVFhK1MgSgBKwZrgwMAswcRaNWVOXAAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjMtMDItMDRUMjI6MDE6MzArMDA6MDB1Hpz/AAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIzLTAyLTA0VDIyOjAxOjMwKzAwOjAwBEMkQwAAAABJRU5ErkJggg=='
+    if 'description_format' not in step['module_options']:
+        step['module_options']['description_format'] == 'details'
+    if step['module_options']['description_format'] not in ['details', 'paragraph']:
+        logging.error('unrecognized value %s for description_format option. Allowed values: details, paragraph', step['module_options']['description_format'])
+        sys.exit(1)
     data = load_yaml_data(step['module_options']['source_file'])
     link_count = len(data)
     html_template = Template(HTML_JINJA)
@@ -192,5 +199,6 @@ def render_html_table(step):
         html_file.write(html_template.render(items=data,
                                             link_count=link_count,
                                             html_title=step['module_options']['html_title'],
-                                            favicon_base64=step['module_options']['favicon_base64']
+                                            favicon_base64=step['module_options']['favicon_base64'],
+                                            description_format=step['module_options']['description_format']
                                             ))
