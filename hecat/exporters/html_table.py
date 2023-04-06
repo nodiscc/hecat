@@ -185,7 +185,7 @@ def render_html_table(step):
     if 'favicon_base64' not in step['module_options']:
         step['module_options']['favicon_base64'] = 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAB3RJTUUH5wIEFgEeyYiWTQAAAAlQTFRFAAAALi4u////gGfi/AAAAAF0Uk5TAEDm2GYAAAABYktHRAJmC3xkAAAAKUlEQVQI12NggAPR0NAQBqlVq5YwSIaGpjBILsVFhK1MgSgBKwZrgwMAswcRaNWVOXAAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjMtMDItMDRUMjI6MDE6MzArMDA6MDB1Hpz/AAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIzLTAyLTA0VDIyOjAxOjMwKzAwOjAwBEMkQwAAAABJRU5ErkJggg=='
     if 'description_format' not in step['module_options']:
-        step['module_options']['description_format'] == 'details'
+        step['module_options']['description_format'] = 'details'
     if step['module_options']['description_format'] not in ['details', 'paragraph']:
         logging.error('unrecognized value %s for description_format option. Allowed values: details, paragraph', step['module_options']['description_format'])
         sys.exit(1)
