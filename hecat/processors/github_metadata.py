@@ -81,12 +81,12 @@ def add_github_metadata(step):
     logging.info('updating software data from Github API')
     for software in software_list:
         github_url = ''
-        if 'website_url' in software:
-            if re.search(r'^https://github.com/[\w\.\-]+/[\w\.\-]+$', software['website_url']):
-                github_url = software['website_url']
-        elif 'source_code_url' in software:
+        if 'source_code_url' in software:
             if re.search(r'^https://github.com/[\w\.\-]+/[\w\.\-]+$', software['source_code_url']):
                 github_url = software['source_code_url']
+        elif 'website_url' in software:
+            if re.search(r'^https://github.com/[\w\.\-]+/[\w\.\-]+$', software['website_url']):
+                github_url = software['website_url']
         if github_url:
             logging.debug('%s is a github project URL', github_url)
             if 'gh_metadata_only_missing' in step['module_options'].keys() and step['module_options']['gh_metadata_only_missing']:
