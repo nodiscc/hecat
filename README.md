@@ -94,6 +94,7 @@ steps:
     module_options:
       source_directory: awesome-selfhosted-data
       gh_metadata_only_missing: True # optional, default False
+      sleep_time: 7.3
 
   - name: check data against awesome-selfhosted guidelines
     module: processors/awesome_lint

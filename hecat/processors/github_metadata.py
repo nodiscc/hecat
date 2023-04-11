@@ -6,8 +6,9 @@ steps:
   - step: process
     module: processors/github_metadata
     module_options:
-      source_directory: awesome-selfhosted-data
-      gh_metadata_only_missing: False # optional, default False
+      source_directory: awesome-selfhosted-data # directory containing YAML data and software subdirectory
+      gh_metadata_only_missing: False # (default False) only gather metadata for software entries in which one of stargazers_count,updated_at, archived is missing
+      sleep_time: 3.7 (default 0) sleep for this amount of time before each request to Github API
 
 source_directory: path to directory where data files reside. Directory structure:
 ├── software
@@ -18,23 +19,22 @@ source_directory: path to directory where data files reside. Directory structure
 ├── tags
 └── ...
 
-gh_metadata_only_missing: if True, only gather metadata for software entries in which one of stargazers_count,
-updated_at, archived is missing.
-
 A Github access token (without privileges) must be defined in the `GITHUB_TOKEN` environment variable:
 $ GITHUB_TOKEN=AAAbbbCCCdd... hecat -c .hecat.yml
-
 On Github Actions a token is created automatically for each job. To make it available in the environment use the following workflow configuration:
-
 # .github/workflows/ci.yml
 env:
   GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+When using GITHUB_TOKEN, the API rate limit is 1,000 requests per hour per repository [[1]](https://docs.github.com/en/rest/overview/resources-in-the-rest-api?apiVersion=2022-11-28#rate-limits-for-requests-from-github-actions)
+Not that each call to get_gh_metadata() results in 2 API requests (on for the repo/stargazers count, one for the latest commit date)
 """
 
 import sys
 import logging
 import re
 import os
+import time
 from datetime import datetime
 import ruamel.yaml
 import github
@@ -49,8 +49,10 @@ class DummyGhMetadata(dict):
         self.stargazers_count = 0
         self.archived = False
 
-def get_gh_metadata(github_url, g, errors):
+def get_gh_metadata(step, github_url, g, errors):
     """get github project metadata from Github API"""
+    if 'sleep_time' in step['module_options']:
+        time.sleep(step['module_options']['sleep_time'])
     project = re.sub('https://github.com/', '', github_url)
     try:
         gh_metadata = g.get_repo(project)
@@ -92,7 +94,7 @@ def add_github_metadata(step):
             if 'gh_metadata_only_missing' in step['module_options'].keys() and step['module_options']['gh_metadata_only_missing']:
                 if ('stargazers_count' not in software) or ('updated_at' not in software) or ('archived' not in software):
                     logging.info('Missing metadata for %s, gathering it from Github API', software['name'])
-                    gh_metadata, latest_commit_date = get_gh_metadata(github_url, g, errors)
+                    gh_metadata, latest_commit_date = get_gh_metadata(step, github_url, g, errors)
                     software['stargazers_count'] = gh_metadata.stargazers_count
                     software['updated_at'] = datetime.strftime(latest_commit_date, "%Y-%m-%d")
                     software['archived'] = gh_metadata.archived
@@ -101,7 +103,7 @@ def add_github_metadata(step):
                     logging.debug('all metadata already present, skipping %s', github_url)
             else:
                 logging.info('Gathering metadata for %s from Github API', github_url)
-                gh_metadata, latest_commit_date = get_gh_metadata(github_url, g, errors)
+                gh_metadata, latest_commit_date = get_gh_metadata(step, github_url, g, errors)
                 software['stargazers_count'] = gh_metadata.stargazers_count
                 software['updated_at'] = datetime.strftime(latest_commit_date, "%Y-%m-%d")
                 software['archived'] = gh_metadata.archived
