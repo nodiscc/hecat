@@ -13,7 +13,10 @@ install:
 ##### TESTS #####
 
 .PHONY: test # run tests
-test: test_pylint clean test_import_shaarli test_download_video test_download_audio test_export_html_table clone_awesome_selfhosted test_import_awesome_selfhosted test_process_awesome_selfhosted test_export_awesome_selfhosted
+test: test_pylint clean test_import_shaarli test_download_video test_download_audio test_export_html_table clone_awesome_selfhosted test_import_awesome_selfhosted test_process_awesome_selfhosted test_export_awesome_selfhosted_md
+
+.PHONY: test_short # run tests except those that consume github API requests/long URL checks
+test_short: test_pylint clean test_import_shaarli test_download_video test_download_audio test_export_html_table clone_awesome_selfhosted test_awesome_lint test_export_awesome_selfhosted_md
 
 .PHONY: test_pylint # run linter (non blocking)
 test_pylint: install
@@ -36,16 +39,27 @@ test_import_awesome_selfhosted: install
 	hecat --config tests/.hecat.import_awesome_selfhosted.yml && \
 	hecat --config tests/.hecat.import_awesome_selfhosted_nonfree.yml
 
-.PHONY: test_process_awesome_selfhosted # test processing on awesome-selfhosted-data
-test_process_awesome_selfhosted: install
-	source .venv/bin/activate && \
-	hecat --config tests/.hecat.url_check.yml && \
-	hecat --config tests/.hecat.github_metadata.yml && \
-	hecat --config tests/.hecat.awesome_lint.yml
+.PHONY: test_process_awesome_selfhosted # test all processing steps on awesome-selfhosted-data
+test_process_awesome_selfhosted: install test_url_check test_update_github_metadata test_awesome_lint
 	cd awesome-selfhosted-data && git --no-pager diff --color=always
 
-.PHONY: test_export_awesome_selfhosted # test export to singlepage markdown from awesome-selfhosted-data
-test_export_awesome_selfhosted: install
+.PHONY: test_url_check # test URL checker on awesome-sefhosted-data
+test_url_check: install
+	source .venv/bin/activate && \
+	hecat --config tests/.hecat.url_check.yml && \
+
+.PHONY: test_update_github_metadata # test github metadata updater/processor on awesome-selfhosted-data
+test_update_github_metadata: install
+	source .venv/bin/activate && \
+	hecat --config tests/.hecat.github_metadata.yml && \
+
+.PHONY: test_awesome_lint # test linter/compliance checker on awesome-sefhosted-data
+test_awesome_lint:
+	source .venv/bin/activate && \
+	hecat --config tests/.hecat.awesome_lint.yml
+
+.PHONY: test_export_awesome_selfhosted_md # test export to singlepage markdown from awesome-selfhosted-data
+test_export_awesome_selfhosted_md: install
 	source .venv/bin/activate && \
 	hecat --config tests/.hecat.export_markdown_singlepage.yml && \
 	cd awesome-selfhosted && git --no-pager diff --color=always
