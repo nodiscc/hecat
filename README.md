@@ -121,17 +121,24 @@ steps:
     module_options:
       source_directory: awesome-selfhosted-data
 
-  - step: export YAML data to single-page markdown
+  - name: export YAML data to single-page markdown
     module: exporters/markdown_singlepage
     module_options:
-      source_directory: awesome-selfhosted-data
-      output_directory: awesome-selfhosted
-      output_file: README.md
-      authors_file: AUTHORS.md # optional, default no authors file
-      exclude_licenses: # optional, default []
-        - 'CC-BY-NC-4.0'
+      source_directory: awesome-selfhosted-data # source/YAML data directory
+      output_directory: awesome-selfhosted # output directory
+      output_file: README.md # output markdown file
+      back_to_top_url: '#awesome-selfhosted' # (default #) the URL/anchor to use in 'back to top' links
+      authors_file: AUTHORS.md # (default none) file containing the list of git commit authors
+      exclude_licenses: # (default none) do not write software items with any of these licenses to the output file
         - '⊘ Proprietary'
+        - 'BUSL-1.1'
+        - 'CC-BY-NC-4.0'
+        - 'CC-BY-NC-SA-3.0'
+        - 'CC-BY-ND-3.0'
+        - 'Commons-Clause'
+        - 'DPL'
         - 'SSPL-1.0'
+        - 'DPL'
 
   - name: check URLs
     module: processors/url_check

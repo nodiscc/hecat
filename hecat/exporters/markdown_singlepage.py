@@ -12,11 +12,12 @@ steps:
   - name: export YAML data to single-page markdown
     module: exporters/markdown_singlepage
     module_options:
-      source_directory: awesome-selfhosted-data
-      output_directory: awesome-selfhosted
-      output_file: README.md
-      authors_file: AUTHORS.md # optional, default no authors file
-      exclude_licenses: # optional, default []
+      source_directory: awesome-selfhosted-data # source/YAML data directory, see structure below
+      output_directory: awesome-selfhosted # output directory
+      output_file: README.md # output markdown file
+      back_to_top_url: '#awesome-selfhosted' # (default #) the URL/anchor to use in 'back to top' links
+      authors_file: AUTHORS.md # (default none) file containing the list of git commit authors
+      exclude_licenses: # (default none) do not write software items with any of these licenses to the output file
         - 'CC-BY-NC-4.0'
         - '⊘ Proprietary'
         - 'SSPL-1.0'
@@ -125,7 +126,7 @@ def render_markdown_singlepage_category(step, tag, software_list):
     # build markdown-formatted category
     markdown_category = '### {}{}{}{}{}{}'.format(
         tag['name'] + '\n\n',
-        '**[`^        back to top        ^`](#)**\n\n',
+        '**[`^        back to top        ^`](' + step['module_options']['back_to_top_url'] + ')**\n\n',
         markdown_description,
         markdown_redirect,
         markdown_related_tags,
@@ -240,6 +241,8 @@ def render_markdown_singlepage(step):
     markdown_software_list = '## Software\n\n'
     if 'exclude_licenses' not in step['module_options']:
         step['module_options']['exclude_licenses'] = []
+    if 'back_to_top_url' not in step['module_options']:
+        step['module_options']['back_to_top_url'] = '#'
     for tag in tags:
         markdown_category = render_markdown_singlepage_category(step, tag, software_list)
         markdown_software_list = markdown_software_list + markdown_category
