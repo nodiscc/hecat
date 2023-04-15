@@ -4,21 +4,40 @@ A generic automation tool around data stored as plaintext YAML files.
 
 **Status: experimental** [![CI](https://github.com/nodiscc/hecat/actions/workflows/ci.yml/badge.svg)](https://github.com/nodiscc/hecat/actions)
 
-This program uses YAML files to store data about various kind of items (bookmarks, software projects, ...). It is able to import data from various input formats, perform processing tasks (enrich data, run consistency checks...), and export data to other formats.
+This program uses YAML files to store data about various kind of items (bookmarks, software projects, ...) and apply various processing tasks.
+Functionality is implemented in separate modules.
 
-## Modules
+### Importers
+
+Import data from various input formats:
 
 - [importers/markdown_awesome](hecat/importers/markdown_awesome.py): import data from the [awesome-selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted) markdown format
 - [importers/shaarli_api](hecat/importers//shaarli_api.py): import data from a [Shaarli](https://github.com/shaarli/Shaarli) instance using the [API](https://shaarli.github.io/api-documentation/)
+
+[![](https://i.imgur.com/tMAxhLw.png)](hecat/importers/markdown_awesome.py)
+
+
+### Processors
+
+Perform processing tasks on YAML data:
+
 - [processors/github_metadata](hecat/processors/github_metadata.py): enrich software project metadata from GitHub API (stars, last commit date...)
 - [processors/awesome_lint](hecat/processors/awesome_lint.py): check data against [awesome-selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted) consistency/completeness guidelines
 - [processors/download_media](hecat/processors/download_media.py): download video/audio files using [yt-dlp](https://github.com/yt-dlp/yt-dlp) for bookmarks imported from Shaarli
 - [processors/url_check](hecat/processors/url_check.py): check data for dead links
+
+[![](https://i.imgur.com/Heg3Esg.png)](hecat/processors/url_check.py)
+[![](https://i.imgur.com/RtiDE91.png)](hecat/processors/download_media.py)
+
+
+#### Exporters
+
+Export data to other formats:
 - [exporters/markdown_singlepage](hecat/exporters/markdown_singlepage.py): export data from the [awesome-selfhosted-data](https://github.com/awesome-selfhosted/awesome-selfhosted-data) format to a single markdown document
 - [exporters/html_table](hecat/exporters/html_table.py): render data as single-page HTML table
 
 [![](https://i.imgur.com/NvCOeiK.png)](hecat/exporters/markdown_singlepage.py)
-[![](https://i.imgur.com/tMAxhLw.png)](hecat/importers/markdown_awesome.py)
+
 
 ## Installation
 
