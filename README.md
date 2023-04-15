@@ -37,6 +37,7 @@ Export data to other formats:
 - [exporters/html_table](hecat/exporters/html_table.py): render data as single-page HTML table
 
 [![](https://i.imgur.com/NvCOeiK.png)](hecat/exporters/markdown_singlepage.py)
+[![](https://i.imgur.com/FFMPdaw.png)](hecat/exporters/html_table.py)
 
 
 ## Installation
