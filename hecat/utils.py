@@ -24,7 +24,6 @@ def to_kebab_case(string):
     newstring = string.translate(str.maketrans(replacements)).lower()
     return newstring
 
-# DEBT factorize yaml loading from single/multiple files
 def load_yaml_data(path, sort_key=False):
     """load data from YAML source files
     if the path is a file, data will be loaded directly from it
@@ -53,7 +52,6 @@ def load_yaml_data(path, sort_key=False):
         logging.error('%s is not a file or directory', path)
         exit(1)
 
-# DEBT factorize yaml loading from single/multiple files
 def load_config(config_file):
     """load steps/settings from a configuration file"""
     yaml = ruamel.yaml.YAML(typ='rt')
