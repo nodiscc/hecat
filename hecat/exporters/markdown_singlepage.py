@@ -179,9 +179,9 @@ def render_markdown_list_item(software):
         )
     return markdown_list_item
 
-def render_markown_licenses(licenses):
+def render_markown_licenses(step, licenses):
     """render a markdown-formatted licenses list"""
-    markdown_licenses = '--------------------\n\n## List of Licenses\n\n**[`^        back to top        ^`](#)**\n\n'
+    markdown_licenses = '--------------------\n\n## List of Licenses\n\n**[`^        back to top        ^`](' + step['module_options']['back_to_top_url'] + ')**\n\n'
     for _license in licenses:
         try:
             markdown_licenses += '- `{}` - [{}]({})\n'.format(
@@ -246,7 +246,7 @@ def render_markdown_singlepage(step):
     for tag in tags:
         markdown_category = render_markdown_singlepage_category(step, tag, software_list)
         markdown_software_list = markdown_software_list + markdown_category
-    markdown_licenses = render_markown_licenses(licenses)
+    markdown_licenses = render_markown_licenses(step, licenses)
     markdown_toc_section = render_markdown_toc(
         markdown_header,
         markdown_software_list,
