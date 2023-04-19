@@ -33,20 +33,23 @@ import requests
 VALID_HTTP_CODES = [200, 206]
 # INVALID_HTTP_CODES = [403, 404, 500]
 
-def check_return_code(url, current_item_index, total_item_count, errors):
+def check_return_code(url, current_item_index, total_item_count, errors, success_count, error_count):
     try:
         # GET only first 200 bytes when possible, servers that do not support the Range: header will simply return the entire page
         response = requests.get(url, headers={"Range": "bytes=0-200", "User-Agent": "hecat/0.0.1"}, timeout=10)
         if response.status_code in VALID_HTTP_CODES:
             logging.info('[%s/%s] %s HTTP %s', current_item_index, total_item_count, url, response.status_code)
+            return True
         else:
             error_msg = '{} : HTTP {}'.format(url, response.status_code)
             logging.error('[%s/%s] %s', current_item_index, total_item_count, error_msg)
             errors.append(error_msg)
+            return False
     except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout, requests.exceptions.ContentDecodingError) as connection_error:
         error_msg = '{} : {}'.format(url, connection_error)
         logging.error('[%s/%s] %s', current_item_index, total_item_count, error_msg)
         errors.append(error_msg)
+        return False
 
 def check_urls(step):
     data = []
@@ -68,20 +71,28 @@ def check_urls(step):
         data = data + new_data
     total_item_count = len(data)
     logging.info('loaded %s items', total_item_count)
+    skipped_count = 0
+    success_count = 0
+    error_count = 0
     current_item_index = 1
     for item in data:
         for key_name in step['module_options']['check_keys']:
             try:
                 if any(re.search(regex, item[key_name]) for regex in step['module_options']['exclude_regex']):
-                    logging.debug('[%s/%s] skipping URL %s, matches exclude_regex', current_item_index, total_item_count, item[key_name])
+                    logging.info('[%s/%s] skipping URL %s, matches exclude_regex', current_item_index, total_item_count, item[key_name])
+                    skipped_count = skipped_count + 1
                     continue
                 else:
                     if item[key_name] not in checked_urls:
-                        check_return_code(item[key_name], current_item_index, total_item_count, errors)
+                        if check_return_code(item[key_name], current_item_index, total_item_count, errors, success_count, error_count):
+                            success_count = success_count + 1
+                        else:
+                            error_count = error_count + 1
                         checked_urls.append(item[key_name])
             except KeyError:
                 pass
         current_item_index = current_item_index + 1
+    logging.info('processing complete. Successful: %s - Skipped: %s - Errors %s', success_count, skipped_count, error_count)
     if errors:
         logging.error("There were errors during processing")
         print('\n'.join(errors))
