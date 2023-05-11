@@ -14,7 +14,7 @@ Import data from various input formats:
 - [importers/markdown_awesome](hecat/importers/markdown_awesome.py): import data from the [awesome-selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted) markdown format
 - [importers/shaarli_api](hecat/importers//shaarli_api.py): import data from a [Shaarli](https://github.com/shaarli/Shaarli) instance using the [API](https://shaarli.github.io/api-documentation/)
 
-[![](https://i.imgur.com/tMAxhLw.png)](hecat/importers/markdown_awesome.py)
+[![](https://gitlab.com/nodiscc/toolbox/-/raw/master/DOC/SCREENSHOTS/tMAxhLw.png)](hecat/importers/markdown_awesome.py)
 
 
 ### Processors
@@ -26,8 +26,8 @@ Perform processing tasks on YAML data:
 - [processors/download_media](hecat/processors/download_media.py): download video/audio files using [yt-dlp](https://github.com/yt-dlp/yt-dlp) for bookmarks imported from Shaarli
 - [processors/url_check](hecat/processors/url_check.py): check data for dead links
 
-[![](https://i.imgur.com/Heg3Esg.png)](hecat/processors/url_check.py)
-[![](https://i.imgur.com/RtiDE91.png)](hecat/processors/download_media.py)
+[![](https://gitlab.com/nodiscc/toolbox/-/raw/master/DOC/SCREENSHOTS/Heg3Esg.png)](hecat/processors/url_check.py)
+[![](https://gitlab.com/nodiscc/toolbox/-/raw/master/DOC/SCREENSHOTS/RtiDE91.png)](hecat/processors/download_media.py)
 
 
 #### Exporters
@@ -36,8 +36,8 @@ Export data to other formats:
 - [exporters/markdown_singlepage](hecat/exporters/markdown_singlepage.py): export data from the [awesome-selfhosted-data](https://github.com/awesome-selfhosted/awesome-selfhosted-data) format to a single markdown document
 - [exporters/html_table](hecat/exporters/html_table.py): render data as single-page HTML table
 
-[![](https://i.imgur.com/NvCOeiK.png)](hecat/exporters/markdown_singlepage.py)
-[![](https://i.imgur.com/FFMPdaw.png)](hecat/exporters/html_table.py)
+[![](https://gitlab.com/nodiscc/toolbox/-/raw/master/DOC/SCREENSHOTS/NvCOeiK.png)](hecat/exporters/markdown_singlepage.py)
+[![](https://gitlab.com/nodiscc/toolbox/-/raw/master/DOC/SCREENSHOTS/FFMPdaw.png)](hecat/exporters/html_table.py)
 
 
 ## Installation

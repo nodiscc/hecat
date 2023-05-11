@@ -1,6 +1,6 @@
 """export data to single markdown document suitable for "awesome" lists
 - https://github.com/sindresorhus/awesome
-- https://i.imgur.com/rJyCEFw.png
+- https://gitlab.com/nodiscc/toolbox/-/raw/master/DOC/SCREENSHOTS/rJyCEFw.png
 
 $ git clone https://github.com/awesome-selfhosted/awesome-selfhosted
 $ git clone https://github.com/awesome-selfhosted/awesome-selfhosted-data

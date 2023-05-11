@@ -1,5 +1,5 @@
 """import data from the awesome-selfhosted markdown format
-- https://i.imgur.com/E4ra3V8.png
+- https://gitlab.com/nodiscc/toolbox/-/raw/master/DOC/SCREENSHOTS/E4ra3V8.png
 
 # hecat.yml
 steps:
