@@ -92,7 +92,7 @@ def check_urls(step):
             except KeyError:
                 pass
         current_item_index = current_item_index + 1
-    logging.info('processing complete. Successful: %s - Skipped: %s - Errors %s', success_count, skipped_count, error_count)
+    logging.info('processing complete. Successful: %s - Skipped: %s - Errors: %s', success_count, skipped_count, error_count)
     if errors:
         logging.error("There were errors during processing")
         print('\n'.join(errors))
