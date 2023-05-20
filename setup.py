@@ -24,7 +24,7 @@ setup(
         ],
     },
     install_requires=[
-        'ruamel.yaml',
+        'ruamel.yaml==0.17.21',
         'PyGithub',
         'yt_dlp',
         'jinja2',
