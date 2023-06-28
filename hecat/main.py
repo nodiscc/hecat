@@ -21,8 +21,13 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', dest='config_file', type=str, default='.hecat.yml', help='configuration file (default .hecat.yml)')
     parser.add_argument('--log-level', dest='log_level', type=str, default='INFO', help='log level (default INFO)', choices=['ERROR', 'WARNING', 'INFO', 'DEBUG'])
+    parser.add_argument('--log-file', dest='log_file', type=str, default=None, help='log file (default none)')
     args = parser.parse_args()
-    logging.basicConfig(level=LOG_LEVEL_MAPPING.get(args.log_level), format=LOG_FORMAT)
+    if args.log_file is not None:
+        logging_handlers = [ logging.FileHandler(args.log_file), logging.StreamHandler() ]
+    else:
+        logging_handlers = [ logging.StreamHandler() ]
+    logging.basicConfig(level=LOG_LEVEL_MAPPING.get(args.log_level), format=LOG_FORMAT, handlers = logging_handlers)
     config = load_yaml_data(args.config_file)
     for step in config['steps']:
         logging.info('running step %s', step['name'])

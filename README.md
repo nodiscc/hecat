@@ -72,6 +72,7 @@ optional arguments:
   -h, --help            show this help message and exit
   --config CONFIG_FILE  configuration file (default .hecat.yml)
   --log-level {ERROR,WARNING,INFO,DEBUG} log level (default INFO)
+  --log-file LOG_FILE   log file (default none)
 ```
 
 If no configuration file is specified, configuration is read from `.hecat.yml` in the current directory.
