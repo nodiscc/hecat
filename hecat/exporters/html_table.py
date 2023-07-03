@@ -89,6 +89,13 @@ HTML_JINJA = """
   .date-column {
     min-width: 130px;
   }
+
+  blockquote {
+    border-left: 2px solid #CCC;
+    margin-left: 5px;
+    padding-left: 5px;
+    color: #666;
+  }
 </style>
 
 <script>
