@@ -77,10 +77,10 @@ test_import_shaarli: install
 
 .PHONY: test_download_video # test downloading videos from the shaarli import, test log file creation
 test_download_video: install
-	rm -f hecat.log
+	rm -f tests/hecat.log
 	source .venv/bin/activate && \
-	hecat --log-file hecat.log --config tests/.hecat.download_video.yml
-	grep -q 'loading data from tests/.hecat.download_video.yml' hecat.log
+	hecat --log-file tests/hecat.log --config tests/.hecat.download_video.yml
+	grep -q 'loading data from tests/.hecat.download_video.yml' tests/hecat.log
 
 .PHONY: test_download_audio # test downloading audio files from the shaarli import
 test_download_audio: install
