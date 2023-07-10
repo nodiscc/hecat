@@ -204,10 +204,13 @@ def import_tag(section, step):
                 output_dict = {
                     'name': section['title'],
                     'description': description,
-                    'related_tags': related_tags,
-                    'redirect': redirect,
-                    'external_links': external_links
                 }
+                if external_links:
+                    output_dict['external_links'] = external_links
+                if redirect:
+                    output_dict['redirect'] = redirect
+                if related_tags:
+                    output_dict['related_tags'] = related_tags
                 yaml.dump(output_dict, yaml_file)
                 break
         except FileNotFoundError:
