@@ -52,7 +52,7 @@ test_process_awesome_selfhosted: install test_url_check test_update_github_metad
 .PHONY: test_url_check # test URL checker on awesome-sefhosted-data
 test_url_check: install
 	source .venv/bin/activate && \
-	hecat --config tests/.hecat.url_check.yml && \
+	hecat --config tests/.hecat.url_check.yml
 
 .PHONY: test_update_github_metadata # test github metadata updater/processor on awesome-selfhosted-data
 test_update_github_metadata: install
