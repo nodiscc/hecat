@@ -121,12 +121,13 @@ def check_tags_in_tags_list(software, tags_list, errors):
 
 def check_related_tags_in_tags_list(tag, tags_list, errors):
     """check that all related_tags for a tag are listed in the main tags list"""
-    for related_tag_name in tag['related_tags']:
-        try:
-            assert any(tag2['name'] == related_tag_name for tag2 in tags_list)
-        except AssertionError:
-            message = "{}: related tag {} is not listed in the main tags list".format(tag['name'], related_tag_name)
-            log_exception(message, errors)
+    if 'related_tags'in tag:
+        for related_tag_name in tag['related_tags']:
+            try:
+                assert any(tag2['name'] == related_tag_name for tag2 in tags_list)
+            except AssertionError:
+                message = "{}: related tag {} is not listed in the main tags list".format(tag['name'], related_tag_name)
+                log_exception(message, errors)
 
 def check_tag_has_at_least_items(tag, software_list, errors, minitems=3):
     """check that a tag has at least N software items attached to it"""
