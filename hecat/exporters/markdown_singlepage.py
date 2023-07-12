@@ -2,8 +2,8 @@
 - https://github.com/sindresorhus/awesome
 - https://gitlab.com/nodiscc/toolbox/-/raw/master/DOC/SCREENSHOTS/rJyCEFw.png
 
-$ git clone https://github.com/awesome-selfhosted/awesome-selfhosted
-$ git clone https://github.com/awesome-selfhosted/awesome-selfhosted-data
+$ git clone https://github.com/awesome-selfhosted/awesome-selfhosted tests/awesome-selfhosted
+$ git clone https://github.com/awesome-selfhosted/awesome-selfhosted-data tests/awesome-selfhosted-data
 $ $EDITOR .hecat.yml
 $ hecat
 
@@ -12,8 +12,8 @@ steps:
   - name: export YAML data to single-page markdown
     module: exporters/markdown_singlepage
     module_options:
-      source_directory: awesome-selfhosted-data # source/YAML data directory, see structure below
-      output_directory: awesome-selfhosted # output directory
+      source_directory: tests/awesome-selfhosted-data # source/YAML data directory, see structure below
+      output_directory: tests/awesome-selfhosted # output directory
       output_file: README.md # output markdown file
       back_to_top_url: '#awesome-selfhosted' # (default #) the URL/anchor to use in 'back to top' links
       authors_file: AUTHORS.md # (default none) file containing the list of git commit authors

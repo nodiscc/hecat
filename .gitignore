@@ -6,3 +6,6 @@ tests/audio
 tests/video
 tests/shaarli.yml
 tests/html-table
+tests/awesome-selfhosted
+tests/awesome-selfhosted-data
+tests/awesome-selfhosted-html

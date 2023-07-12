@@ -2,5 +2,5 @@ steps:
   - name: import_awesome_selfhosted
     module: importers/markdown_awesome
     module_options:
-      source_file: awesome-selfhosted/README.md
-      output_directory: awesome-selfhosted-data
+      source_file: tests/awesome-selfhosted/README.md
+      output_directory: tests/awesome-selfhosted-data

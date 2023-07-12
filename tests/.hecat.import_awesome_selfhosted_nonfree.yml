@@ -2,6 +2,6 @@ steps:
   - name: import awesome-selfhosted non-free.md to YAML
     module: importers/markdown_awesome
     module_options:
-      source_file: awesome-selfhosted/non-free.md
-      output_directory: awesome-selfhosted-data
+      source_file: tests/awesome-selfhosted/non-free.md
+      output_directory: tests/awesome-selfhosted-data
       output_licenses_file: licenses-nonfree.yml

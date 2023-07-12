@@ -6,8 +6,8 @@ steps:
   - name: import
     module: importers/markdown_awesome
     module_options:
-      source_file: awesome-selfhosted/README.md
-      output_directory: awesome-selfhosted-data
+      source_file: tests/awesome-selfhosted/README.md
+      output_directory: tests/awesome-selfhosted-data
       output_licenses_file: licenses.yml # optional, default licenses.yml
       overwrite_tags: False # optional, default False
 
@@ -39,8 +39,8 @@ If the source/destination directories are `git` repositories, and you want to im
 authors/committers list (`git log`) to the destination directory, you must do so manually.
 This will let `hecat` generate an `AUTHORS.md` retaining all contributors from the original repo:
 
-SOURCE_REPO=../awesome-selfhosted
-DEST_REPO=../awesome-selfhosted-data
+SOURCE_REPO=tests/awesome-selfhosted
+DEST_REPO=tests/awesome-selfhosted-data
 # copy the orignal .mailmap to the new repository
 cp $SOURCE_REPO/.github/.mailmap $DEST_REPO/.mailmap
 # place the .mailmap at the standard location in the source repository

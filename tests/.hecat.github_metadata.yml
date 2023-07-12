@@ -2,6 +2,6 @@ steps:
   - name: update_github_metadata
     module: processors/github_metadata
     module_options:
-      source_directory: awesome-selfhosted-data
+      source_directory: tests/awesome-selfhosted-data
       gh_metadata_only_missing: True
       sleep_time: 7.3

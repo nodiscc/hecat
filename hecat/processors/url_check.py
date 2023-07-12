@@ -7,11 +7,11 @@ steps:
     module: processors/url_check
     module_options:
       source_directories: # (default []) check URLs in all .yml files under these directories
-        - awesome-selfhosted-data/software
-        - awesome-selfhosted-data/tags
+        - tests/awesome-selfhosted-data/software
+        - tests/awesome-selfhosted-data/tags
       source_files: # (default []) check URLs in these files
-        - shaarli.yml
-        - awesome-selfhosted-data/licenses.yml
+        - tests/shaarli.yml
+        - tests/awesome-selfhosted-data/licenses.yml
       check_keys: # (default ['url', 'source_code_url', 'website_url', 'demo_url']) YAML keys containing URLs to check, if they exist
         - url
         - source_code_url

@@ -2,7 +2,7 @@ steps:
   - name: export YAML data to multi-page markdown site
     module: exporters/markdown_multipage
     module_options:
-      source_directory: awesome-selfhosted-data
+      source_directory: tests/awesome-selfhosted-data
       output_directory: tests/awesome-selfhosted-html
       authors_file: AUTHORS.md # optional, default no authors file
       exclude_licenses: # optional, default []

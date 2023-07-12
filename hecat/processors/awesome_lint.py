@@ -7,7 +7,7 @@ steps:
   - name: lint
     module: processors/awesome_lint
     module_options:
-      source_directory: awesome-selfhosted-data
+      source_directory: tests/awesome-selfhosted-data
       items_in_redirect_fatal: False # optional, default True
       licenses_files: # optional default ['licenses.yml']
         - licenses.yml

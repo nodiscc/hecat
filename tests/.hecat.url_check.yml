@@ -3,10 +3,10 @@ steps:
     module: processors/url_check
     module_options:
       source_directories:
-        - awesome-selfhosted-data/software
-        - awesome-selfhosted-data/tags
+        - tests/awesome-selfhosted-data/software
+        - tests/awesome-selfhosted-data/tags
       source_files:
-        - awesome-selfhosted-data/licenses.yml
+        - tests/awesome-selfhosted-data/licenses.yml
       check_keys:
         - url
         - source_code_url
