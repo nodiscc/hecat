@@ -78,6 +78,8 @@ test_export_awesome_selfhosted_html: install
 	source .venv/bin/activate && \
 	hecat --config tests/.hecat.export_markdown_multipage.yml && \
 	sphinx-build -b html -c tests/ -d tests/awesome-selfhosted-html/.doctrees tests/awesome-selfhosted-html/md/ tests/awesome-selfhosted-html/html/
+	# remove unused files for static site publication
+	rm tests/awesome-selfhosted-html/html/.buildinfo tests/awesome-selfhosted-html/html/objects.inv
 
 .PHONY: test_import_shaarli # test import from shaarli JSON
 test_import_shaarli: install
