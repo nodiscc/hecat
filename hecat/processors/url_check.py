@@ -63,11 +63,8 @@ def check_urls(step):
         step['module_options']['source_files'] = []
     if 'check_keys' not in step['module_options'].keys():
         step['module_options']['check_keys'] = ['url', 'source_code_url', 'website_url', 'demo_url']
-    for source_directory in step['module_options']['source_directories']: # TODO factorize
-        new_data = load_yaml_data(source_directory)
-        data = data + new_data
-    for source_file in step['module_options']['source_files']:
-        new_data = load_yaml_data(source_file)
+    for source_dir_or_file in step['module_options']['source_directories'] + step['module_options']['source_files']:
+        new_data = load_yaml_data(source_dir_or_file)
         data = data + new_data
     total_item_count = len(data)
     logging.info('loaded %s items', total_item_count)
