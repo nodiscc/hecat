@@ -41,6 +41,7 @@ from datetime import datetime, timedelta
 import ruamel.yaml
 from jinja2 import Template
 from ..utils import load_yaml_data, to_kebab_case
+from .markdown_singlepage import render_markdown_authors
 
 yaml = ruamel.yaml.YAML(typ='safe')
 yaml.indent(sequence=4, offset=2)
@@ -299,3 +300,5 @@ def render_markdown_multipage(step):
     logging.info('rendering tags pages')
     for tag in tags:
         render_tag_page(step, tag, software_list)
+    if 'authors_file' in step['module_options']:
+        render_markdown_authors(step, output_directory=step['module_options']['output_directory'] + '/md/')
