@@ -232,6 +232,16 @@ def render_markdown_toctree(tags):
     markdown_toctree = '\n```{{toctree}}\n:maxdepth: 1\n:hidden:\n{}\n```\n\n'.format(tags_files_list)
     return markdown_toctree
 
+def render_markdown_licenses_list(licenses):
+    """render a markdown-formatted licenses list"""
+    markdown_licenses = '\n--------------------\n\n## List of Licenses\n\n'
+    for _license in licenses:
+        markdown_licenses += '- `{}` - [{}]({})\n'.format(
+            _license['identifier'],
+            _license['name'],
+            _license['url'])
+    return markdown_licenses
+
 def render_markdown_multipage(step):
     """
     Render a single-page markdown list of all software, in alphabetical order
@@ -241,27 +251,31 @@ def render_markdown_multipage(step):
         step['module_options']['exclude_licenses'] = []
     if 'output_file' not in step['module_options']:
         step['module_options']['output_file'] = 'index.md'
-
     tags = load_yaml_data(step['module_options']['source_directory'] + '/tags', sort_key='name')
     software_list = load_yaml_data(step['module_options']['source_directory'] + '/software')
     licenses = load_yaml_data(step['module_options']['source_directory'] + '/licenses.yml')
     markdown_fieldlist = ':tocdepth: 2\n'
     markdown_content_header = MARKDOWN_INDEX_CONTENT_HEADER
-
     with open(step['module_options']['source_directory'] + '/markdown/header.md', 'r', encoding="utf-8") as header_file:
         markdown_header = header_file.read()
     with open(step['module_options']['source_directory'] + '/markdown/footer.md', 'r', encoding="utf-8") as footer_file:
         markdown_footer = footer_file.read()
     markdown_toctree = render_markdown_toctree(tags)
-
     markdown_software_list = ''
     for software in software_list:
         if any(license in software['licenses'] for license in step['module_options']['exclude_licenses']):
             logging.debug("%s has a license listed in exclude_licenses, skipping", software['name'])
         else:
             markdown_software_list = markdown_software_list + render_markdown_software(software, tags_relative_url='tags/')
-    markdown = '{}{}{}{}{}{}{}'.format(markdown_fieldlist, MARKDOWN_CSS, markdown_header, markdown_content_header, markdown_toctree, markdown_software_list, markdown_footer)
-
+    markdown_licenses = render_markdown_licenses_list(licenses)
+    markdown = '{}{}{}{}{}{}{}{}'.format(markdown_fieldlist,
+                                        MARKDOWN_CSS,
+                                        markdown_header,
+                                        markdown_content_header,
+                                        markdown_toctree,
+                                        markdown_software_list,
+                                        markdown_licenses,
+                                        markdown_footer)
     output_file_name = step['module_options']['output_directory'] + '/md/' + step['module_options']['output_file']
     try:
         os.mkdir(step['module_options']['output_directory'] + '/md/')
@@ -271,7 +285,6 @@ def render_markdown_multipage(step):
     with open(output_file_name, 'w+', encoding="utf-8") as outfile:
         logging.info('writing output file %s', output_file_name)
         outfile.write(markdown)
-
     logging.info('rendering tags pages')
     for tag in tags:
         render_tag_page(step, tag, software_list)
