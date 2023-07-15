@@ -16,7 +16,7 @@ steps:
       output_directory: tests/awesome-selfhosted # output directory
       output_file: README.md # output markdown file
       back_to_top_url: '#awesome-selfhosted' # (default #) the URL/anchor to use in 'back to top' links
-      authors_file: AUTHORS.md # (default none) file containing the list of git commit authors
+      authors_file: AUTHORS # (default none) file containing the list of git commit authors
       exclude_licenses: # (default none) do not write software items with any of these licenses to the output file
         - 'CC-BY-NC-4.0'
         - '⊘ Proprietary'
@@ -24,7 +24,7 @@ steps:
 
 Output directory structure:
 └── README.md
-└── AUTHORS.md
+└── AUTHORS
 
 Source YAML directory structure:
 ├── markdown
@@ -209,8 +209,8 @@ def render_markdown_toc(*args):
     markdown_toc = markdown_toc + '\n--------------------'
     return markdown_toc
 
-def render_markdown_authors(step, output_directory):
-    """render a markdown-formatted table of authors"""
+def render_authors_list(step, output_directory):
+    """render a plaintext list/table of authors"""
     import subprocess
     import re
     logging.info('generating authors file %s', step['module_options']['authors_file'])
@@ -221,9 +221,9 @@ def render_markdown_authors(step, output_directory):
                                    stderr=subprocess.PIPE,
                                    universal_newlines=True)
     authors, err = git_process.communicate()
-    markdown_authors = '{}\n{}{}'.format(table_header, authors, '```')
-    with open(output_directory + '/AUTHORS.md', 'w+', encoding="utf-8") as outfile:
-        outfile.write(markdown_authors)
+    authors_file_contents = '{}\n{}{}'.format(table_header, authors, '```')
+    with open(output_directory +  step['module_options']['authors_file'], 'w+', encoding="utf-8") as outfile:
+        outfile.write(authors_file_contents)
 
 def render_markdown_singlepage(step):
     """
@@ -256,4 +256,4 @@ def render_markdown_singlepage(step):
     with open(step['module_options']['output_directory'] + '/' + step['module_options']['output_file'], 'w+', encoding="utf-8") as outfile:
         outfile.write(markdown)
     if 'authors_file' in step['module_options']:
-        render_markdown_authors(step, step['module_options']['output_directory'] + '/')
+        render_authors_list(step, step['module_options']['output_directory'] + '/')

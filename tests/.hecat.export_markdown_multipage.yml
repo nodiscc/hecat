@@ -4,8 +4,8 @@ steps:
     module_options:
       source_directory: tests/awesome-selfhosted-data
       output_directory: tests/awesome-selfhosted-html
-      authors_file: AUTHORS.md # optional, default no authors file
-      exclude_licenses: # optional, default []
+      authors_file: AUTHORS
+      exclude_licenses:
         - 'CC-BY-NC-4.0'
         - '⊘ Proprietary'
         - 'SSPL-1.0'

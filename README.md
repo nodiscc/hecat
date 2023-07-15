@@ -129,7 +129,7 @@ steps:
       output_directory: awesome-selfhosted # output directory
       output_file: README.md # output markdown file
       back_to_top_url: '#awesome-selfhosted' # (default #) the URL/anchor to use in 'back to top' links
-      authors_file: AUTHORS.md # (default none) file containing the list of git commit authors
+      authors_file: AUTHORS # (default none) file containing the list of git commit authors
       exclude_licenses: # (default none) do not write software items with any of these licenses to the output file
         - '⊘ Proprietary'
         - 'BUSL-1.1'

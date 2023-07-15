@@ -21,7 +21,7 @@ steps:
       source_directory: tests/awesome-selfhosted-data # directory containing YAML data
       output_directory: tests/awesome-selfhosted-html # directory to write markdown pages to
       output_file: index.html # optional, default index.html
-      authors_file: AUTHORS.md # optional, default no authors file
+      authors_file: AUTHORS # optional, default no authors file
       exclude_licenses: # optional, default []
         - 'CC-BY-NC-4.0'
         - '⊘ Proprietary'
@@ -41,7 +41,7 @@ from datetime import datetime, timedelta
 import ruamel.yaml
 from jinja2 import Template
 from ..utils import load_yaml_data, to_kebab_case
-from .markdown_singlepage import render_markdown_authors
+from .markdown_singlepage import render_authors_list
 
 yaml = ruamel.yaml.YAML(typ='safe')
 yaml.indent(sequence=4, offset=2)
@@ -301,4 +301,4 @@ def render_markdown_multipage(step):
     for tag in tags:
         render_tag_page(step, tag, software_list)
     if 'authors_file' in step['module_options']:
-        render_markdown_authors(step, output_directory=step['module_options']['output_directory'] + '/md/')
+        render_authors_list(step, output_directory=step['module_options']['output_directory'] + '/md/')
