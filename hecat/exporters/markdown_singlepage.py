@@ -214,15 +214,14 @@ def render_markdown_authors(step, output_directory):
     import subprocess
     import re
     logging.info('generating authors file %s', step['module_options']['authors_file'])
-    table_header = "|Commits | Author |\n| :---: | --- |"
+    table_header = "```\nCommits|Author\n-------|---------------------------------------------------"
     git_process = subprocess.Popen(['/usr/bin/git', 'shortlog', '-s', '-n', '-e'],
                                    cwd=step['module_options']['source_directory'],
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE,
                                    universal_newlines=True)
     authors, err = git_process.communicate()
-    authors = re.sub(r"^\s*(\d*?)\s(.*?)$", r"|\1|\2|", authors)
-    markdown_authors = '{}\n{}'.format(table_header, authors)
+    markdown_authors = '{}\n{}{}'.format(table_header, authors, '```')
     with open(output_directory + '/AUTHORS.md', 'w+', encoding="utf-8") as outfile:
         outfile.write(markdown_authors)
 
