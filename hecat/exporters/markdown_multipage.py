@@ -150,7 +150,7 @@ SOFTWARE_JINJA_MARKDOWN="""
 <span class="stars">★{% if software['stargazers_count'] is defined %}{{ software['stargazers_count'] }}{% else %}?{% endif %}</span>
 <span class="{{ date_css_class }}">{% raw %}{octicon}{% endraw %}`clock;0.8em;octicon` {% if software['updated_at'] is defined %}{{ software['updated_at'] }}{% else %}?{% endif %}</span>
 {% for platform in software['platforms'] %}<span class="platform">{{ platform }} </span> {% endfor %}
-{% for license in software['licenses'] %}<span class="license">{% raw %}{octicon}{% endraw %}`law;0.8em;octicon` {{ license }} </span> {% endfor %}
+{% for license in software['licenses'] %}<span class="license"><a href="{{ licenses_relative_url }}">{% raw %}{octicon}{% endraw %}`law;0.8em;octicon` {{ license }}</a> </span> {% endfor %}
 {% if software['depends_3rdparty'] is defined and software['depends_3rdparty'] %}<span class="orangebox" title="Depends on a proprietary service outside the user's control">⚠ Anti-features</span>{% endif %}
 
 {% for tag in tags %}<span class="tag"><a href="{{ tag['href'] }}">{% raw %}{octicon}{% endraw %}`tag;0.8em;octicon` {{ tag['name'] }}</a> </span>{% endfor %}
@@ -184,7 +184,7 @@ MARKDOWN_TAGPAGE_CONTENT_HEADER="""
 ## Software
 """
 
-def render_markdown_software(software, tags_relative_url='tags/'):
+def render_markdown_software(software, tags_relative_url='tags/', licenses_relative_url='#list-of-licenses'):
     """render a software project info as a markdown list item"""
     tags_dicts_list = []
     for tag in software['tags']:
@@ -197,7 +197,10 @@ def render_markdown_software(software, tags_relative_url='tags/'):
         elif last_update_time < datetime.now() - timedelta(days=186):
             date_css_class = 'orangebox'
     software_template = Template(SOFTWARE_JINJA_MARKDOWN)
-    markdown_software = software_template.render(software=software, tags=tags_dicts_list, date_css_class=date_css_class)
+    markdown_software = software_template.render(software=software,
+                                                 tags=tags_dicts_list,
+                                                 date_css_class=date_css_class,
+                                                 licenses_relative_url=licenses_relative_url)
     return markdown_software
 
 def render_tag_page(step, tag, software_list):
@@ -212,7 +215,9 @@ def render_tag_page(step, tag, software_list):
         if any(license in software['licenses'] for license in step['module_options']['exclude_licenses']):
             logging.debug("%s has a license listed in exclude_licenses, skipping", software['name'])
         elif any(item == tag['name'] for item in software['tags']):
-            markdown_software_list = markdown_software_list + render_markdown_software(software, tags_relative_url='./')
+            markdown_software_list = markdown_software_list + render_markdown_software(software,
+                                                                                       tags_relative_url='./',
+                                                                                       licenses_relative_url='../index.html#list-of-licenses')
     if markdown_software_list:
         markdown_tag_page = '{}{}{}{}'.format(MARKDOWN_CSS, markdown_tag_page_header, MARKDOWN_TAGPAGE_CONTENT_HEADER, markdown_software_list)
     else:
@@ -266,7 +271,7 @@ def render_markdown_multipage(step):
         if any(license in software['licenses'] for license in step['module_options']['exclude_licenses']):
             logging.debug("%s has a license listed in exclude_licenses, skipping", software['name'])
         else:
-            markdown_software_list = markdown_software_list + render_markdown_software(software, tags_relative_url='tags/')
+            markdown_software_list = markdown_software_list + render_markdown_software(software)
     markdown_licenses = render_markdown_licenses_list(licenses)
     markdown = '{}{}{}{}{}{}{}{}'.format(markdown_fieldlist,
                                         MARKDOWN_CSS,
