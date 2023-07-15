@@ -209,7 +209,7 @@ def render_markdown_toc(*args):
     markdown_toc = markdown_toc + '\n--------------------'
     return markdown_toc
 
-def render_markdown_authors(step):
+def render_markdown_authors(step, output_directory):
     """render a markdown-formatted table of authors"""
     import subprocess
     import re
@@ -223,7 +223,7 @@ def render_markdown_authors(step):
     authors, err = git_process.communicate()
     authors = re.sub(r"^\s*(\d*?)\s(.*?)$", r"|\1|\2|", authors)
     markdown_authors = '{}\n{}'.format(table_header, authors)
-    with open(step['module_options']['output_directory'] + '/AUTHORS.md', 'w+', encoding="utf-8") as outfile:
+    with open(output_directory + '/AUTHORS.md', 'w+', encoding="utf-8") as outfile:
         outfile.write(markdown_authors)
 
 def render_markdown_singlepage(step):
@@ -257,4 +257,4 @@ def render_markdown_singlepage(step):
     with open(step['module_options']['output_directory'] + '/' + step['module_options']['output_file'], 'w+', encoding="utf-8") as outfile:
         outfile.write(markdown)
     if 'authors_file' in step['module_options']:
-        render_markdown_authors(step)
+        render_markdown_authors(step, step['module_options']['output_directory'] + '/')
