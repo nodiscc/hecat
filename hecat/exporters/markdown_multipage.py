@@ -123,6 +123,9 @@ MARKDOWN_CSS="""
     .sd-octicon {
         vertical-align: inherit
     }
+    hr.docutils {
+        margin: 1rem 0;
+    }
 </style>
 """
 
