@@ -137,7 +137,7 @@ MARKDOWN_INDEX_CONTENT_HEADER="""
 
 ## Software
 
-This page lists all projects. Use links in the sidebar or click on tags to browse projects by category.
+This page lists all projects. Use links in the sidebar or click on {octicon}`tag;0.8em;octicon` tags to browse projects by category.
 """
 
 SOFTWARE_JINJA_MARKDOWN="""
@@ -185,6 +185,9 @@ MARKDOWN_TAGPAGE_CONTENT_HEADER="""
 --------------------
 
 ## Software
+
+This page lists all projects in this category. Use the [index of all projects](../index.html), the sidebar, or click on {octicon}`tag;0.8em;octicon` tags to browse other categories.
+
 """
 
 def render_markdown_software(software, tags_relative_url='tags/', licenses_relative_url='#list-of-licenses'):
