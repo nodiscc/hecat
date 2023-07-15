@@ -39,23 +39,19 @@ If the source/destination directories are `git` repositories, and you want to im
 authors/committers list (`git log`) to the destination directory, you must do so manually.
 This will let `hecat` generate an `AUTHORS.md` retaining all contributors from the original repo:
 
-SOURCE_REPO=tests/awesome-selfhosted
-DEST_REPO=tests/awesome-selfhosted-data
-# copy the orignal .mailmap to the new repository
-cp $SOURCE_REPO/.github/.mailmap $DEST_REPO/.mailmap
-# place the .mailmap at the standard location in the source repository
-cp $SOURCE_REPO/.github/.mailmap $SOURCE_REPO/.mailmap
-# generate a git log to use as a template for the new' "dummy" commit log
-git -C $SOURCE_REPO log --reverse --format="%ai;%aN;%aE;%s" | tee -a history.log
-# create an orphan branch in the target repository, to hold all dummy commits
-git -C $DEST_REPO checkout --orphan import-git-history
-# create a dummy/empty commit for each commit in the original log (preserving author and date)
-cat history.log | while read -r line; do date=$(echo "$line" | awk -F';' '{print $1}'); author=$(echo "$line" | awk -F';' '{print $2}'); email=$(echo "$line" | awk -F';' '{print $3}'); message=$(echo "$line" | awk -F';' '{print $4}'); git -C $DEST_REPO commit --allow-empty --author="$author <$email>" --date="$date" --message="$message"; done
-# merge the orphan branch/dummy commit history to your main branch
-git -c $DEST_REPO checkout master
-git -c $DEST_REPO merge --allow-unrelated-histories import-git-history
-
-
+NEW_REPO=https://github.com/awesome-selfhosted/awesome-selfhosted-data
+OLD_REPO=https://github.com/awesome-selfhosted/awesome-selfhosted
+git clone $NEW_REPO awesome-selfhosted-data # clone the target/new repository
+cd awesome-selfhosted-data # enter the new repository
+git remote add old-repo $OLD_REPO # add the old repository as git remote
+git remote update # fetch the old repository's history
+git checkout old-repo/master # checkout the old repository's master branch
+git checkout -b old-repo-master # create a new local branch from this remote branch
+git rm -rf * .github # delete all files from the original repository (please check that it is actually empty)
+git commit -m "git c -m "clear repository, only import history reference for AUTHORS.md generation"
+git checkout master # checkout the new repository's master branch again
+git merge --allow-unrelated-histories old-repo-master # merge the old repo's master branch instory into the new repo's history
+git remote remove old-repo # remove the old repository from git remotes
 """
 
 import os
