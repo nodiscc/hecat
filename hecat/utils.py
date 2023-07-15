@@ -36,7 +36,7 @@ def load_yaml_data(path, sort_key=False):
         with open(path, 'r', encoding="utf-8") as yaml_data:
             data = yaml.load(yaml_data)
         if sort_key:
-            data = sorted(data, key=lambda k: k[sort_key])
+            data = sorted(data, key=lambda k: k[sort_key].upper())
         return data
     elif os.path.isdir(path):
         for file in sorted(list_files(path)):
@@ -46,7 +46,7 @@ def load_yaml_data(path, sort_key=False):
                 item = yaml.load(yaml_data)
                 data.append(item)
             if sort_key:
-                data = sorted(data, key=lambda k: k[sort_key])
+                data = sorted(data, key=lambda k: k[sort_key].upper())
         return data
     else:
         logging.error('%s is not a file or directory', path)
