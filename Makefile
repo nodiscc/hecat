@@ -77,6 +77,7 @@ test_export_awesome_selfhosted_html: install
 	mkdir -p tests/awesome-selfhosted-html
 	source .venv/bin/activate && \
 	hecat --config tests/.hecat.export_markdown_multipage.yml && \
+	sed -i 's|<a href="https://github.com/pradyunsg/furo">Furo</a>|<a href="https://github.com/nodiscc/hecat/">hecat</a>, <a href="https://www.sphinx-doc.org/">sphinx</a> and <a href="https://github.com/pradyunsg/furo">furo</a>. Content under <a href="https://github.com/awesome-selfhosted/awesome-selfhosted-data/blob/master/LICENSE">CC-BY-SA 3.0</a> license.|' .venv/lib/python*/site-packages/furo*/furo/theme/furo/page.html && \
 	sphinx-build -b html -c tests/ -d tests/awesome-selfhosted-html/.doctrees tests/awesome-selfhosted-html/md/ tests/awesome-selfhosted-html/html/
 	# remove unused files for static site publication
 	rm tests/awesome-selfhosted-html/html/.buildinfo tests/awesome-selfhosted-html/html/objects.inv
