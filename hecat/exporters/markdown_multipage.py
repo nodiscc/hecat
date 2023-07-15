@@ -66,13 +66,16 @@ MARKDOWN_CSS="""
         font-weight: bold;
         display: inline-block;
     }
-    .license {
+    .license-box {
         background-color: #A7C7F9;
         border-radius: 5px;
         padding: 2px 8px 0px 8px;
+        display: inline-block;
+    }
+    .license-link {
         color: #173B80;
         font-weight: bold;
-        display: inline-block;
+        text-decoration: none
     }
     .stars {
         background-color: #FFFCAB;
@@ -150,7 +153,7 @@ SOFTWARE_JINJA_MARKDOWN="""
 <span class="stars">★{% if software['stargazers_count'] is defined %}{{ software['stargazers_count'] }}{% else %}?{% endif %}</span>
 <span class="{{ date_css_class }}">{% raw %}{octicon}{% endraw %}`clock;0.8em;octicon` {% if software['updated_at'] is defined %}{{ software['updated_at'] }}{% else %}?{% endif %}</span>
 {% for platform in software['platforms'] %}<span class="platform">{{ platform }} </span> {% endfor %}
-{% for license in software['licenses'] %}<span class="license"><a href="{{ licenses_relative_url }}">{% raw %}{octicon}{% endraw %}`law;0.8em;octicon` {{ license }}</a> </span> {% endfor %}
+{% for license in software['licenses'] %}<span class="license-box"><a class="license-link" href="{{ licenses_relative_url }}">{% raw %}{octicon}{% endraw %}`law;0.8em;octicon` {{ license }}</a> </span> {% endfor %}
 {% if software['depends_3rdparty'] is defined and software['depends_3rdparty'] %}<span class="orangebox" title="Depends on a proprietary service outside the user's control">⚠ Anti-features</span>{% endif %}
 
 {% for tag in tags %}<span class="tag"><a href="{{ tag['href'] }}">{% raw %}{octicon}{% endraw %}`tag;0.8em;octicon` {{ tag['name'] }}</a> </span>{% endfor %}
