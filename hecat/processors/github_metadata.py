@@ -54,6 +54,7 @@ def get_gh_metadata(step, github_url, g, errors):
     if 'sleep_time' in step['module_options']:
         time.sleep(step['module_options']['sleep_time'])
     project = re.sub('https://github.com/', '', github_url)
+    project = re.sub('/$', '', project)
     try:
         gh_metadata = g.get_repo(project)
         latest_commit_date = gh_metadata.get_commits()[0].commit.author.date
@@ -84,10 +85,10 @@ def add_github_metadata(step):
     for software in software_list:
         github_url = ''
         if 'source_code_url' in software:
-            if re.search(r'^https://github.com/[\w\.\-]+/[\w\.\-]+$', software['source_code_url']):
+            if re.search(r'^https://github.com/[\w\.\-]+/[\w\.\-]+/?$', software['source_code_url']):
                 github_url = software['source_code_url']
         elif 'website_url' in software:
-            if re.search(r'^https://github.com/[\w\.\-]+/[\w\.\-]+$', software['website_url']):
+            if re.search(r'^https://github.com/[\w\.\-]+/[\w\.\-]+/?$', software['website_url']):
                 github_url = software['website_url']
         if github_url:
             logging.debug('%s is a github project URL', github_url)
