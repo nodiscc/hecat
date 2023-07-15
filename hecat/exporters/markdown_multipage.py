@@ -130,6 +130,9 @@ MARKDOWN_CSS="""
     hr.docutils {
         margin: 1rem 0;
     }
+    .sidebar-brand-text {
+        font-size: 1.4rem;
+    }
 </style>
 """
 
