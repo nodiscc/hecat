@@ -90,7 +90,7 @@ MARKDOWN_CSS="""
         display: inline-block;
         font-weight: bold
     }
-    .updated-at-orange {
+    .orangebox {
         background-color: #FD9D49;
         border-radius: 5px;
         padding: 2px 8px 0px 8px;
@@ -98,7 +98,7 @@ MARKDOWN_CSS="""
         display: inline-block;
         font-weight: bold
     }
-    .updated-at-red {
+    .redbox {
         background-color: #FD4949;
         border-radius: 5px;
         padding: 2px 8px 0px 8px;
@@ -148,6 +148,7 @@ SOFTWARE_JINJA_MARKDOWN="""
 <span class="{{ date_css_class }}">{% raw %}{octicon}{% endraw %}`clock;0.8em;octicon` {% if software['updated_at'] is defined %}{{ software['updated_at'] }}{% else %}?{% endif %}</span>
 {% for platform in software['platforms'] %}<span class="platform">{{ platform }} </span> {% endfor %}
 {% for license in software['licenses'] %}<span class="license">{% raw %}{octicon}{% endraw %}`law;0.8em;octicon` {{ license }} </span> {% endfor %}
+{% if software['depends_3rdparty'] is defined and software['depends_3rdparty'] %}<span class="orangebox" title="Depends on a proprietary service outside the user's control">⚠ Anti-features</span>{% endif %}
 
 {% for tag in tags %}<span class="tag"><a href="{{ tag['href'] }}">{% raw %}{octicon}{% endraw %}`tag;0.8em;octicon` {{ tag['name'] }}</a> </span>{% endfor %}
 
@@ -189,9 +190,9 @@ def render_markdown_software(software, tags_relative_url='tags/'):
     if 'updated_at' in software:
         last_update_time = datetime.strptime(software['updated_at'], "%Y-%m-%d")
         if last_update_time < datetime.now() - timedelta(days=365):
-            date_css_class = 'updated-at-red'
+            date_css_class = 'redbox'
         elif last_update_time < datetime.now() - timedelta(days=186):
-            date_css_class = 'updated-at-orange'
+            date_css_class = 'orangebox'
     software_template = Template(SOFTWARE_JINJA_MARKDOWN)
     markdown_software = software_template.render(software=software, tags=tags_dicts_list, date_css_class=date_css_class)
     return markdown_software
