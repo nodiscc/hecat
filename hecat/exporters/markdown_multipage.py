@@ -186,7 +186,7 @@ MARKDOWN_TAGPAGE_CONTENT_HEADER="""
 
 ## Software
 
-This page lists all projects in this category. Use the [index of all projects](../index.html), the sidebar, or click on {octicon}`tag;0.8em;octicon` tags to browse other categories.
+This page lists all projects in this category. Use the [index of all projects](../index.md), the sidebar, or click on {octicon}`tag;0.8em;octicon` tags to browse other categories.
 
 """
 
