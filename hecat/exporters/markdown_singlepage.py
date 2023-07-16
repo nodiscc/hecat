@@ -31,6 +31,7 @@ steps:
       output_file: non-free.md
       markdown_header: markdown/non-free-header.md
       back_to_top_url: '##awesome-selfhosted---non-free-software'
+      render_empty_categories: False # (optional, default True) do not render categories which contain 0 items
       include_licenses: # (default none) only render items matching at least one of these licenses (cannot be used together with exclude_licenses)
         - '⊘ Proprietary'
         - 'BUSL-1.1'
@@ -144,7 +145,6 @@ def render_markdown_singlepage_category(step, tag, software_list):
             '[{}]({})'.format(
                 link['title'], link['url']
             ) for link in tag['external_links']))
-    # build markdown-formatted category
     markdown_category = '### {}{}{}{}{}{}'.format(
         tag['name'] + '\n\n',
         '**[`^        back to top        ^`](' + step['module_options']['back_to_top_url'] + ')**\n\n',
@@ -167,7 +167,7 @@ def render_markdown_singlepage_category(step, tag, software_list):
             logging.debug('adding project %s to category %s', software['name'], tag['name'])
             markdown_category = markdown_category + markdown_list_item
             items_count = items_count + 1
-    if items_count == 0:
+    if (items_count == 0) and not step['module_options']['render_empty_categories']:
         logging.info('category %s is empty, not rendering it', tag['name'])
         return ''
     return markdown_category + '\n\n'
@@ -214,7 +214,7 @@ def render_markdown_toc(*args):
     markdown = ''
     for i in args:
         markdown += i
-    markdown_toc = '## Table of contents\n\n'
+    markdown_toc = '\n--------------------\n\n## Table of contents\n\n'
     # DEBT factorize
     for line in markdown.split('\n'):
         if line.startswith('## '):
@@ -252,6 +252,8 @@ def render_markdown_singlepage(step):
         step['module_options']['include_licenses'] = []
     if 'back_to_top_url' not in step['module_options']:
         step['module_options']['back_to_top_url'] = '#'
+    if 'render_empty_categories' not in step['module_options']:
+        step['module_options']['render_empty_categories'] = True
     for tag in tags:
         markdown_category = render_markdown_singlepage_category(step, tag, software_list)
         markdown_software_list = markdown_software_list + markdown_category
@@ -261,7 +263,7 @@ def render_markdown_singlepage(step):
         markdown_software_list,
         markdown_licenses,
         markdown_footer)
-    markdown = '{}\n\n{}\n\n{}{}\n\n{}'.format(
+    markdown = '{}{}\n\n{}{}\n\n{}'.format(
         markdown_header, markdown_toc_section, markdown_software_list, markdown_licenses, markdown_footer)
     with open(step['module_options']['output_directory'] + '/' + step['module_options']['output_file'], 'w+', encoding="utf-8") as outfile:
         outfile.write(markdown)
