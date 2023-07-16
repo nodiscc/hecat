@@ -128,8 +128,10 @@ steps:
       source_directory: awesome-selfhosted-data # source/YAML data directory
       output_directory: awesome-selfhosted # output directory
       output_file: README.md # output markdown file
-      back_to_top_url: '#awesome-selfhosted' # (default #) the URL/anchor to use in 'back to top' links
-      exclude_licenses: # (default none) do not write software items with any of these licenses to the output file
+      markdown_header: markdown/header.md # (optional, default none) path to markdown file to use as header (relative to source_directory)
+      markdown_footer: markdown/footer.md # (optional, default none) path to markdown file to use as footer (relative to source_directory)
+      back_to_top_url: '#awesome-selfhosted' # (optional, default #) the URL/anchor to use in 'back to top' links
+      exclude_licenses: # (optional, default none) do not write software items with any of these licenses to the output file
         - '⊘ Proprietary'
         - 'BUSL-1.1'
         - 'CC-BY-NC-4.0'

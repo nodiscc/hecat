@@ -5,6 +5,8 @@ steps:
       source_directory: tests/awesome-selfhosted-data
       output_directory: tests/awesome-selfhosted
       output_file: README.md
+      markdown_header: markdown/header.md
+      markdown_footer: markdown/footer.md
       back_to_top_url: '#awesome-selfhosted'
       exclude_licenses:
         - '⊘ Proprietary'
@@ -24,6 +26,7 @@ steps:
       source_directory: tests/awesome-selfhosted-data
       output_directory: tests/awesome-selfhosted
       output_file: non-free.md
+      markdown_header: markdown/non-free-header.md
       back_to_top_url: '##awesome-selfhosted---non-free-software'
       include_licenses:
         - '⊘ Proprietary'

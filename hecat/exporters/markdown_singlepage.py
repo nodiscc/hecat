@@ -15,8 +15,10 @@ steps:
       source_directory: tests/awesome-selfhosted-data # source/YAML data directory, see structure below
       output_directory: tests/awesome-selfhosted # output directory
       output_file: README.md # output markdown file
-      back_to_top_url: '#awesome-selfhosted' # (default #) the URL/anchor to use in 'back to top' links
-      exclude_licenses: # (default none) do not write software items with any of these licenses to the output file
+      markdown_header: markdown/header.md # (optional, default none) path to markdown file to use as header (relative to source_directory)
+      markdown_footer: markdown/footer.md # (optional, default none) path to markdown file to use as footer (relative to source_directory)
+      back_to_top_url: '#awesome-selfhosted' # (optional, default #) the URL/anchor to use in 'back to top' links
+      exclude_licenses: # (optional, default none) do not write software items with any of these licenses to the output file
         - 'CC-BY-NC-4.0'
         - '⊘ Proprietary'
         - 'SSPL-1.0'
@@ -27,8 +29,9 @@ steps:
       source_directory: tests/awesome-selfhosted-data
       output_directory: tests/awesome-selfhosted
       output_file: non-free.md
+      markdown_header: markdown/non-free-header.md
       back_to_top_url: '##awesome-selfhosted---non-free-software'
-      include_licenses: # (default none) only render items matching any of licenses (cannot be used alongside exclude_licenses)
+      include_licenses: # (default none) only render items matching at least one of these licenses (cannot be used together with exclude_licenses)
         - '⊘ Proprietary'
         - 'BUSL-1.1'
         - 'CC-BY-NC-4.0'
@@ -46,8 +49,8 @@ Output directory structure:
 
 Source YAML directory structure:
 ├── markdown
-│   ├── header.md # markdown footer to render in the final single-page document
-│   └── footer.md # markdown header to render in the final single-page document
+│   ├── header.md # markdown footer to render in the final single-page document (markdown_header module option)
+│   └── footer.md # markdown header to render in the final single-page document (markdown_footer module option)
 ├── software
 │   ├── mysoftware.yml # .yml files containing software data
 │   ├── someothersoftware.yml
@@ -246,8 +249,12 @@ def render_markdown_singlepage(step):
     tags = load_yaml_data(step['module_options']['source_directory'] + '/tags', sort_key='name')
     software_list = load_yaml_data(step['module_options']['source_directory'] + '/software')
     licenses = load_yaml_data(step['module_options']['source_directory'] + '/licenses.yml')
-    markdown_header = open(step['module_options']['source_directory'] + '/markdown/header.md', 'r').read()
-    markdown_footer = open(step['module_options']['source_directory'] + '/markdown/footer.md', 'r').read()
+    markdown_header = ''
+    markdown_footer = ''
+    if 'markdown_header' in step['module_options']:
+        markdown_header = open(step['module_options']['source_directory'] + '/' + step['module_options']['markdown_header'], 'r').read()
+    if 'markdown_footer' in step['module_options']:
+        markdown_footer = open(step['module_options']['source_directory'] + '/' + step['module_options']['markdown_footer'], 'r').read()
     markdown_software_list = '## Software\n\n'
     if ('exclude_licenses' in step['module_options']) and ('include_licenses' in step['module_options']):
         logging.error('module options exclude_licenses and include_licenses cannot be used together.')
