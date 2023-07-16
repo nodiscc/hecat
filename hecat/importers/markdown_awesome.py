@@ -150,9 +150,9 @@ def extract_description(section):
     description = ''
     description_markdown = re.findall(r'^(?![#\*_\-\n]).*', section['text'], re.MULTILINE)
     if description_markdown:
-        if len(description_markdown) == 1:
+        if len(description_markdown) in [1, 2]:
             logging.warning("%s has no description", section['title'])
-        if len(description_markdown) == 2:
+        if len(description_markdown) == 3:
             description = description_markdown[1]
         else:
             logging.warning("%s has more than one description line. Only the first line will be kept", section['title'])
