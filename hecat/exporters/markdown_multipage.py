@@ -180,7 +180,7 @@ TAG_HEADER_JINJA_MARKDOWN="""
 {% endfor %}
 ```{% endif %}
 {% if tag['redirect'] is defined %}```{important}
-**Please visit {% for redirect in tag['redirect'] %}[{{ redirect['title'] }}]({{ redirect['url'] }}){% if not loop.last %}{{', '}}{% endif %} instead**{% endfor %}
+**Please visit {% for redirect in tag['redirect'] %}[{{ redirect['title'] }}]({{ redirect['url'] }}){% if not loop.last %}{{', '}}{% endif %}{% endfor %} instead**
 ```{% endif %}
 
 """
