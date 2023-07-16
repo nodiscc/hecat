@@ -1,5 +1,5 @@
 steps:
-  - name: export
+  - name: export YAML data to single-page markdown
     module: exporters/markdown_singlepage
     module_options:
       source_directory: tests/awesome-selfhosted-data
@@ -7,6 +7,25 @@ steps:
       output_file: README.md
       back_to_top_url: '#awesome-selfhosted'
       exclude_licenses:
+        - '⊘ Proprietary'
+        - 'BUSL-1.1'
+        - 'CC-BY-NC-4.0'
+        - 'CC-BY-NC-SA-3.0'
+        - 'CC-BY-ND-3.0'
+        - 'Commons-Clause'
+        - 'DPL'
+        - 'SSPL-1.0'
+        - 'DPL'
+        - 'Elastic-1.0'
+
+  - name: export YAML data to single-page markdown (non-free)
+    module: exporters/markdown_singlepage
+    module_options:
+      source_directory: tests/awesome-selfhosted-data
+      output_directory: tests/awesome-selfhosted
+      output_file: non-free.md
+      back_to_top_url: '##awesome-selfhosted---non-free-software'
+      include_licenses:
         - '⊘ Proprietary'
         - 'BUSL-1.1'
         - 'CC-BY-NC-4.0'

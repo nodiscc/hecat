@@ -21,6 +21,26 @@ steps:
         - '⊘ Proprietary'
         - 'SSPL-1.0'
 
+  - name: export awesome-selfhosted markdown (non-free)
+    module: exporters/markdown_singlepage
+    module_options:
+      source_directory: tests/awesome-selfhosted-data
+      output_directory: tests/awesome-selfhosted
+      output_file: non-free.md
+      back_to_top_url: '##awesome-selfhosted---non-free-software'
+      include_licenses: # (default none) only render items matching any of licenses (cannot be used alongside exclude_licenses)
+        - '⊘ Proprietary'
+        - 'BUSL-1.1'
+        - 'CC-BY-NC-4.0'
+        - 'CC-BY-NC-SA-3.0'
+        - 'CC-BY-ND-3.0'
+        - 'Commons-Clause'
+        - 'DPL'
+        - 'SSPL-1.0'
+        - 'DPL'
+        - 'Elastic-1.0'
+
+
 Output directory structure:
 └── README.md
 
@@ -82,6 +102,7 @@ redirect: # optional, URLs of other collaborative lists which should be used ins
   - https://gitlab.com/user/awesome-list
 """
 
+import sys
 import logging
 import ruamel.yaml
 from ..utils import to_kebab_case, load_yaml_data
@@ -103,6 +124,7 @@ def render_markdown_singlepage_category(step, tag, software_list):
     markdown_related_tags = ''
     markdown_description = ''
     markdown_external_links = ''
+    items_count = 0
     # DEBT factorize
     if 'related_tags' in tag and tag['related_tags']:
         markdown_related_tags = '_Related: {}_\n\n'.format(', '.join(
@@ -128,14 +150,23 @@ def render_markdown_singlepage_category(step, tag, software_list):
         markdown_related_tags,
         markdown_external_links
     )
-    # list all software whose first tag matches the current tag, and does not have a license excluded by module options
     for software in software_list:
-        if any(license in software['licenses'] for license in step['module_options']['exclude_licenses']):
-            logging.debug("%s has a license listed in exclude_licenses, skipping", software['name'])
-        elif software['tags'][0] == tag['name']:
+        if step['module_options']['exclude_licenses']:
+            if any(license in software['licenses'] for license in step['module_options']['exclude_licenses']):
+                logging.debug("%s has a license listed in exclude_licenses, skipping", software['name'])
+                continue
+        elif step['module_options']['include_licenses']:
+            if not any(license in software['licenses'] for license in step['module_options']['include_licenses']):
+                logging.debug("%s does not match any license listed in include_licenses, skipping", software['name'])
+                continue
+        if software['tags'][0] == tag['name']:
             markdown_list_item = render_markdown_list_item(software)
             logging.debug('adding project %s to category %s', software['name'], tag['name'])
             markdown_category = markdown_category + markdown_list_item
+            items_count = items_count + 1
+    if items_count == 0:
+        logging.info('category %s is empty, not rendering it', tag['name'])
+        return ''
     return markdown_category + '\n\n'
 
 
@@ -218,8 +249,13 @@ def render_markdown_singlepage(step):
     markdown_header = open(step['module_options']['source_directory'] + '/markdown/header.md', 'r').read()
     markdown_footer = open(step['module_options']['source_directory'] + '/markdown/footer.md', 'r').read()
     markdown_software_list = '## Software\n\n'
+    if ('exclude_licenses' in step['module_options']) and ('include_licenses' in step['module_options']):
+        logging.error('module options exclude_licenses and include_licenses cannot be used together.')
+        sys.exit(1)
     if 'exclude_licenses' not in step['module_options']:
         step['module_options']['exclude_licenses'] = []
+    if 'include_licenses' not in step['module_options']:
+        step['module_options']['include_licenses'] = []
     if 'back_to_top_url' not in step['module_options']:
         step['module_options']['back_to_top_url'] = '#'
     for tag in tags:
