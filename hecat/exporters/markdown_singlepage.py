@@ -19,9 +19,17 @@ steps:
       markdown_footer: markdown/footer.md # (optional, default none) path to markdown file to use as footer (relative to source_directory)
       back_to_top_url: '#awesome-selfhosted' # (optional, default #) the URL/anchor to use in 'back to top' links
       exclude_licenses: # (optional, default none) do not write software items with any of these licenses to the output file
-        - 'CC-BY-NC-4.0'
         - '⊘ Proprietary'
+        - 'BUSL-1.1'
+        - 'CC-BY-NC-4.0'
+        - 'CC-BY-NC-SA-3.0'
+        - 'CC-BY-ND-3.0'
+        - 'Commons-Clause'
+        - 'DPL'
         - 'SSPL-1.0'
+        - 'DPL'
+        - 'Elastic-1.0'
+        - 'Elastic-2.0'
 
   - name: export awesome-selfhosted markdown (non-free)
     module: exporters/markdown_singlepage
@@ -44,6 +52,7 @@ steps:
         - 'SSPL-1.0'
         - 'DPL'
         - 'Elastic-1.0'
+        - 'Elastic-2.0'
 
 
 Output directory structure:

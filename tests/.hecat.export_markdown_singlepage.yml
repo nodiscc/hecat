@@ -19,6 +19,7 @@ steps:
         - 'SSPL-1.0'
         - 'DPL'
         - 'Elastic-1.0'
+        - 'Elastic-2.0'
 
   - name: export YAML data to single-page markdown (non-free)
     module: exporters/markdown_singlepage
@@ -41,3 +42,4 @@ steps:
         - 'SSPL-1.0'
         - 'DPL'
         - 'Elastic-1.0'
+        - 'Elastic-2.0'

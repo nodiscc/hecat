@@ -142,6 +142,7 @@ steps:
         - 'SSPL-1.0'
         - 'DPL'
         - 'Elastic-1.0'
+        - 'Elastic-2.0'
 
   - name: check URLs
     module: processors/url_check
