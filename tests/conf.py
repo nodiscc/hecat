@@ -5,6 +5,7 @@ author = 'awesome-selfhosted community'
 version = '1.0.0'
 release = '1.0.0'
 copyright = '2015-2023, the awesome-selfhosted community'
+language = 'en'
 html_title = 'awesome-selfhosted'
 html_theme = 'furo'
 html_show_sphinx = False
@@ -22,6 +23,10 @@ html_static_path = ['awesome-selfhosted-data/_static']
 
 # myst-parser configuration (https://myst-parser.readthedocs.io/en/latest/configuration.html)
 myst_enable_extensions = ['fieldlist']
+myst_html_meta = {
+    "description lang=en": "A list of Free Software network services and web applications which can be hosted on your own servers",
+    "charset": "UTF-8"
+}
 
 # theme configuration (https://pradyunsg.me/furo/customisation/)
 html_theme_options = {
