@@ -62,3 +62,23 @@ def load_config(config_file):
     with open(config_file, 'r', encoding="utf-8") as cfg:
         config = yaml.load(cfg)
     return config
+
+def render_markdown_licenses(step, licenses, back_to_top_url=None):
+    """render a markdown-formatted licenses list"""
+    if back_to_top_url is not None:
+        markdown_licenses = '--------------------\n\n## List of Licenses\n\n**[`^        back to top        ^`](' + back_to_top_url + ')**\n\n'
+    else:
+        markdown_licenses = markdown_licenses = '\n--------------------\n\n## List of Licenses\n\n'
+    for _license in licenses:
+        if _license['name'] in step['module_options']['exclude_licenses']:
+            logging.debug('license %s listed in exclude_licenses, skipping', _license['name'])
+            continue
+        try:
+            markdown_licenses += '- `{}` - [{}]({})\n'.format(
+                _license['identifier'],
+                _license['name'],
+                _license['url'])
+        except KeyError as err:
+            logging.error('missing fields in license %s: KeyError: %s', _license, err)
+            sys.exit(1)
+    return markdown_licenses

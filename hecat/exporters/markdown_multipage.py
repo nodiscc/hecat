@@ -38,7 +38,7 @@ import logging
 from datetime import datetime, timedelta
 import ruamel.yaml
 from jinja2 import Template
-from ..utils import load_yaml_data, to_kebab_case
+from ..utils import load_yaml_data, to_kebab_case, render_markdown_licenses
 
 yaml = ruamel.yaml.YAML(typ='safe')
 yaml.indent(sequence=4, offset=2)
@@ -244,16 +244,6 @@ def render_markdown_toctree(tags):
     markdown_toctree = '\n```{{toctree}}\n:maxdepth: 1\n:hidden:\n{}\n```\n\n'.format(tags_files_list)
     return markdown_toctree
 
-def render_markdown_licenses_list(licenses):
-    """render a markdown-formatted licenses list"""
-    markdown_licenses = '\n--------------------\n\n## List of Licenses\n\n'
-    for _license in licenses:
-        markdown_licenses += '- `{}` - [{}]({})\n'.format(
-            _license['identifier'],
-            _license['name'],
-            _license['url'])
-    return markdown_licenses
-
 def render_markdown_multipage(step):
     """
     Render a single-page markdown list of all software, in alphabetical order
@@ -279,7 +269,7 @@ def render_markdown_multipage(step):
             logging.debug("%s has a license listed in exclude_licenses, skipping", software['name'])
         else:
             markdown_software_list = markdown_software_list + render_markdown_software(software)
-    markdown_licenses = render_markdown_licenses_list(licenses)
+    markdown_licenses = render_markdown_licenses(step, licenses)
     markdown = '{}{}{}{}{}{}{}{}'.format(markdown_fieldlist,
                                         MARKDOWN_CSS,
                                         markdown_header,

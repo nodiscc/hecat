@@ -108,7 +108,7 @@ redirect: # optional, URLs of other collaborative lists which should be used ins
 import sys
 import logging
 import ruamel.yaml
-from ..utils import to_kebab_case, load_yaml_data
+from ..utils import to_kebab_case, load_yaml_data, render_markdown_licenses
 
 yaml = ruamel.yaml.YAML(typ='safe')
 yaml.indent(sequence=4, offset=2)
@@ -209,19 +209,6 @@ def render_markdown_list_item(software):
         )
     return markdown_list_item
 
-def render_markown_licenses(step, licenses):
-    """render a markdown-formatted licenses list"""
-    markdown_licenses = '--------------------\n\n## List of Licenses\n\n**[`^        back to top        ^`](' + step['module_options']['back_to_top_url'] + ')**\n\n'
-    for _license in licenses:
-        try:
-            markdown_licenses += '- `{}` - [{}]({})\n'.format(
-                _license['identifier'],
-                _license['name'],
-                _license['url'])
-        except KeyError as err:
-            logging.warning('missing fields in license, will not be inserted: %s: KeyError: %s', _license, err)
-    return markdown_licenses
-
 def render_markdown_toc(*args):
     """render a markdown-formatted table of contents"""
     markdown = ''
@@ -268,7 +255,7 @@ def render_markdown_singlepage(step):
     for tag in tags:
         markdown_category = render_markdown_singlepage_category(step, tag, software_list)
         markdown_software_list = markdown_software_list + markdown_category
-    markdown_licenses = render_markown_licenses(step, licenses)
+    markdown_licenses = render_markdown_licenses(step, licenses, back_to_top_url=step['module_options']['back_to_top_url'])
     markdown_toc_section = render_markdown_toc(
         markdown_header,
         markdown_software_list,
