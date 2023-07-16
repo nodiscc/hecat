@@ -29,6 +29,7 @@ steps:
       markdown_header: markdown/non-free-header.md
       back_to_top_url: '##awesome-selfhosted---non-free-software'
       render_empty_categories: False
+      render_category_headers: False
       include_licenses:
         - '⊘ Proprietary'
         - 'BUSL-1.1'

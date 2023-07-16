@@ -32,6 +32,7 @@ steps:
       markdown_header: markdown/non-free-header.md
       back_to_top_url: '##awesome-selfhosted---non-free-software'
       render_empty_categories: False # (optional, default True) do not render categories which contain 0 items
+      render_category_headers: False # (optional, default True) do not render category headers (description, related categories, external links...)
       include_licenses: # (default none) only render items matching at least one of these licenses (cannot be used together with exclude_licenses)
         - '⊘ Proprietary'
         - 'BUSL-1.1'
@@ -123,36 +124,44 @@ def to_markdown_anchor(string):
 def render_markdown_singlepage_category(step, tag, software_list):
     """Render a category for the single page markdown output format"""
     logging.debug('rendering tag %s', tag['name'])
-    # check optional fields
     markdown_redirect = ''
     markdown_related_tags = ''
     markdown_description = ''
     markdown_external_links = ''
     items_count = 0
-    # DEBT factorize
-    if 'related_tags' in tag and tag['related_tags']:
-        markdown_related_tags = '_Related: {}_\n\n'.format(', '.join(
-            to_markdown_anchor(related_tag) for related_tag in tag['related_tags']))
-    if 'description' in tag and tag['description']:
-        markdown_description = tag['description'] + '\n\n'
-    if 'redirect' in tag and tag['redirect']:
-        markdown_redirect = '**Please visit {}**\n\n'.format(', '.join(
-            '[{}]({})'.format(
-                link['title'], link['url']
-        ) for link in tag['redirect']))
-    if 'external_links' in tag and tag['external_links']:
-        markdown_external_links = '_See also: {}_\n\n'.format(', '.join(
-            '[{}]({})'.format(
-                link['title'], link['url']
-            ) for link in tag['external_links']))
-    markdown_category = '### {}{}{}{}{}{}'.format(
-        tag['name'] + '\n\n',
-        '**[`^        back to top        ^`](' + step['module_options']['back_to_top_url'] + ')**\n\n',
-        markdown_description,
-        markdown_redirect,
-        markdown_related_tags,
-        markdown_external_links
-    )
+
+    # category header rendering
+    if step['module_options']['render_category_headers']:
+        if 'related_tags' in tag and tag['related_tags']:
+            markdown_related_tags = '_Related: {}_\n\n'.format(', '.join(
+                to_markdown_anchor(related_tag) for related_tag in tag['related_tags']))
+        if 'description' in tag and tag['description']:
+            markdown_description = tag['description'] + '\n\n'
+        if 'redirect' in tag and tag['redirect']:
+            markdown_redirect = '**Please visit {}**\n\n'.format(', '.join(
+                '[{}]({})'.format(
+                    link['title'], link['url']
+            ) for link in tag['redirect']))
+        if 'external_links' in tag and tag['external_links']:
+            markdown_external_links = '_See also: {}_\n\n'.format(', '.join(
+                '[{}]({})'.format(
+                    link['title'], link['url']
+                ) for link in tag['external_links']))
+        markdown_category = '### {}{}{}{}{}{}'.format(
+            tag['name'] + '\n\n',
+            '**[`^        back to top        ^`](' + step['module_options']['back_to_top_url'] + ')**\n\n',
+            markdown_description,
+            markdown_redirect,
+            markdown_related_tags,
+            markdown_external_links
+        )
+    else:
+        markdown_category = '### {}{}'.format(
+            tag['name'] + '\n\n',
+            '**[`^        back to top        ^`](' + step['module_options']['back_to_top_url'] + ')**\n\n'
+        )
+
+    # software list rendering
     for software in software_list:
         if step['module_options']['exclude_licenses']:
             if any(license in software['licenses'] for license in step['module_options']['exclude_licenses']):
@@ -170,6 +179,7 @@ def render_markdown_singlepage_category(step, tag, software_list):
     if (items_count == 0) and not step['module_options']['render_empty_categories']:
         logging.info('category %s is empty, not rendering it', tag['name'])
         return ''
+
     return markdown_category + '\n\n'
 
 
@@ -254,6 +264,8 @@ def render_markdown_singlepage(step):
         step['module_options']['back_to_top_url'] = '#'
     if 'render_empty_categories' not in step['module_options']:
         step['module_options']['render_empty_categories'] = True
+    if 'render_category_headers' not in step['module_options']:
+        step['module_options']['render_category_headers'] = True
     for tag in tags:
         markdown_category = render_markdown_singlepage_category(step, tag, software_list)
         markdown_software_list = markdown_software_list + markdown_category
