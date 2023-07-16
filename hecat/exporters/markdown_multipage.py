@@ -153,13 +153,13 @@ SOFTWARE_JINJA_MARKDOWN="""
 
 <span class="external-link-box"><a class="external-link" href="{{ software['website_url'] }}">{% raw %}{octicon}{% endraw %}`globe;0.8em;octicon` Website</a></span>
 <span class="external-link-box"><a class="external-link" href="{% if software['source_code_url'] is defined %}{{ software['source_code_url'] }}{% else %}{{ software['website_url'] }}{% endif %}">{% raw %}{octicon}{% endraw %}`git-branch;0.8em;octicon` Source Code</a></span>
+{% if software['related_software_url'] is defined %}<span class="external-link-box"><a class="external-link" href="{{ software['related_software_url'] }}">{% raw %}{octicon}{% endraw %}`package;0.8em;octicon` Clients</a></span>{% endif %}
 
 <span class="stars">★{% if software['stargazers_count'] is defined %}{{ software['stargazers_count'] }}{% else %}?{% endif %}</span>
 <span class="{{ date_css_class }}">{% raw %}{octicon}{% endraw %}`clock;0.8em;octicon` {% if software['updated_at'] is defined %}{{ software['updated_at'] }}{% else %}?{% endif %}</span>
 {% for platform in software['platforms'] %}<span class="platform">{{ platform }} </span> {% endfor %}
 {% for license in software['licenses'] %}<span class="license-box"><a class="license-link" href="{{ licenses_relative_url }}">{% raw %}{octicon}{% endraw %}`law;0.8em;octicon` {{ license }}</a> </span> {% endfor %}
 {% if software['depends_3rdparty'] is defined and software['depends_3rdparty'] %}<span class="orangebox" title="Depends on a proprietary service outside the user's control">⚠ Anti-features</span>{% endif %}
-
 {% for tag in tags %}<span class="tag"><a href="{{ tag['href'] }}">{% raw %}{octicon}{% endraw %}`tag;0.8em;octicon` {{ tag['name'] }}</a> </span>{% endfor %}
 
 """
