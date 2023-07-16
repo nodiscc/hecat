@@ -34,24 +34,6 @@ In addition to the list item format
 the importer assumes a few things about the original markdown file:
 - all level 3 (`###`) titles/sections contain the actual list data/items, other sections must use level 2 headings
 - the list of licenses is available in a `## List of Licenses` section
-
-If the source/destination directories are `git` repositories, and you want to import the original
-authors/committers list (`git log`) to the destination directory, you must do so manually.
-This will let `hecat` generate an `AUTHORS` file retaining all contributors from the original repo:
-
-NEW_REPO=https://github.com/awesome-selfhosted/awesome-selfhosted-data
-OLD_REPO=https://github.com/awesome-selfhosted/awesome-selfhosted
-git clone $NEW_REPO awesome-selfhosted-data # clone the target/new repository
-cd awesome-selfhosted-data # enter the new repository
-git remote add old-repo $OLD_REPO # add the old repository as git remote
-git remote update # fetch the old repository's history
-git checkout old-repo/master # checkout the old repository's master branch
-git checkout -b old-repo-master # create a new local branch from this remote branch
-git rm -rf * .github # delete all files from the original repository (please check that it is actually empty)
-git commit -m "git c -m "clear repository, only import history reference for AUTHORS file generation"
-git checkout master # checkout the new repository's master branch again
-git merge --allow-unrelated-histories old-repo-master # merge the old repo's master branch instory into the new repo's history
-git remote remove old-repo # remove the old repository from git remotes
 """
 
 import os

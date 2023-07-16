@@ -16,7 +16,6 @@ steps:
       output_directory: tests/awesome-selfhosted # output directory
       output_file: README.md # output markdown file
       back_to_top_url: '#awesome-selfhosted' # (default #) the URL/anchor to use in 'back to top' links
-      authors_file: AUTHORS # (default none) file containing the list of git commit authors
       exclude_licenses: # (default none) do not write software items with any of these licenses to the output file
         - 'CC-BY-NC-4.0'
         - '⊘ Proprietary'
@@ -24,7 +23,6 @@ steps:
 
 Output directory structure:
 └── README.md
-└── AUTHORS
 
 Source YAML directory structure:
 ├── markdown
@@ -82,8 +80,6 @@ related_tags: # optional
 redirect: # optional, URLs of other collaborative lists which should be used instead
   - https://another.awesome.li.st
   - https://gitlab.com/user/awesome-list
-
-the authors_file, if set, will be generated from the `git shortlog` of your source directory.
 """
 
 import logging
@@ -209,22 +205,6 @@ def render_markdown_toc(*args):
     markdown_toc = markdown_toc + '\n--------------------'
     return markdown_toc
 
-def render_authors_list(step, output_directory):
-    """render a plaintext list/table of authors"""
-    import subprocess
-    import re
-    logging.info('generating authors file %s', step['module_options']['authors_file'])
-    table_header = "```\nCommits|Author\n-------|---------------------------------------------------"
-    git_process = subprocess.Popen(['/usr/bin/git', 'shortlog', '-s', '-n', '-e'],
-                                   cwd=step['module_options']['source_directory'],
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE,
-                                   universal_newlines=True)
-    authors, err = git_process.communicate()
-    authors_file_contents = '{}\n{}{}'.format(table_header, authors, '```')
-    with open(output_directory +  step['module_options']['authors_file'], 'w+', encoding="utf-8") as outfile:
-        outfile.write(authors_file_contents)
-
 def render_markdown_singlepage(step):
     """
     Render a single-page markdown list of all software, grouped by category
@@ -255,5 +235,3 @@ def render_markdown_singlepage(step):
         markdown_header, markdown_toc_section, markdown_software_list, markdown_licenses, markdown_footer)
     with open(step['module_options']['output_directory'] + '/' + step['module_options']['output_file'], 'w+', encoding="utf-8") as outfile:
         outfile.write(markdown)
-    if 'authors_file' in step['module_options']:
-        render_authors_list(step, step['module_options']['output_directory'] + '/')

@@ -6,7 +6,6 @@ steps:
       output_directory: tests/awesome-selfhosted
       output_file: README.md
       back_to_top_url: '#awesome-selfhosted'
-      authors_file: AUTHORS
       exclude_licenses:
         - '⊘ Proprietary'
         - 'BUSL-1.1'
