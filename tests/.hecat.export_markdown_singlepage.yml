@@ -16,3 +16,4 @@ steps:
         - 'DPL'
         - 'SSPL-1.0'
         - 'DPL'
+        - 'Elastic-1.0'
