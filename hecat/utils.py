@@ -1,4 +1,5 @@
 """hecat - common utilities"""
+import sys
 import os
 import ruamel.yaml
 import logging
