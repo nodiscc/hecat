@@ -334,7 +334,7 @@ def render_markdown_singlepage(step):
         markdown_software_list,
         markdown_licenses,
         markdown_footer)
-    markdown = '{}{}\n\n{}{}\n\n{}'.format(
+    markdown = '{}{}\n\n{}{}\n{}'.format(
         markdown_header, markdown_toc_section, markdown_software_list, markdown_licenses, markdown_footer)
     with open(step['module_options']['output_directory'] + '/' + step['module_options']['output_file'], 'w+', encoding="utf-8") as outfile:
         outfile.write(markdown)
