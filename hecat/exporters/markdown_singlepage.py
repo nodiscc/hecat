@@ -234,7 +234,7 @@ def render_markdown_singlepage_category(step, tag, software_list):
             markdown_category = markdown_category + markdown_list_item
             items_count = items_count + 1
     if (items_count == 0) and not step['module_options']['render_empty_categories']:
-        logging.info('category %s is empty, not rendering it', tag['name'])
+        logging.debug('category %s is empty, not rendering it', tag['name'])
         return ''
 
     return markdown_category + '\n\n'
