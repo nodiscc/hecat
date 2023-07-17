@@ -144,6 +144,30 @@ steps:
         - 'Elastic-1.0'
         - 'Elastic-2.0'
 
+  - name: export awesome-selfhosted markdown (non-free)
+    module: exporters/markdown_singlepage
+    module_options:
+      source_directory: awesome-selfhosted-data
+      output_directory: awesome-selfhosted
+      output_file: non-free.md
+      markdown_header: markdown/non-free-header.md
+      licenses_file: licenses-nonfree.yml # (optional, default licenses.yml) YAML file to load licenses from
+      back_to_top_url: '##awesome-selfhosted---non-free-software'
+      render_empty_categories: False # (optional, default True) do not render categories which contain 0 items
+      render_category_headers: False # (optional, default True) do not render category headers (description, related categories, external links...)
+      include_licenses: # (default none) only render items matching at least one of these licenses (cannot be used together with exclude_licenses) (by identifier)
+        - '⊘ Proprietary'
+        - 'BUSL-1.1'
+        - 'CC-BY-NC-4.0'
+        - 'CC-BY-NC-SA-3.0'
+        - 'CC-BY-ND-3.0'
+        - 'Commons-Clause'
+        - 'DPL'
+        - 'SSPL-1.0'
+        - 'DPL'
+        - 'Elastic-1.0'
+        - 'Elastic-2.0'
+
   - name: check URLs
     module: processors/url_check
     module_options:
