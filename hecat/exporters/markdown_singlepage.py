@@ -38,6 +38,7 @@ steps:
       output_directory: tests/awesome-selfhosted
       output_file: non-free.md
       markdown_header: markdown/non-free-header.md
+      licenses_file: licenses-nonfree.yml # (optional, default licenses.yml) YAML file to load licenses from
       back_to_top_url: '##awesome-selfhosted---non-free-software'
       render_empty_categories: False # (optional, default True) do not render categories which contain 0 items
       render_category_headers: False # (optional, default True) do not render category headers (description, related categories, external links...)
@@ -301,7 +302,9 @@ def render_markdown_singlepage(step):
     # pylint: disable=consider-using-with
     tags = load_yaml_data(step['module_options']['source_directory'] + '/tags', sort_key='name')
     software_list = load_yaml_data(step['module_options']['source_directory'] + '/software')
-    licenses = load_yaml_data(step['module_options']['source_directory'] + '/licenses.yml')
+    if 'licenses_file' not in step['module_options']:
+        step['module_options']['licenses_file'] = 'licenses.yml'
+    licenses = load_yaml_data(step['module_options']['source_directory'] + '/' + step['module_options']['licenses_file'])
     markdown_header = ''
     markdown_footer = ''
     if 'markdown_header' in step['module_options']:

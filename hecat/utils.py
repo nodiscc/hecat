@@ -70,9 +70,14 @@ def render_markdown_licenses(step, licenses, back_to_top_url=None):
     else:
         markdown_licenses = markdown_licenses = '\n--------------------\n\n## List of Licenses\n\n'
     for _license in licenses:
-        if _license['name'] in step['module_options']['exclude_licenses']:
-            logging.debug('license %s listed in exclude_licenses, skipping', _license['name'])
-            continue
+        if step['module_options']['exclude_licenses']:
+            if _license['identifier'] in step['module_options']['exclude_licenses']:
+                logging.debug('license identifier %s listed in exclude_licenses, skipping', _license['identifier'])
+                continue
+        elif step['module_options']['include_licenses']:
+            if _license['identifier'] not in step['module_options']['include_licenses']:
+                logging.debug('license identifier %s not listed in include_licenses, skipping', _license['identifier'])
+                continue
         try:
             markdown_licenses += '- `{}` - [{}]({})\n'.format(
                 _license['identifier'],

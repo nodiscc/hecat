@@ -28,6 +28,7 @@ steps:
       output_directory: tests/awesome-selfhosted
       output_file: non-free.md
       markdown_header: markdown/non-free-header.md
+      licenses_file: licenses-nonfree.yml
       back_to_top_url: '##awesome-selfhosted---non-free-software'
       render_empty_categories: False
       render_category_headers: False
