@@ -95,10 +95,10 @@ steps:
 
 #### Awesome lists
 
-Import data from [awesome-selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted), apply processing steps, export to single-page markdown again
+Import data from [awesome-selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted):
 
 ```yaml
-# .hecat.yml
+# .hecat.import.yml
 # $ git clone https://github.com/awesome-selfhosted/awesome-selfhosted
 # $ git clone https://github.com/awesome-selfhosted/awesome-selfhosted-data
 steps:
@@ -109,14 +109,13 @@ steps:
       output_directory: ./
       output_licenses_file: licenses.yml # optional, default licenses.yml
       overwrite_tags: False # optional, default False
+```
 
-  - name: update github projects metadata
-    module: processors/github_metadata
-    module_options:
-      source_directory: awesome-selfhosted-data
-      gh_metadata_only_missing: True # optional, default False
-      sleep_time: 7.3
+Check data against awesome-selfhosted guidelines, export to single page markdown and multi-page static HTML site:
 
+```yaml
+# .hecat.export.yml
+steps:
   - name: check data against awesome-selfhosted guidelines
     module: processors/awesome_lint
     module_options:
@@ -144,7 +143,7 @@ steps:
         - 'Elastic-1.0'
         - 'Elastic-2.0'
 
-  - name: export awesome-selfhosted markdown (non-free)
+  - name: export YAML data to single-page markdown (non-free.md)
     module: exporters/markdown_singlepage
     module_options:
       source_directory: awesome-selfhosted-data
@@ -155,7 +154,7 @@ steps:
       back_to_top_url: '##awesome-selfhosted---non-free-software'
       render_empty_categories: False # (optional, default True) do not render categories which contain 0 items
       render_category_headers: False # (optional, default True) do not render category headers (description, related categories, external links...)
-      include_licenses: # (default none) only render items matching at least one of these licenses (cannot be used together with exclude_licenses) (by identifier)
+      include_licenses: # (optional, default none) only render items matching at least one of these licenses (cannot be used together with exclude_licenses) (by identifier)
         - '⊘ Proprietary'
         - 'BUSL-1.1'
         - 'CC-BY-NC-4.0'
@@ -168,21 +167,31 @@ steps:
         - 'Elastic-1.0'
         - 'Elastic-2.0'
 
-  - name: check URLs
-    module: processors/url_check
+  - name: export YAML data to multi-page markdown/HTML site
+    module: exporters/markdown_multipage
     module_options:
-      source_directories:
-        - awesome-selfhosted-data/software
-        - awesome-selfhosted-data/tags
-      source_files:
-        - awesome-selfhosted-data/licenses.yml
-      errors_are_fatal: True
-      exclude_regex:
-        - '^https://github.com/[\w\.\-]+/[\w\.\-]+$' # don't check URLs that will be processed by the github_metadata module
+      source_directory: awesome-selfhosted-data # directory containing YAML data
+      output_directory: awesome-selfhosted-html # directory to write markdown pages to
+      exclude_licenses: # optional, default []
+        - '⊘ Proprietary'
+        - 'BUSL-1.1'
+        - 'CC-BY-NC-4.0'
+        - 'CC-BY-NC-SA-3.0'
+        - 'CC-BY-ND-3.0'
+        - 'Commons-Clause'
+        - 'DPL'
+        - 'SSPL-1.0'
+        - 'DPL'
+        - 'Elastic-1.0'
+        - 'Elastic-2.0'
+
+# $ sphinx-build -b html -c CONFIG_DIR/ SOURCE_DIR/ OUTPUT_DIR/
+# $ sphinx-build -b html -c awesome-selfhosted-data/ awesome-selfhosted-html/md/ awesome-selfhosted-html/html/
+# $ rm -r tests/awesome-selfhosted-html/html/.buildinfo tests/awesome-selfhosted-html/html/objects.inv awesome-selfhosted-html/html/.doctrees
 
 ```
 
-Schedule automatic metadata update every hour from Github Actions:
+Schedule daily automatic metadata update from Github Actions:
 
 ```yaml
 # .github/workflows/update-metadata.yml
@@ -219,13 +228,69 @@ jobs:
 ```yaml
 # .hecat.update_metadata.yml
 steps:
-  - name: update all metadata from Github API
+  - name: update github projects metadata
     module: processors/github_metadata
     module_options:
-      source_directory: ./
-      gh_metadata_only_missing: False
+      source_directory: awesome-selfhosted-data # directory containing YAML data and software subdirectory
+      gh_metadata_only_missing: True # (default False) only gather metadata for software entries in which one of stargazers_count,updated_at, archived is missing
+      sleep_time: 7.3 # (default 0) sleep for this amount of time before each request to Github API
 ```
 
+Schedule daily URL checks from Github Actions:
+
+```yaml
+# .github/workflows/url-check.yml
+on:
+  schedule:
+    - cron: '22 * * * *'
+
+env:
+  GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+jobs:
+  test_schedule:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: install hecat
+        run: |
+          python3 -m venv .venv
+          source .venv/bin/activate
+          pip3 install wheel
+          pip3 install --force git+https://github.com/nodiscc/hecat.git@master
+      - name: check URLs
+        run: source .venv/bin/activate && hecat --config .hecat.url_check.yml
+```
+```yaml
+# .hecat.url_check.yml
+steps:
+  - name: check URLs
+    module: processors/url_check
+    module_options:
+      source_directories:
+        - awesome-selfhosted-data/software
+        - awesome-selfhosted-data/tags
+      source_files:
+        - awesome-selfhosted-data/licenses.yml
+      errors_are_fatal: True
+      exclude_regex:
+        - '^https://github.com/[\w\.\-]+/[\w\.\-]+$' # don't check URLs that will be processed by the github_metadata module
+        - '^https://retrospring.net/$' # DDoS protection page, always returns 403
+        - '^https://www.taiga.io/$' # always returns 403 Request forbidden by administrative rules
+        - '^https://docs.paperless-ngx.com/$' # DDoS protection page, always returns 403
+        - '^https://demo.paperless-ngx.com/$' # DDoS protection page, always returns 403
+        - '^https://git.dotclear.org/dev/dotclear$' # DDoS protection page, always returns 403
+        - '^https://word-mastermind.glitch.me/$' # the demo instance takes a long time to spin up, times out with the default 10s timeout
+        - '^https://getgrist.com/$' # hecat/python-requests bug? 'Received response with content-encoding: gzip,br, but failed to decode it.'
+        - '^https://www.uvdesk.com/$' # DDoS protection page, always returns 403
+        - '^https://demo.uvdesk.com/$' # DDoS protection page, always returns 403
+        - '^https://notes.orga.cat/$' # DDoS protection page, always returns 403
+        - '^https://cytu.be$' # DDoS protection page, always returns 403
+        - '^https://demo.reservo.co/$' # hecat/python-requests bug? always returns 404 but the website works in a browser
+        - '^https://crates.io/crates/vigil-server$' # hecat/python-requests bug? always returns 404 but the website works in a browser
+        - '^https://nitter.net$' # always times out from github actions but the website works in a browser
+```
 
 #### Shaarli
 
