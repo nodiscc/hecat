@@ -58,7 +58,7 @@ test_url_check: install
 .PHONY: test_update_github_metadata # test github metadata updater/processor on awesome-selfhosted-data
 test_update_github_metadata: install
 	source .venv/bin/activate && \
-	hecat --config tests/.hecat.github_metadata.yml && \
+	hecat --config tests/.hecat.github_metadata.yml
 
 .PHONY: test_awesome_lint # test linter/compliance checker on awesome-sefhosted-data
 test_awesome_lint:
