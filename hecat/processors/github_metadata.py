@@ -96,9 +96,9 @@ def add_github_metadata(step):
                 if ('stargazers_count' not in software) or ('updated_at' not in software) or ('archived' not in software):
                     logging.info('Missing metadata for %s, gathering it from Github API', software['name'])
                     gh_metadata, latest_commit_date = get_gh_metadata(step, github_url, g, errors)
-                    software['stargazers_count'] = gh_metadata.stargazers_count
+                    software['stargazers_count'] = int(gh_metadata.stargazers_count)
                     software['updated_at'] = datetime.strftime(latest_commit_date, "%Y-%m-%d")
-                    software['archived'] = gh_metadata.archived
+                    software['archived'] = bool(gh_metadata.archived)
                     write_software_yaml(step, software)
                 else:
                     logging.debug('all metadata already present, skipping %s', github_url)
