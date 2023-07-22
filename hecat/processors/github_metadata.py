@@ -8,7 +8,7 @@ steps:
     module_options:
       source_directory: tests/awesome-selfhosted-data # directory containing YAML data and software subdirectory
       gh_metadata_only_missing: False # (default False) only gather metadata for software entries in which one of stargazers_count,updated_at, archived is missing
-      sleep_time: 3.7 (default 0) sleep for this amount of time before each request to Github API
+      sleep_time: 3.7 # (default 0) sleep for this amount of time before each request to Github API
 
 source_directory: path to directory where data files reside. Directory structure:
 ├── software
