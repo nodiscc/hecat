@@ -111,7 +111,7 @@ steps:
       overwrite_tags: False # optional, default False
 ```
 
-Check data against awesome-selfhosted guidelines, export to single page markdown and multi-page static HTML site:
+Check data against awesome-selfhosted guidelines, export to single page markdown and static HTML site:
 
 ```yaml
 # .hecat.export.yml
@@ -185,7 +185,6 @@ steps:
         - 'Elastic-1.0'
         - 'Elastic-2.0'
 
-# $ sphinx-build -b html -c CONFIG_DIR/ SOURCE_DIR/ OUTPUT_DIR/
 # $ sphinx-build -b html -c awesome-selfhosted-data/ awesome-selfhosted-html/md/ awesome-selfhosted-html/html/
 # $ rm -r tests/awesome-selfhosted-html/html/.buildinfo tests/awesome-selfhosted-html/html/objects.inv awesome-selfhosted-html/html/.doctrees
 
