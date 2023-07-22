@@ -33,7 +33,7 @@ def load_yaml_data(path, sort_key=False):
     yaml = ruamel.yaml.YAML(typ='rt')
     data = []
     if os.path.isfile(path):
-        logging.info('loading data from %s', path)
+        logging.debug('loading data from %s', path)
         with open(path, 'r', encoding="utf-8") as yaml_data:
             data = yaml.load(yaml_data)
         if sort_key:
