@@ -22,13 +22,42 @@ steps:
       output_directory: tests/awesome-selfhosted-html # directory to write markdown pages to
       output_file: index.html # optional, default index.html
       exclude_licenses: # optional, default []
-        - 'CC-BY-NC-4.0'
         - '⊘ Proprietary'
+        - 'BUSL-1.1'
+        - 'CC-BY-NC-4.0'
+        - 'CC-BY-NC-SA-3.0'
+        - 'CC-BY-ND-3.0'
+        - 'Commons-Clause'
+        - 'DPL'
         - 'SSPL-1.0'
+        - 'DPL'
+        - 'Elastic-1.0'
+        - 'Elastic-2.0'
 
-Output directory structure:
-└── index.html
-└── TODO
+Output directory structure (after running sphinx-build):
+├── html # publish contents of this directory
+│   ├── genindex.html
+│   ├── index.html
+│   ├── search.html
+│   ├── searchindex.js
+│   ├── _sphinx_design_static
+│   │   ├── *.css
+│   │   └── *.js
+│   ├── _static
+│   │   ├── *.png
+│   │   ├── *.svg
+│   │   ├── *.css
+│   │   ├── *.js
+│   │   ├── favicon.ico
+│   │   └── opensearch.xml
+│   └── tags
+│       ├── analytics.html
+│       ├── archiving-and-digital-preservation-dp.html
+│       ├── ....html
+│       └── wikis.html
+└── md # intermediary markdown version, can be discarded
+    ├── index.md
+    └── tags
 
 The source YAML directory structure, and formatting for software/platforms data is documented in markdown_singlepage.py.
 """
@@ -217,7 +246,6 @@ def render_tag_page(step, tag, software_list):
     tag_header_template.globals['to_kebab_case'] = to_kebab_case
     markdown_tag_page_header = tag_header_template.render(tag=tag)
     markdown_software_list = ''
-
     for software in software_list:
         if any(license in software['licenses'] for license in step['module_options']['exclude_licenses']):
             logging.debug("%s has a license listed in exclude_licenses, skipping", software['name'])
@@ -256,6 +284,7 @@ def render_markdown_multipage(step):
     tags = load_yaml_data(step['module_options']['source_directory'] + '/tags', sort_key='name')
     software_list = load_yaml_data(step['module_options']['source_directory'] + '/software')
     licenses = load_yaml_data(step['module_options']['source_directory'] + '/licenses.yml')
+    # use fieldlist myst-parser extension to limit the TOC depth to 2
     markdown_fieldlist = ':tocdepth: 2\n'
     markdown_content_header = MARKDOWN_INDEX_CONTENT_HEADER
     with open(step['module_options']['source_directory'] + '/markdown/header.md', 'r', encoding="utf-8") as header_file:
