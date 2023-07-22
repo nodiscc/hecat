@@ -33,11 +33,13 @@ Perform processing tasks on YAML data:
 #### Exporters
 
 Export data to other formats:
-- [exporters/markdown_singlepage](hecat/exporters/markdown_singlepage.py): export data from the [awesome-selfhosted-data](https://github.com/awesome-selfhosted/awesome-selfhosted-data) format to a single markdown document
+- [exporters/markdown_singlepage](hecat/exporters/markdown_singlepage.py): render data as a single markdown document
+- [exporters/markdown_multipage](hecat/exporters/markdown_multipage.py): render data as a multipage markdown site which can be used to generate a HTML site with Sphinx
 - [exporters/html_table](hecat/exporters/html_table.py): render data as single-page HTML table
 
 [![](https://gitlab.com/nodiscc/toolbox/-/raw/master/DOC/SCREENSHOTS/NvCOeiK.png)](hecat/exporters/markdown_singlepage.py)
 [![](https://gitlab.com/nodiscc/toolbox/-/raw/master/DOC/SCREENSHOTS/FFMPdaw.png)](hecat/exporters/html_table.py)
+[![](https://gitlab.com/nodiscc/toolbox/-/raw/master/DOC/SCREENSHOTS/hecat-exporter-markdown-multipage.png)](hecat/exporters/markdown_multipage.py)
 
 
 ## Installation
