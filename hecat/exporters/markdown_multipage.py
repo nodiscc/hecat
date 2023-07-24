@@ -185,6 +185,7 @@ SOFTWARE_JINJA_MARKDOWN="""
 {% for platform in software['platforms'] %}<span class="platform">{{ platform }} </span> {% endfor %}
 {% for license in software['licenses'] %}<span class="license-box"><a class="license-link" href="{{ licenses_relative_url }}">{% raw %}{octicon}{% endraw %}`law;0.8em;octicon` {{ license }}</a> </span> {% endfor %}
 {% if software['depends_3rdparty'] is defined and software['depends_3rdparty'] %}<span class="orangebox" title="Depends on a proprietary service outside the user's control">⚠ Anti-features</span>{% endif %}
+
 {% for tag in tags %}<span class="tag"><a href="{{ tag['href'] }}">{% raw %}{octicon}{% endraw %}`tag;0.8em;octicon` {{ tag['name'] }}</a> </span>{% endfor %}
 
 """
