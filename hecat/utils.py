@@ -16,6 +16,7 @@ def to_kebab_case(string):
     """convert a string to kebab-case, remove some special characters"""
     replacements = {
         ' ': '-',
+        ':': '-',
         '(': '',
         ')': '',
         '&': '',
