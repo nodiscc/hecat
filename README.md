@@ -97,7 +97,7 @@ steps:
 
 #### Awesome lists
 
-Import data from [awesome-selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted):
+Import data from [awesome-selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted)'s markdown list format:
 
 ```yaml
 # .hecat.import.yml
@@ -113,7 +113,7 @@ steps:
       overwrite_tags: False # optional, default False
 ```
 
-Check data against awesome-selfhosted guidelines, export to single page markdown and static HTML site:
+Check data against awesome-selfhosted formatting guidelines, export to single page markdown and static HTML site (see [awesome-selfhosted-data](https://github.com/awesome-selfhosted/awesome-selfhosted-data), its [`Makefile`](https://github.com/awesome-selfhosted/awesome-selfhosted-data/blob/master/Makefile) and [Github Actions workflows](https://github.com/awesome-selfhosted/awesome-selfhosted-data/tree/master/.github/workflows) for complete usage examples. See [awesome-selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted) and [awesome-selfhosted-html](https://github.com/nodiscc/awesome-selfhosted-html-preview/) for example output):
 
 ```yaml
 # .hecat.export.yml
