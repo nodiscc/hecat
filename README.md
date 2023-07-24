@@ -2,7 +2,7 @@
 
 A generic automation tool around data stored as plaintext YAML files.
 
-**Status: experimental** [![CI](https://github.com/nodiscc/hecat/actions/workflows/ci.yml/badge.svg)](https://github.com/nodiscc/hecat/actions)
+[![CI](https://github.com/nodiscc/hecat/actions/workflows/ci.yml/badge.svg)](https://github.com/nodiscc/hecat/actions)
 
 This program uses YAML files to store data about various kind of items (bookmarks, software projects, ...) and apply various processing tasks.
 Functionality is implemented in separate modules.
@@ -189,7 +189,6 @@ steps:
 
 # $ sphinx-build -b html -c awesome-selfhosted-data/ awesome-selfhosted-html/md/ awesome-selfhosted-html/html/
 # $ rm -r tests/awesome-selfhosted-html/html/.buildinfo tests/awesome-selfhosted-html/html/objects.inv awesome-selfhosted-html/html/.doctrees
-
 ```
 
 Schedule daily automatic metadata update from Github Actions:
@@ -378,7 +377,7 @@ Please submit any questions to <https://gitlab.com/nodiscc/hecat/-/issues> or <h
 
 ## Contributing
 
-This program is in a very early stage of development. Code cleanup, documentation, unit tests, improvements, support for other input/output formats is very welcome at <https://gitlab.com/nodiscc/hecat/-/merge_requests> or <https://github.com/nodiscc/hecat/pulls>
+Bug reports, suggestions, code cleanup, documentation, unit tests, improvements, support for other input/output formats are welcome at <https://gitlab.com/nodiscc/hecat/-/merge_requests> or <https://github.com/nodiscc/hecat/pulls>
 
 
 ## Testing
