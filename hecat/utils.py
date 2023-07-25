@@ -90,3 +90,14 @@ def render_markdown_licenses(step, licenses, back_to_top_url=None):
             logging.error('missing fields in license %s: KeyError: %s', _license, err)
             sys.exit(1)
     return markdown_licenses
+
+def write_data_file(step, items):
+    """write updated data back to the data file"""
+    yaml = ruamel.yaml.YAML(typ='rt')
+    yaml.indent(sequence=2, offset=0)
+    yaml.width = 99999
+    with open(step['module_options']['data_file'] + '.tmp', 'w', encoding="utf-8") as temp_yaml_file:
+        logging.info('writing temporary data file %s', step['module_options']['data_file'] + '.tmp')
+        yaml.dump(items, temp_yaml_file)
+    logging.info('writing data file %s', step['module_options']['data_file'])
+    os.rename(step['module_options']['data_file'] + '.tmp', step['module_options']['data_file'])

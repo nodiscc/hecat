@@ -4,7 +4,7 @@ import argparse
 import logging
 from .utils import load_yaml_data
 from .importers import import_markdown_awesome, import_shaarli_json
-from .processors import add_github_metadata, awesome_lint, check_urls, download_media
+from .processors import add_github_metadata, awesome_lint, check_urls, download_media, archive_webpages
 from .exporters import render_markdown_singlepage, render_html_table
 from .exporters import render_markdown_multipage
 
@@ -41,6 +41,8 @@ def main():
             awesome_lint(step)
         elif step['module'] == 'processors/url_check':
             check_urls(step)
+        elif step['module'] == 'processors/archive_webpages':
+            archive_webpages(step)
         elif step['module'] == 'processors/download_media':
             download_media(step)
         elif step['module'] == 'exporters/markdown_singlepage':

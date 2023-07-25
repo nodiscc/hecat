@@ -1,5 +1,56 @@
 [
     {
+        "hecat_comment": "test webpage archiving module",
+        "created": "2023-07-24T12:07:00+02:00",
+        "description": "Sample description",
+        "id": 8351,
+        "private": false,
+        "shorturl": "Y6NgtQ",
+        "tags": [
+            "doc",
+            "admin",
+            "hecat",
+            "dev"
+        ],
+        "title": "Template Designer Documentation — Jinja Documentation (3.2.x)",
+        "updated": "2023-07-24T12:07:00+02:00",
+        "url": "https://jinja.palletsprojects.com/en/latest/templates/"
+    },
+    {
+        "hecat_comment": "test webpage archiving module",
+        "created": "2023-07-26T01:50:35+02:00",
+        "description": "",
+        "id": 8364,
+        "private": false,
+        "shorturl": "vlbw0A",
+        "tags": [
+            "forums",
+            "rss",
+            "games",
+            "dev",
+            "hecat"
+        ],
+        "title": "/r/gamedev",
+        "updated": "2023-07-26T15:56:36+02:00",
+        "url": "https://old.reddit.com/r/gamedev/top/?sort=top&t=week&limit=15"
+    },
+    {
+        "hecat_comment": "test webpage archiving module",
+        "created": "2023-06-30T19:36:24+02:00",
+        "description": "> Where can I find sheet music for this song?",
+        "id": 8192,
+        "private": false,
+        "shorturl": "h97l7Q",
+        "tags": [
+            "doc",
+            "piano",
+            "hecat"
+        ],
+        "title": "faq - piano",
+        "updated": "2023-07-01T00:38:03+02:00",
+        "url": "https://old.reddit.com/r/piano/wiki/faq#wiki_getting_started_as_a_beginner"
+    },
+    {
         "hecat_comment": "test for nodl tag, should not be downloaded",
         "created": "2022-07-27T22:56:06+02:00",
         "description": "",
@@ -19,9 +70,9 @@
     {
         "hecat_comment": "test duplicate/updated entry",
         "created": "2022-07-27T22:16:37+02:00",
-        "description": "A test description - updated. This is the same item as id: 6623 in shaarli.json, but the description has been updated",
+        "description": "A test description - updated. This is the same item as id: 6623 in shaarli.json, but the description and private flag have been updated",
         "id": 6623,
-        "private": false,
+        "private": true,
         "shorturl": "U-sj1Z",
         "tags": [
             "lecture",

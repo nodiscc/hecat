@@ -29,6 +29,7 @@ setup(
         'yt_dlp',
         'jinja2',
         'Markdown',
+        'pymdown-extensions',
         'sphinx==7.1.0',
         'furo==2023.7.26',
         'myst-parser',

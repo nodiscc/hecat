@@ -9,6 +9,7 @@ steps:
       html_title: "hecat HTML export" # (default "hecat HTML export") output HTML title
       favicon_base64: "iVBORw0KGgoAAAAN..." # (defaults to the default favicon) base64-encoded png favicon
       description_format: paragraph # (details/paragraph, default details) wrap the description in a HTML details tag
+      archive_dir: webpages # (default webpages) path to the webpages archive base directory (archive_webpages module's output_directory)
 
 Source directory structure:
 └── shaarli.yml
@@ -90,6 +91,11 @@ HTML_JINJA = """
     min-width: 130px;
   }
 
+  .title-column {
+    min-with: 480px;
+    max-width: 900px;
+  }
+
   blockquote {
     border-left: 2px solid #CCC;
     margin-left: 5px;
@@ -109,7 +115,7 @@ function myFunctionTitle() {
 
   // Loop through all table rows, and hide those who don't match the search query
   for (i = 0; i < tr.length; i++) {
-    td = tr[i].getElementsByTagName("td")[0];
+    td = tr[i].getElementsByTagName("td")[1];
     if (td) {
       txtValue = td.textContent || td.innerText;
       if (txtValue.toUpperCase().indexOf(filter) > -1) {
@@ -131,7 +137,7 @@ function myFunctionTag() {
 
   // Loop through all table rows, and hide those who don't match the search query
   for (i = 0; i < tr.length; i++) {
-    td = tr[i].getElementsByTagName("td")[2];
+    td = tr[i].getElementsByTagName("td")[3];
     if (td) {
       txtValue = td.textContent || td.innerText;
       if (txtValue.toUpperCase().indexOf(filter) > -1) {
@@ -156,14 +162,16 @@ function myFunctionTag() {
 <table id="myTable">
   <thead>
     <tr>
-      <td>Title</td>
+      <td></td>
+      <td class="title-column">Title</td>
       <td class="date-column">Date</td>
       <td>Tags</td>
     </tr>
   </thead>
 {% for item in items %}
 <tr>
-  <td><a href='{{ item['url'] }}'>{{ item['title'] }}</a>
+<td>{% if item['archive_path'] is defined %}<a href="{{ archive_dir }}/{{ 'private' if item['private'] else 'public' }}/{{ item['archive_path'] }}">▣</a>{% elif item['archive_error'] is defined and item['archive_error'] %}⚠{% endif %}</td>
+  <td class="title-column"><a href='{{ item['url'] }}'>{{ item['title'] }}</a>
   {% if item['description'] is defined and item['description'] %}<br/>{% if description_format == 'details' %}<details><summary></summary>{% elif description_format == 'paragraph' %}<p>{% endif %}{{ jinja_markdown(item['description']) }}{% if description_format == 'details' %}</details>{% elif description_format == 'paragraph' %}</p>{% endif %}{% endif %}
   </td>
   <td>{{ simple_datetime(item.created) }}</td>
@@ -178,7 +186,7 @@ function myFunctionTag() {
 
 def jinja_markdown(text):
   """wrapper for using the markdown library from inside the jinja2 template"""
-  return markdown.markdown(text)
+  return markdown.markdown(text, extensions=['fenced_code', 'pymdownx.magiclink'])
 
 def simple_datetime(date):
   return datetime.strftime(datetime.strptime(date, "%Y-%m-%dT%H:%M:%S%z"), "%Y-%m-%d %H:%M:%S")
@@ -196,6 +204,8 @@ def render_html_table(step):
     if step['module_options']['description_format'] not in ['details', 'paragraph']:
         logging.error('unrecognized value %s for description_format option. Allowed values: details, paragraph', step['module_options']['description_format'])
         sys.exit(1)
+    if 'archive_dir' not in step['module_options']:
+        step['module_options']['archive_dir'] = 'webpages'
     data = load_yaml_data(step['module_options']['source_file'])
     link_count = len(data)
     html_template = Template(HTML_JINJA)
@@ -207,5 +217,6 @@ def render_html_table(step):
                                             link_count=link_count,
                                             html_title=step['module_options']['html_title'],
                                             favicon_base64=step['module_options']['favicon_base64'],
-                                            description_format=step['module_options']['description_format']
+                                            description_format=step['module_options']['description_format'],
+                                            archive_dir=step['module_options']['archive_dir']
                                             ))

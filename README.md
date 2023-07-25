@@ -411,6 +411,15 @@ steps:
       exclude_regex:
         - '^https://www.youtube.com/watch.*$' # don't check youtube video URLs, always returns HTTP 200 even for unavailable videos```
 
+  - name: archive webpages for items tagged 'hecat' or 'doc'
+    module: processors/archive_webpages
+    module_options:
+      data_file: shaarli.yml
+      only_tags: ['hecat', 'doc']
+      exclude_tags: ['nodl']
+      output_directory: webpages
+      clean_removed: True
+
   - name: export shaarli data to HTML table
     module: exporters/html_table
     module_options:
@@ -430,7 +439,7 @@ Please submit any questions to <https://gitlab.com/nodiscc/hecat/-/issues> or <h
 
 ## Contributing
 
-Bug reports, suggestions, code cleanup, documentation, unit tests, improvements, support for other input/output formats are welcome at <https://gitlab.com/nodiscc/hecat/-/merge_requests> or <https://github.com/nodiscc/hecat/pulls>
+Bug reports, suggestions, code cleanup, documentation, tests, improvements, support for other input/output formats are welcome at <https://gitlab.com/nodiscc/hecat/-/merge_requests> or <https://github.com/nodiscc/hecat/pulls>
 
 
 ## Testing
@@ -459,8 +468,9 @@ test_export_awesome_selfhosted_html     test export to singlepage HTML from awes
 test_import_shaarli test import from shaarli JSON
 test_download_video test downloading videos from the shaarli import, test log file creation
 test_download_audio test downloading audio files from the shaarli import
+test_archive_webpages                   test webpage archiving
 test_export_html_table                  test exporting shaarli data to HTML table
-
+scan_trivy          run trivy vulnerability scanner
 ```
 
 ## License

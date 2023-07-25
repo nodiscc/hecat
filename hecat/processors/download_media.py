@@ -59,19 +59,11 @@ import os
 import logging
 import ruamel.yaml
 import yt_dlp
-from ..utils import load_yaml_data
+from ..utils import load_yaml_data, write_data_file
 
 yaml = ruamel.yaml.YAML()
 yaml.indent(sequence=2, offset=0)
 yaml.width = 99999
-
-def write_data_file(step, items):
-    """write updated data back to the data file"""
-    with open(step['module_options']['data_file'] + '.tmp', 'w', encoding="utf-8") as temp_yaml_file:
-        logging.info('writing temporary data file %s', step['module_options']['data_file'] + '.tmp')
-        yaml.dump(items, temp_yaml_file)
-    logging.info('writing data file %s', step['module_options']['data_file'])
-    os.rename(step['module_options']['data_file'] + '.tmp', step['module_options']['data_file'])
 
 def download_media(step):
     """download videos from the each item's 'url', if it matches one of step['only_tags'],
@@ -112,11 +104,10 @@ def download_media(step):
     for item in items:
         # skip download when skip_when_filename_present = True, and video/audio_filename key already exists
         if (('skip_when_filename_present' not in step['module_options'].keys() or
-                step['module_options']['skip_when_filename_present']) and
-                filename_key in item.keys()):
+                step['module_options']['skip_when_filename_present']) and filename_key in item.keys()):
             logging.debug('skipping %s (id %s): %s already recorded in the data file', item['url'], item['id'], filename_key)
             skipped_count = skipped_count +1
-        # skip download when retry_items_with_error = False, and video/audio_download_error key alraedy exists
+        # skip download when retry_items_with_error = False, and video/audio_download_error key already exists
         elif ('retry_items_with_error' in step['module_options'] and
                 not step['module_options']['retry_items_with_error'] and
                 error_key in item.keys()):

@@ -45,7 +45,7 @@ yaml.indent(sequence=4, offset=2)
 yaml.width = 99999
 
 class DummyGhMetadata(dict):
-    """a dummy metdata object that will be returned when fetching metadata from github API fails"""
+    """a dummy metadata object that will be returned when fetching metadata from github API fails"""
     def __init__(self):
         self.stargazers_count = 0
         self.archived = False
