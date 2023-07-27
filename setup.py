@@ -30,7 +30,7 @@ setup(
         'jinja2',
         'Markdown',
         'sphinx==7.1.0',
-        'furo',
+        'furo==2023.7.26',
         'myst-parser',
         'sphinx-design'
     ],
