@@ -64,6 +64,13 @@ git clone https://gitlab.com/nodiscc/hecat.git
 cd hecat && python3 -m pip install .
 ```
 
+To install a specific [release](https://github.com/nodiscc/hecat/releases), adapt the `git clone` or `pip3 install` command:
+
+```bash
+pip3 install git+https://gitlab.com/nodiscc/hecat.git@1.0.2
+git clone -b 1.0.2 https://gitlab.com/nodiscc/hecat.git
+```
+
 ## Usage
 
 ```bash
