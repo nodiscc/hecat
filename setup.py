@@ -29,6 +29,7 @@ setup(
         'yt_dlp',
         'jinja2',
         'Markdown',
+        'sphinx==7.1.0',
         'furo',
         'myst-parser',
         'sphinx-design'
