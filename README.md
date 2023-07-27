@@ -189,6 +189,7 @@ steps:
 
 # $ sphinx-build -b html -c awesome-selfhosted-data/ awesome-selfhosted-html/md/ awesome-selfhosted-html/html/
 # $ rm -r tests/awesome-selfhosted-html/html/.buildinfo tests/awesome-selfhosted-html/html/objects.inv awesome-selfhosted-html/html/.doctrees
+# Note: sphinx must be installed separately using pip3 install sphinx==7.1.0
 ```
 
 Schedule daily automatic metadata update from Github Actions:

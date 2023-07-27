@@ -14,7 +14,7 @@ clean:
 .PHONY: install # install in a virtualenv
 install:
 	python3 -m venv .venv && source .venv/bin/activate && \
-	pip3 install wheel 'sphinx<7' && \
+	pip3 install wheel 'sphinx==7.1.0' && \
 	python3 setup.py install
 
 ##### TESTS #####
