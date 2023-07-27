@@ -15,7 +15,7 @@ clean:
 install:
 	python3 -m venv .venv && source .venv/bin/activate && \
 	pip3 install wheel 'sphinx==7.1.0' && \
-	python3 setup.py install
+	python3 -m pip install .
 
 ##### TESTS #####
 

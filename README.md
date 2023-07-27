@@ -61,7 +61,7 @@ To install from a local copy instead:
 # grab a copy
 git clone https://gitlab.com/nodiscc/hecat.git
 # install the python package
-cd hecat && python3 setup.py install
+cd hecat && python3 -m pip install .
 ```
 
 ## Usage
