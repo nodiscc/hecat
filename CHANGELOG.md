@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-#### [v1.1.0](https://github.com/nodiscc/hecat/releases#1.1.0) - UNRELEASED
+#### [v1.1.0](https://github.com/nodiscc/hecat/releases#1.1.0) - 2023-07-29
 
 **Added:**
 - processors/awesome_lint: allow confguring the number of days without updates to a project before triggering an info/warning/error message (`last_updated_{error,warn,info}_days`, default to 3650, 365, 186 respectively)
