@@ -4,6 +4,9 @@ steps:
     module_options:
       source_directory: tests/awesome-selfhosted-data
       items_in_redirect_fatal: False
+      # last_updated_error_days: 3650 # (optional, default 3650) raise an error message for projects that have not been updated in this number of days
+      # last_updated_warn_days: 365 # (optional, default 365) raise a warning message for projects that have not been updated in this number of days
+      # last_updated_info_days: 186 # (optional, default 186) raise an info message for projects that have not been updated in this number of days
       licenses_files:
         - licenses.yml
         - licenses-nonfree.yml

@@ -9,6 +9,9 @@ steps:
     module_options:
       source_directory: tests/awesome-selfhosted-data
       items_in_redirect_fatal: False # optional, default True
+      last_updated_error_days: 3650 # (optional, default 3650) raise an error message for projects that have not been updated in this number of days
+      last_updated_warn_days: 365 # (optional, default 365) raise a warning message for projects that have not been updated in this number of days
+      last_updated_info_days: 186 # (optional, default 186) raise an info message for projects that have not been updated in this number of days
       licenses_files: # optional default ['licenses.yml']
         - licenses.yml
         - licenses-nonfree.yml
@@ -44,8 +47,6 @@ SOFTWARE_REQUIRED_FIELDS = ['description', 'website_url', 'source_code_url', 'li
 SOFTWARE_REQUIRED_LISTS = ['licenses', 'tags']
 TAGS_REQUIRED_FIELDS = ['description']
 LICENSES_REQUIRED_FIELDS= ['identifier', 'name', 'url']
-LAST_UPDATED_INFO_DAYS = 186 # ~6 months
-LAST_UPDATED_WARN_DAYS = 365
 
 def check_required_fields(item, errors, required_fields=[], required_lists=[], severity=logging.error):
     """check that keys (required_fields) are defined and do not have length zero
@@ -181,25 +182,31 @@ def check_not_archived(software, errors):
     except KeyError:
         pass
 
-def check_github_last_updated(step):
-    """checks the date of last update to a project, warn if older than configured threshold"""
-    logging.info('checking software last update dates against info (%s days)/warning (%s days) thresholds', LAST_UPDATED_INFO_DAYS, LAST_UPDATED_WARN_DAYS)
-    software_list = load_yaml_data(step['module_options']['source_directory'] + '/software')
-    for software in software_list:
-        if 'updated_at' in software:
-            last_update_time = datetime.strptime(software['updated_at'], "%Y-%m-%d")
-            time_since_last_update = last_update_time - datetime.now()
-            if last_update_time < datetime.now() - timedelta(days=LAST_UPDATED_WARN_DAYS):
-                logging.warning('%s: last updated %s ago, older than %s days', software['name'], time_since_last_update, LAST_UPDATED_WARN_DAYS)
-            elif last_update_time < datetime.now() - timedelta(days=LAST_UPDATED_INFO_DAYS):
-                logging.info('%s: last updated %s ago, older than %s days', software['name'], time_since_last_update, LAST_UPDATED_INFO_DAYS)
-            else:
-                logging.debug('%s: last updated %s ago', software['name'], time_since_last_update)
+def check_last_updated(software, step, errors):
+    """checks the date of last update to a project, emit info/warn/error message if older than configured thresholds"""
+    if 'updated_at' in software:
+        last_update_time = datetime.strptime(software['updated_at'], "%Y-%m-%d")
+        time_since_last_update = last_update_time - datetime.now()
+        if last_update_time < datetime.now() - timedelta(days=step['module_options']['last_updated_error_days']):
+            message = '{}: last updated {} ago, older than {} days'.format(software['name'], time_since_last_update, step['module_options']['last_updated_warn_days'])
+            log_exception(message, errors, severity=logging.error)
+        if last_update_time < datetime.now() - timedelta(days=step['module_options']['last_updated_warn_days']):
+            logging.warning('%s: last updated %s ago, older than %s days', software['name'], time_since_last_update, step['module_options']['last_updated_warn_days'])
+        elif last_update_time < datetime.now() - timedelta(days=step['module_options']['last_updated_info_days']):
+            logging.info('%s: last updated %s ago, older than %s days', software['name'], time_since_last_update, step['module_options']['last_updated_info_days'])
+        else:
+            logging.debug('%s: last updated %s ago', software['name'], time_since_last_update)
 
 def awesome_lint(step):
     """check all software entries against awesome-selfhosted formatting guidelines"""
     logging.info('checking software entries/tags against awesome-selfhosted formatting guidelines.')
     software_list = load_yaml_data(step['module_options']['source_directory'] + '/software')
+    if 'last_updated_info_days' not in step['module_options']:
+        step['module_options']['last_updated_info_days'] = 186
+    if 'last_updated_warn_days' not in step['module_options']:
+        step['module_options']['last_updated_warn_days'] = 365
+    if 'last_updated_error_days' not in step['module_options']:
+        step['module_options']['last_updated_error_days'] = 3650
     if 'licenses_files' not in step['module_options']:
         step['module_options']['licenses_files'] = ['/licenses.yml']
     licenses_list = []
@@ -219,6 +226,7 @@ def awesome_lint(step):
         check_redirect_sections_empty(step, software, tags_with_redirect, errors)
         check_external_link_syntax(software, errors)
         check_not_archived(software, errors)
+        check_last_updated(software, step, errors)
     for tag in tags_list:
         check_related_tags_in_tags_list(tag, tags_list, errors)
         check_required_fields(tag, errors, required_fields=TAGS_REQUIRED_FIELDS, severity=logging.warning)

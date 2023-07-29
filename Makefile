@@ -61,7 +61,7 @@ test_update_github_metadata: install
 	hecat --config tests/.hecat.github_metadata.yml
 
 .PHONY: test_awesome_lint # test linter/compliance checker on awesome-sefhosted-data
-test_awesome_lint:
+test_awesome_lint: install
 	source .venv/bin/activate && \
 	hecat --config tests/.hecat.awesome_lint.yml
 
