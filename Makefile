@@ -105,7 +105,7 @@ test_export_html_table: test_import_shaarli install
 	source .venv/bin/activate && \
 	hecat --config tests/.hecat.export_html_table.yml
 
-TRIVY_VERSION=0.43.0
+TRIVY_VERSION=0.44.0
 TRIVY_EXIT_CODE=1
 .PHONY: scan_trivy # run trivy vulnerability scanner
 scan_trivy:
