@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+#### [v1.2.0](https://github.com/nodiscc/hecat/releases#1.2.0) - UNLEREASED
+
+**Fixed:**
+- processors/awesome_lint: fix displayed number of days in `older than ... days` for error-level messages
+
+---------------------
+
 #### [v1.1.0](https://github.com/nodiscc/hecat/releases#1.1.0) - 2023-07-29
 
 **Added:**
