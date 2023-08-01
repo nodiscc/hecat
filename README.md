@@ -28,7 +28,7 @@ Perform processing tasks on YAML data:
 
 [![](https://gitlab.com/nodiscc/toolbox/-/raw/master/DOC/SCREENSHOTS/Heg3Esg.png)](hecat/processors/url_check.py)
 [![](https://gitlab.com/nodiscc/toolbox/-/raw/master/DOC/SCREENSHOTS/RtiDE91.png)](hecat/processors/download_media.py)
-
+[![](https://gitlab.com/nodiscc/toolbox/-/raw/master/DOC/SCREENSHOTS/hecat-processor-github-metadata.png)](hecat/processors/github_metadata.py)
 
 #### Exporters
 
