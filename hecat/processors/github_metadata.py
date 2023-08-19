@@ -42,6 +42,7 @@ from ..utils import load_yaml_data, to_kebab_case
 
 yaml = ruamel.yaml.YAML(typ='rt')
 yaml.indent(sequence=4, offset=2)
+yaml.width = 99999
 
 class DummyGhMetadata(dict):
     """a dummy metdata object that will be returned when fetching metadata from github API fails"""

@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 **Fixed:**
 - processors/awesome_lint: fix displayed number of days in `older than ... days` for error-level messages
+- processors/github_metadata: don't split long lines in YAML output
 
 ---------------------
 
