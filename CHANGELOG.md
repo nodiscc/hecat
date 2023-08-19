@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-#### [v1.2.0](https://github.com/nodiscc/hecat/releases#1.2.0) - UNLEREASED
+#### [v1.1.1](https://github.com/nodiscc/hecat/releases/tag/1.1.1) - 2023-08-19
 
 **Fixed:**
 - processors/awesome_lint: fix displayed number of days in `older than ... days` for error-level messages
@@ -11,14 +11,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ---------------------
 
-#### [v1.1.0](https://github.com/nodiscc/hecat/releases#1.1.0) - 2023-07-29
+#### [v1.1.0](https://github.com/nodiscc/hecat/releases/tag/1.1.0) - 2023-07-29
 
 **Added:**
 - processors/awesome_lint: allow confguring the number of days without updates to a project before triggering an info/warning/error message (`last_updated_{error,warn,info}_days`, default to 3650, 365, 186 respectively)
 
 ---------------------
 
-#### [v1.0.2](https://github.com/nodiscc/hecat/releases#1.0.2) - 2023-07-27
+#### [v1.0.2](https://github.com/nodiscc/hecat/releases/tag/1.0.2) - 2023-07-27
 
 **Changed:**
 - dependencies: upgrade sphinx to v7.1.0, pin furo to v2023.7.26
@@ -29,13 +29,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ---------------------
 
-#### [v1.0.1](https://github.com/nodiscc/hecat/releases#1.0.1) - 2023-07-24
+#### [v1.0.1](https://github.com/nodiscc/hecat/releases/tag/1.0.1) - 2023-07-24
 
 **Changed:**
 - utils: `to_kebab_case()`: replace `:` character with `-` (avoids filename issues on NTFS, consistent with automatic anchor generation)
 
 ---------------------
 
-#### [v1.0.0](https://github.com/nodiscc/hecat/releases#1.0.0) - 2023-07-24
+#### [v1.0.0](https://github.com/nodiscc/hecat/releases/tag/1.0.0) - 2023-07-24
 
 Initial release, see [README.md](https://github.com/nodiscc/hecat/blob/1.0.0/README.md) and module-specific documentation in each module's docstring.
