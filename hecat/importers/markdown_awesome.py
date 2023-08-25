@@ -34,6 +34,9 @@ In addition to the list item format
 the importer assumes a few things about the original markdown file:
 - all level 3 (`###`) titles/sections contain the actual list data/items, other sections must use level 2 headings
 - the list of licenses is available in a `## List of Licenses` section
+
+The output format for software/platforms/tags is described in exporters/markdown_singlepage.py
+
 """
 
 import os
