@@ -140,7 +140,7 @@ def check_tag_has_at_least_items(tag, software_list, errors, minitems=3):
         assert tag_items_count >= minitems
         logging.debug('{} items tagged {}'.format(tag_items_count, tag['name']))
     except AssertionError:
-        if not tag['redirect']:
+        if not 'redirect' in tag:
             message = "{} items tagged {}, each tag must have at least {} items attached".format(tag_items_count, tag['name'], minitems)
             log_exception(message, errors)
         else:

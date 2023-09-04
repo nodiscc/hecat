@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+#### [v1.1.2](https://github.com/nodiscc/hecat/releases/tag/1.1.2) - UNRELEASED
+
+**Fixed:**
+- processors/awesome_lint: fix detection of `redirect` attribute when a tag has least than N items
+
+---------------------
+
+
 #### [v1.1.1](https://github.com/nodiscc/hecat/releases/tag/1.1.1) - 2023-08-19
 
 **Fixed:**
