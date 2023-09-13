@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 #### [v1.1.2](https://github.com/nodiscc/hecat/releases/tag/1.1.2) - UNRELEASED
 
+**Changed:**
+- processors/awesome_lint: if `items_in_redirect_fatal: True` (the default), exit with error if any `software` item uses a tag for which `redirect:` is not empty
+
 **Fixed:**
 - processors/awesome_lint: fix detection of `redirect` attribute when a tag has least than N items
 

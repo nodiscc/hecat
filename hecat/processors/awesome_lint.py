@@ -8,11 +8,11 @@ steps:
     module: processors/awesome_lint
     module_options:
       source_directory: tests/awesome-selfhosted-data
-      items_in_redirect_fatal: False # optional, default True
+      items_in_redirect_fatal: False # (optional, default True) fail when entries have a tag with 'redirect' set in their `tags` list
       last_updated_error_days: 3650 # (optional, default 3650) raise an error message for projects that have not been updated in this number of days
       last_updated_warn_days: 365 # (optional, default 365) raise a warning message for projects that have not been updated in this number of days
       last_updated_info_days: 186 # (optional, default 186) raise an info message for projects that have not been updated in this number of days
-      licenses_files: # optional default ['licenses.yml']
+      licenses_files: # (optional, default ['licenses.yml']) path to files containing lists of licenses
         - licenses.yml
         - licenses-nonfree.yml
 
@@ -31,10 +31,6 @@ source_directory: path to directory where data can be found. Directory structure
 │   └── ...
 ├── licenses.yml # yaml list of licenses
 └── licenses-nonfree.yml # yaml list of licenses
-
-items_in_redirect_fatal: if False, only warn/don't fail when entries have a tag with 'redirect' set as their first tag
-
-licenses_files: path to files containings lists of licenses
 """
 
 import re
@@ -147,16 +143,16 @@ def check_tag_has_at_least_items(tag, software_list, errors, minitems=3):
             logging.debug('{} items tagged {}, less than {} but ignoring since this tag is redirected'.format(tag_items_count, tag['name'], minitems))
 
 def check_redirect_sections_empty(step, software, tags_with_redirect, errors):
-    """check that the first tag in the tags list does not match a tag with redirect set"""
-    first_tag = software['tags'][0]
-    try:
-        assert first_tag not in tags_with_redirect
-    except AssertionError:
-        message = "{}: the first tag {} points to a tag which redirects to another list.".format(software['name'], first_tag)
-        if 'items_in_redirect_fatal' in step['module_options'].keys() and not step['module_options']['items_in_redirect_fatal']:
-            log_exception(message, errors, severity=logging.warning)
-        else:
-            log_exception(message, errors)
+    """check that any tag in the tags list does not match a tag with redirect set"""
+    for tag in software['tags']:
+        try:
+            assert tag not in tags_with_redirect
+        except AssertionError:
+            message = "{}: tag {} points to a tag which redirects to another list.".format(software['name'], tag)
+            if 'items_in_redirect_fatal' in step['module_options'].keys() and not step['module_options']['items_in_redirect_fatal']:
+                log_exception(message, errors, severity=logging.warning)
+            else:
+                log_exception(message, errors)
 
 
 def check_external_link_syntax(software, errors):
