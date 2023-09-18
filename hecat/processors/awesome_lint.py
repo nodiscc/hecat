@@ -126,7 +126,7 @@ def check_related_tags_in_tags_list(tag, tags_list, errors):
                 message = "{}: related tag {} is not listed in the main tags list".format(tag['name'], related_tag_name)
                 log_exception(message, errors)
 
-def check_tag_has_at_least_items(tag, software_list, errors, min_items=3):
+def check_tag_has_at_least_items(tag, software_list, tags_with_redirect, errors, min_items=3):
     """check that a tag has at least N software items attached to it"""
     tag_items_count = 0
     for software in software_list:
@@ -136,8 +136,11 @@ def check_tag_has_at_least_items(tag, software_list, errors, min_items=3):
         assert tag_items_count >= min_items
         logging.debug('{} items tagged {}'.format(tag_items_count, tag['name']))
     except AssertionError:
-        message = "{} items tagged {}, each tag must have at least {} items attached".format(tag_items_count, tag['name'], min_items)
-        log_exception(message, errors)
+        if tag['name'] in tags_with_redirect and tag_items_count == 0:
+            logging.debug('0 items tagged {}, but this tag has the redirect attribute set'.format(tag['name']))
+        else:
+            message = "{} items tagged {}, each tag must have at least {} items attached".format(tag_items_count, tag['name'], min_items)
+            log_exception(message, errors)
 
 def check_redirect_sections_empty(step, software, tags_with_redirect, errors):
     """check that any tag in the tags list does not match a tag with redirect set"""
@@ -223,7 +226,7 @@ def awesome_lint(step):
     for tag in tags_list:
         check_related_tags_in_tags_list(tag, tags_list, errors)
         check_required_fields(tag, errors, required_fields=TAGS_REQUIRED_FIELDS, severity=logging.warning)
-        check_tag_has_at_least_items(tag, software_list, errors, min_items=3)
+        check_tag_has_at_least_items(tag, software_list, tags_with_redirect, errors, min_items=3)
     for license in licenses_list:
         check_required_fields(license, errors, required_fields=LICENSES_REQUIRED_FIELDS)
     if errors:
