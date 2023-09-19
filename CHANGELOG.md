@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+#### [v1.1.3](https://github.com/nodiscc/hecat/releases/tag/1.1.3) - UNRELEASED
+
+**Fixed:**
+- exporters/markdown_multipage: fix spacing/newlines before/between/after Clients and Demo links
+
+---------------------
+
 #### [v1.1.2](https://github.com/nodiscc/hecat/releases/tag/1.1.2) - 2023-09-19
 
 **Changed:**
