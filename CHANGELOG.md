@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 **Fixed:**
 - processors/awesome_lint: fix detection of `redirect` attribute when a tag has least than N items
 - processors/awesome_lint: don't error if a tag with the redirect attribute has 0 matching `software` items
+- exporters/markdown_multipage: render Demo link for `software` items where `demo_url` is set
 
 ---------------------
 
