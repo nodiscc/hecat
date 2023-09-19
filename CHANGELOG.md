@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+#### [v1.1.4](https://github.com/nodiscc/hecat/releases/tag/1.1.4) - UNRELEASED
+
+**Fixed:**
+- exporters/markdown_multipage: fix spacing around tag spans
+
+---------------------
+
+
 #### [v1.1.3](https://github.com/nodiscc/hecat/releases/tag/1.1.3) - 2023-09-19
 
 **Fixed:**
