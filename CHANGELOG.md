@@ -3,16 +3,15 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-#### [v1.1.2](https://github.com/nodiscc/hecat/releases/tag/1.1.2) - UNRELEASED
+#### [v1.1.2](https://github.com/nodiscc/hecat/releases/tag/1.1.2) - 2023-09-19
 
 **Changed:**
-- processors/awesome_lint: if `items_in_redirect_fatal: True` (the default), exit with error if any `software` item uses a tag for which `redirect:` is not empty
-- processors/awesome_lint: always fail if any `tag` item has less than 3 `software` items referencing it
 - processors/awesome_lint: run checks on `tag` items before checks on `software` items
 
 **Fixed:**
 - processors/awesome_lint: fix detection of `redirect` attribute when a tag has least than N items
-- processors/awesome_lint: don't error if a tag with the redirect attribute has 0 matching `software` items
+- processors/awesome_lint: if `items_in_redirect_fatal: True` (the default), fail if any `software` item references a `tag` with `redirect:` set/not empty
+- processors/awesome_lint: fail if any `tag` item has less than 3 `software` items referencing it, unless its `redirect` attribute is set/not empty
 - exporters/markdown_multipage: render Demo link for `software` items where `demo_url` is set
 
 ---------------------
