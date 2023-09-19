@@ -7,11 +7,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 **Changed:**
 - processors/awesome_lint: if `items_in_redirect_fatal: True` (the default), exit with error if any `software` item uses a tag for which `redirect:` is not empty
-- processors/awesome_lint: always fail if any tag has less than 3 software items attached to it
+- processors/awesome_lint: always fail if any `tag` item has less than 3 `software` items referencing it
+- processors/awesome_lint: run checks on `tag` items before checks on `software` items
 
 **Fixed:**
 - processors/awesome_lint: fix detection of `redirect` attribute when a tag has least than N items
-- processors/awesome_lint: don't error if a tag with the redirect attribute has 0 matching items
+- processors/awesome_lint: don't error if a tag with the redirect attribute has 0 matching `software` items
 
 ---------------------
 

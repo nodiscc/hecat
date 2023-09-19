@@ -214,6 +214,10 @@ def awesome_lint(step):
         if 'redirect' in tag and tag['redirect']:
             tags_with_redirect.append(tag['name'])
     errors = []
+    for tag in tags_list:
+        check_related_tags_in_tags_list(tag, tags_list, errors)
+        check_required_fields(tag, errors, required_fields=TAGS_REQUIRED_FIELDS, severity=logging.warning)
+        check_tag_has_at_least_items(tag, software_list, tags_with_redirect, errors, min_items=3)
     for software in software_list:
         check_required_fields(software, errors, required_fields=SOFTWARE_REQUIRED_FIELDS, required_lists=SOFTWARE_REQUIRED_LISTS)
         check_description_syntax(software, errors)
@@ -223,10 +227,6 @@ def awesome_lint(step):
         check_external_link_syntax(software, errors)
         check_not_archived(software, errors)
         check_last_updated(software, step, errors)
-    for tag in tags_list:
-        check_related_tags_in_tags_list(tag, tags_list, errors)
-        check_required_fields(tag, errors, required_fields=TAGS_REQUIRED_FIELDS, severity=logging.warning)
-        check_tag_has_at_least_items(tag, software_list, tags_with_redirect, errors, min_items=3)
     for license in licenses_list:
         check_required_fields(license, errors, required_fields=LICENSES_REQUIRED_FIELDS)
     if errors:
