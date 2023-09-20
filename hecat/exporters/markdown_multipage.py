@@ -62,6 +62,7 @@ The source YAML directory structure, and formatting for software/platforms data 
 """
 
 import os
+import sys
 import logging
 from datetime import datetime, timedelta
 import ruamel.yaml
@@ -91,6 +92,10 @@ MARKDOWN_CSS="""
         color: #2B4026;
         font-weight: bold;
         display: inline-block;
+    }
+    .platform a {
+        text-decoration: none;
+        color: #2B4026;
     }
     .license-box {
         background-color: #A7C7F9;
@@ -185,7 +190,7 @@ SOFTWARE_JINJA_MARKDOWN="""
 
 <span class="stars">★{% if software['stargazers_count'] is defined %}{{ software['stargazers_count'] }}{% else %}?{% endif %}</span>
 <span class="{{ date_css_class }}" title="Date of last update">{% raw %}{octicon}{% endraw %}`clock;0.8em;octicon` {% if software['updated_at'] is defined %}{{ software['updated_at'] }}{% else %}?{% endif %}</span>
-{% for platform in software['platforms'] %}<span class="platform">{{ platform }} </span> {% endfor %}
+{% for platform in platforms %}<span class="platform"><a href="{{ platform['href'] }}">{% raw %}{octicon}{% endraw %}`package;0.8em;octicon` {{ platform['name'] }}</a> </span> {% endfor %}
 {% for license in software['licenses'] %}<span class="license-box"><a class="license-link" href="{{ licenses_relative_url }}">{% raw %}{octicon}{% endraw %}`law;0.8em;octicon` {{ license }}</a> </span> {% endfor %}
 {% if software['depends_3rdparty'] is defined and software['depends_3rdparty'] %}<span class="orangebox" title="Depends on a proprietary service outside the user's control">⚠ Anti-features</span>{% endif %}
 
@@ -196,21 +201,21 @@ SOFTWARE_JINJA_MARKDOWN="""
 
 TAG_HEADER_JINJA_MARKDOWN="""
 
-# {{ tag['name'] }}
+# {{ item['name'] }}
 
-{{ tag['description']}}
+{{ item['description']}}
 
-{% if tag['related_tags'] is defined %}```{admonition} Related tags
-{% for related_tag in tag['related_tags'] %}- [{{ related_tag }}]({{ to_kebab_case(related_tag) }}.md)
+{% if item['related_tags'] is defined %}```{admonition} Related tags
+{% for related_tag in item['related_tags'] %}- [{{ related_tag }}]({{ to_kebab_case(related_tag) }}.md)
 {% endfor %}
 ```
 {% endif %}
-{% if tag['external_links'] is defined %}```{seealso}
-{% for link in tag['external_links'] %}- [{{ link['title'] }}]({{ link['url'] }})
+{% if item['external_links'] is defined %}```{seealso}
+{% for link in item['external_links'] %}- [{{ link['title'] }}]({{ link['url'] }})
 {% endfor %}
 ```{% endif %}
-{% if tag['redirect'] is defined %}```{important}
-**Please visit {% for redirect in tag['redirect'] %}[{{ redirect['title'] }}]({{ redirect['url'] }}){% if not loop.last %}{{', '}}{% endif %}{% endfor %} instead**
+{% if item['redirect'] is defined %}```{important}
+**Please visit {% for redirect in item['redirect'] %}[{{ redirect['title'] }}]({{ redirect['url'] }}){% if not loop.last %}{{', '}}{% endif %}{% endfor %} instead**
 ```{% endif %}
 
 """
@@ -224,11 +229,32 @@ This page lists all projects in this category. Use the [index of all projects](.
 
 """
 
-def render_markdown_software(software, tags_relative_url='tags/', licenses_relative_url='#list-of-licenses'):
+
+PLATFORM_HEADER_JINJA_MARKDOWN="""
+
+# {{ item['name'] }}
+
+{{ item['description']}}
+
+"""
+
+MARKDOWN_PLATFORMPAGE_CONTENT_HEADER="""
+--------------------
+
+## Software
+
+This page lists all projects using this programming language or deployment platform. Only the main server-side requirements, packaging or distribution formats are considered.
+
+"""
+
+def render_markdown_software(software, tags_relative_url='tags/', platforms_relative_url='platforms/', licenses_relative_url='#list-of-licenses'):
     """render a software project info as a markdown list item"""
     tags_dicts_list = []
+    platforms_dicts_list = []
     for tag in software['tags']:
         tags_dicts_list.append({"name": tag, "href": tags_relative_url + to_kebab_case(tag) + '.html'})
+    for platform in software['platforms']:
+        platforms_dicts_list.append({"name": platform, "href": platforms_relative_url + to_kebab_case(platform) + '.html'})
     date_css_class = 'updated-at'
     if 'updated_at' in software:
         last_update_time = datetime.strptime(software['updated_at'], "%Y-%m-%d")
@@ -239,32 +265,58 @@ def render_markdown_software(software, tags_relative_url='tags/', licenses_relat
     software_template = Template(SOFTWARE_JINJA_MARKDOWN)
     markdown_software = software_template.render(software=software,
                                                  tags=tags_dicts_list,
+                                                 platforms=platforms_dicts_list,
                                                  date_css_class=date_css_class,
                                                  licenses_relative_url=licenses_relative_url)
     return markdown_software
 
-def render_tag_page(step, tag, software_list):
-    """render a page containing all items matching a specific tag"""
-    logging.debug('rendering tag %s', tag['name'])
-    tag_header_template = Template(TAG_HEADER_JINJA_MARKDOWN)
-    tag_header_template.globals['to_kebab_case'] = to_kebab_case
-    markdown_tag_page_header = tag_header_template.render(tag=tag)
+def render_item_page(step, item_type, item, software_list):
+    """
+    render a page for a tag of platform.
+    :param dict step: step configuration
+    :param str item_type: type of page to render (tag or platform)
+    :param dict item: the item to render a page for (tag or platform object)
+    :param list software_list: the full list of software (list of dicts)
+    """
+    logging.debug('rendering page for %s %s', item_type, item['name'])
+    if item_type == 'tag':
+        markdown_fieldlist = ''
+        header_template = Template(TAG_HEADER_JINJA_MARKDOWN)
+        content_header = MARKDOWN_TAGPAGE_CONTENT_HEADER
+        match_key = 'tags'
+        tags_relative_url = './'
+        platforms_relative_url = '../platforms/'
+        output_dir = step['module_options']['output_directory'] + '/md/tags/'
+    elif item_type == 'platform':
+        markdown_fieldlist = ':orphan:'
+        header_template = Template(PLATFORM_HEADER_JINJA_MARKDOWN)
+        content_header = MARKDOWN_PLATFORMPAGE_CONTENT_HEADER
+        match_key = 'platforms'
+        tags_relative_url = '../tags/'
+        platforms_relative_url = './'
+        output_dir = step['module_options']['output_directory'] + '/md/platforms/'
+    else:
+        logging.error('invalid value for facte_type, must be tag or platform')
+        sys.exit(1)
+    header_template.globals['to_kebab_case'] = to_kebab_case
+    markdown_page_header = header_template.render(item=item)
     markdown_software_list = ''
     for software in software_list:
         if any(license in software['licenses'] for license in step['module_options']['exclude_licenses']):
             logging.debug("%s has a license listed in exclude_licenses, skipping", software['name'])
-        elif any(item == tag['name'] for item in software['tags']):
+        elif any(value == item['name'] for value in software[match_key]):
             markdown_software_list = markdown_software_list + render_markdown_software(software,
-                                                                                       tags_relative_url='./',
+                                                                                       tags_relative_url=tags_relative_url,
+                                                                                       platforms_relative_url=platforms_relative_url,
                                                                                        licenses_relative_url='../index.html#list-of-licenses')
     if markdown_software_list:
-        markdown_tag_page = '{}{}{}{}'.format(MARKDOWN_CSS, markdown_tag_page_header, MARKDOWN_TAGPAGE_CONTENT_HEADER, markdown_software_list)
+        markdown_page = '{}{}{}{}{}'.format(markdown_fieldlist, MARKDOWN_CSS, markdown_page_header, content_header, markdown_software_list)
     else:
-        markdown_tag_page = '{}{}'.format(MARKDOWN_CSS, markdown_tag_page_header)
-    output_file_name = step['module_options']['output_directory'] + '/md/tags/' + to_kebab_case(tag['name'] + '.md')
+        markdown_page = '{}{}'.format(MARKDOWN_CSS, markdown_page_header)
+    output_file_name = output_dir + to_kebab_case(item['name'] + '.md')
     with open(output_file_name, 'w+', encoding="utf-8") as outfile:
         logging.debug('writing output file %s', output_file_name)
-        outfile.write(markdown_tag_page)
+        outfile.write(markdown_page)
 
 def render_markdown_toctree(tags):
     """render the toctree block"""
@@ -286,6 +338,7 @@ def render_markdown_multipage(step):
     if 'output_file' not in step['module_options']:
         step['module_options']['output_file'] = 'index.md'
     tags = load_yaml_data(step['module_options']['source_directory'] + '/tags', sort_key='name')
+    platforms = load_yaml_data(step['module_options']['source_directory'] + '/platforms', sort_key='name')
     software_list = load_yaml_data(step['module_options']['source_directory'] + '/software')
     licenses = load_yaml_data(step['module_options']['source_directory'] + '/licenses.yml')
     # use fieldlist myst-parser extension to limit the TOC depth to 2
@@ -312,14 +365,17 @@ def render_markdown_multipage(step):
                                         markdown_licenses,
                                         markdown_footer)
     output_file_name = step['module_options']['output_directory'] + '/md/' + step['module_options']['output_file']
-    try:
-        os.mkdir(step['module_options']['output_directory'] + '/md/')
-        os.mkdir(step['module_options']['output_directory'] + '/md/tags/')
-    except FileExistsError:
-        pass
+    for directory in ['/md/', '/md/tags/', '/md/platforms/']:
+        try:
+            os.mkdir(step['module_options']['output_directory'] + directory)
+        except FileExistsError:
+            pass
     with open(output_file_name, 'w+', encoding="utf-8") as outfile:
         logging.info('writing output file %s', output_file_name)
         outfile.write(markdown)
     logging.info('rendering tags pages')
     for tag in tags:
-        render_tag_page(step, tag, software_list)
+        render_item_page(step, 'tag', tag, software_list)
+    logging.info('rendering platforms pages')
+    for platform in platforms:
+        render_item_page(step, 'platform', platform, software_list)
