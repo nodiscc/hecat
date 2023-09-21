@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 #### [v1.1.4](https://github.com/nodiscc/hecat/releases/tag/1.1.4) - UNRELEASED
 
+**Changed:**
+- processors/awesome_lint: require `platform` items to have a non-empty `description` attribute
+
 **Fixed:**
 - exporters/markdown_multipage: fix spacing around tag spans
 

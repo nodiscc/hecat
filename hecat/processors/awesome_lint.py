@@ -42,6 +42,7 @@ from ..utils import load_yaml_data
 SOFTWARE_REQUIRED_FIELDS = ['description', 'website_url', 'source_code_url', 'licenses', 'tags']
 SOFTWARE_REQUIRED_LISTS = ['licenses', 'tags']
 TAGS_REQUIRED_FIELDS = ['description']
+PLATFORMS_REQUIRED_FIELDS = ['description']
 LICENSES_REQUIRED_FIELDS= ['identifier', 'name', 'url']
 
 def check_required_fields(item, errors, required_fields=[], required_lists=[], severity=logging.error):
@@ -213,11 +214,14 @@ def awesome_lint(step):
     for tag in tags_list:
         if 'redirect' in tag and tag['redirect']:
             tags_with_redirect.append(tag['name'])
+    platforms_list = load_yaml_data(step['module_options']['source_directory'] + '/platforms')
     errors = []
     for tag in tags_list:
         check_related_tags_in_tags_list(tag, tags_list, errors)
         check_required_fields(tag, errors, required_fields=TAGS_REQUIRED_FIELDS, severity=logging.warning)
         check_tag_has_at_least_items(tag, software_list, tags_with_redirect, errors, min_items=3)
+    for platform in platforms_list:
+        check_required_fields(platform, errors, required_fields=PLATFORMS_REQUIRED_FIELDS)
     for software in software_list:
         check_required_fields(software, errors, required_fields=SOFTWARE_REQUIRED_FIELDS, required_lists=SOFTWARE_REQUIRED_LISTS)
         check_description_syntax(software, errors)
