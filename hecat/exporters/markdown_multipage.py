@@ -288,7 +288,7 @@ def render_item_page(step, item_type, item, software_list):
         platforms_relative_url = '../platforms/'
         output_dir = step['module_options']['output_directory'] + '/md/tags/'
     elif item_type == 'platform':
-        markdown_fieldlist = ':orphan:'
+        markdown_fieldlist = ':orphan:\n:nosearch:\n'
         header_template = Template(PLATFORM_HEADER_JINJA_MARKDOWN)
         content_header = MARKDOWN_PLATFORMPAGE_CONTENT_HEADER
         match_key = 'platforms'

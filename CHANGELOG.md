@@ -5,8 +5,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 #### [v1.1.4](https://github.com/nodiscc/hecat/releases/tag/1.1.4) - UNRELEASED
 
+**Added:**
+- exporters/markdown_multipage: render subpages for each `platform`
+
 **Changed:**
 - processors/awesome_lint: require `platform` items to have a non-empty `description` attribute
+- exporters/markdown_multipage: prevent `platforms` pages from showing up in sphinx search results
 
 **Fixed:**
 - exporters/markdown_multipage: fix spacing around tag spans
