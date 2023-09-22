@@ -20,6 +20,7 @@ source_suffix = ['.md']
 templates_path = ['_templates']
 exclude_patterns = []
 html_static_path = ['awesome-selfhosted-data/_static']
+html_css_files = ['custom.css']
 
 # myst-parser configuration (https://myst-parser.readthedocs.io/en/latest/configuration.html)
 myst_enable_extensions = ['fieldlist']

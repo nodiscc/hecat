@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - exporters/markdown_multipage: render subpages for each `platform`
 
 **Changed:**
+- exporters/markdown_multipage: move CSS styles to external CSS file. **`html_css_files = ['custom.css']` is now required in sphinx configuration file**
 - processors/awesome_lint: require `platform` items to have a non-empty `description` attribute
 - exporters/markdown_multipage: prevent `platforms` pages from showing up in sphinx search results
 
