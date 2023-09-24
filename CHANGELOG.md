@@ -10,7 +10,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 **Changed:**
 - exporters/markdown_multipage: move CSS styles to external CSS file. **`html_css_files = ['custom.css']` is now required in sphinx configuration file**
-- processors/awesome_lint: require `platform` items to have a non-empty `description` attribute
+- processors/awesome_lint: check that `platforms` in `software` items exist in the main `platforms` list
+- processors/awesome_lint: check that `platform` items have a non-empty `description` attribute
 - exporters/markdown_multipage: prevent `platforms` pages from showing up in sphinx search results
 
 **Fixed:**
