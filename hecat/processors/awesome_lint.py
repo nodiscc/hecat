@@ -97,34 +97,20 @@ def check_description_syntax(software, errors):
         message = ("{}: description does not end with a dot").format(software['name'])
         log_exception(message, errors)
 
-def check_licenses_in_licenses_list(software, licenses_list, errors):
-    """check that all licenses for a software item are listed in the main licenses list"""
-    for license_name in list(software['licenses']):
-        try:
-            assert any(license['identifier'] == license_name for license in licenses_list)
-        except AssertionError:
-            message = "{}: license {} is not listed in the main licenses list".format(software['name'], license_name)
-            log_exception(message, errors)
-
-
-def check_tags_in_tags_list(software, tags_list, errors):
-    """check that all tags for a software item are listed in the main tags list"""
-    for tag_name in list(software['tags']):
-        try:
-            assert any(tag['name'] == tag_name for tag in tags_list)
-        except AssertionError:
-            message = "{}: tag {} is not listed in the main tags list".format(software['name'], tag_name)
-            log_exception(message, errors)
-
-
-def check_related_tags_in_tags_list(tag, tags_list, errors):
-    """check that all related_tags for a tag are listed in the main tags list"""
-    if 'related_tags'in tag:
-        for related_tag_name in tag['related_tags']:
+def check_attribute_in_list(item, attribute_name, key, attributes_list, errors):
+    """check that all licenses/tags/platforms/related_tags for a software/tag item are listed in the main licenses/tags/platforms list.
+    :param dict software: the objet containing data to check (e.g. software item or tag item)
+    :param str attribute_name: attribute name (e.g. 'licenses' or 'tags')
+    :param str key: key name to check against the main list (e.g. 'identifier' or 'name')
+    :param list attributes_list: main list to check the value of each key/value pair against (eg licenses_list or tags_list)
+    :param list errors: the list of previous errors
+    """
+    if attribute_name in item:
+        for attr in list(item[attribute_name]):
             try:
-                assert any(tag2['name'] == related_tag_name for tag2 in tags_list)
+                assert any(item2[key] == attr for item2 in attributes_list)
             except AssertionError:
-                message = "{}: related tag {} is not listed in the main tags list".format(tag['name'], related_tag_name)
+                message = "{}: {} {} is not listed in the main {} list".format(item['name'], attribute_name, attr, attribute_name)
                 log_exception(message, errors)
 
 def check_tag_has_at_least_items(tag, software_list, tags_with_redirect, errors, min_items=3):
@@ -217,7 +203,7 @@ def awesome_lint(step):
     platforms_list = load_yaml_data(step['module_options']['source_directory'] + '/platforms')
     errors = []
     for tag in tags_list:
-        check_related_tags_in_tags_list(tag, tags_list, errors)
+        check_attribute_in_list(tag, 'related_tags', 'name', tags_list, errors)
         check_required_fields(tag, errors, required_fields=TAGS_REQUIRED_FIELDS, severity=logging.warning)
         check_tag_has_at_least_items(tag, software_list, tags_with_redirect, errors, min_items=3)
     for platform in platforms_list:
@@ -225,8 +211,9 @@ def awesome_lint(step):
     for software in software_list:
         check_required_fields(software, errors, required_fields=SOFTWARE_REQUIRED_FIELDS, required_lists=SOFTWARE_REQUIRED_LISTS)
         check_description_syntax(software, errors)
-        check_licenses_in_licenses_list(software, licenses_list, errors)
-        check_tags_in_tags_list(software, tags_list, errors)
+        check_attribute_in_list(software, 'licenses', 'identifier', licenses_list, errors)
+        check_attribute_in_list(software, 'tags', 'name', tags_list, errors)
+        check_attribute_in_list(software, 'platforms', 'name', platforms_list, errors)
         check_redirect_sections_empty(step, software, tags_with_redirect, errors)
         check_external_link_syntax(software, errors)
         check_not_archived(software, errors)
