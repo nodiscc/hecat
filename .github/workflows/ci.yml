@@ -18,5 +18,7 @@ jobs:
     steps:
     - name: checkout repo
       uses: actions/checkout@v2
+    - name: install requirements
+      run: sudo apt update && sudo apt -y install python3-venv python3-pip
     - name: run tests
       run: make test_short
