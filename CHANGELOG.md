@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-#### [v1.1.4](https://github.com/nodiscc/hecat/releases/tag/1.1.4) - UNRELEASED
+#### [v1.2.0](https://github.com/nodiscc/hecat/releases/tag/1.2.0) - 2023-10-10
 
 **Added:**
 - exporters/markdown_multipage: render subpages for each `platform`
