@@ -173,7 +173,7 @@ def check_last_updated(software, step, errors):
         if last_update_time < datetime.now() - timedelta(days=step['module_options']['last_updated_error_days']):
             message = '{}: last updated {} ago, older than {} days'.format(software['name'], time_since_last_update, step['module_options']['last_updated_error_days'])
             log_exception(message, errors, severity=logging.error)
-        if last_update_time < datetime.now() - timedelta(days=step['module_options']['last_updated_warn_days']):
+        elif last_update_time < datetime.now() - timedelta(days=step['module_options']['last_updated_warn_days']):
             logging.warning('%s: last updated %s ago, older than %s days', software['name'], time_since_last_update, step['module_options']['last_updated_warn_days'])
         elif last_update_time < datetime.now() - timedelta(days=step['module_options']['last_updated_info_days']):
             logging.info('%s: last updated %s ago, older than %s days', software['name'], time_since_last_update, step['module_options']['last_updated_info_days'])

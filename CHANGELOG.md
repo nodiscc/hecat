@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+#### [v1.2.1](https://github.com/nodiscc/hecat/releases/tag/1.2.1) - UNRELEASED
+
+**Fixed:**
+- processors/awesome_lint: don't log last update date check errors twice
+
+---------------------
+
 #### [v1.2.0](https://github.com/nodiscc/hecat/releases/tag/1.2.0) - 2023-10-10
 
 **Added:**
