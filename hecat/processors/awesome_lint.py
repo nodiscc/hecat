@@ -15,6 +15,12 @@ steps:
       licenses_files: # (optional, default ['licenses.yml']) path to files containing lists of licenses
         - licenses.yml
         - licenses-nonfree.yml
+      last_updated_skip: # (optional, default []) list of items (source_code_url) for which the last update date check should not produce errors/warnings
+        - https://github.com/tomershvueli/homepage # simple/no maintenance required https://github.com/awesome-selfhosted/awesome-selfhosted-data/pull/242
+        - https://github.com/abrenaut/posio # simple/no maintenance required
+        - https://github.com/knrdl/bicimon # simple/no maintenance required
+        - https://github.com/Kshitij-Banerjee/Cubiks-2048 # simple/no maintenance required
+
 
 source_directory: path to directory where data can be found. Directory structure:
 ├── software
@@ -170,7 +176,9 @@ def check_last_updated(software, step, errors):
     if 'updated_at' in software:
         last_update_time = datetime.strptime(software['updated_at'], "%Y-%m-%d")
         time_since_last_update = last_update_time - datetime.now()
-        if last_update_time < datetime.now() - timedelta(days=step['module_options']['last_updated_error_days']):
+        if software['source_code_url'] in step['module_options']['last_updated_skip']:
+           logging.info('%s: skipping last update time check as per configuration (last_updated_skip) (%s)', software['name'], time_since_last_update)
+        elif last_update_time < datetime.now() - timedelta(days=step['module_options']['last_updated_error_days']):
             message = '{}: last updated {} ago, older than {} days'.format(software['name'], time_since_last_update, step['module_options']['last_updated_error_days'])
             log_exception(message, errors, severity=logging.error)
         elif last_update_time < datetime.now() - timedelta(days=step['module_options']['last_updated_warn_days']):
@@ -192,6 +200,8 @@ def awesome_lint(step):
         step['module_options']['last_updated_error_days'] = 3650
     if 'licenses_files' not in step['module_options']:
         step['module_options']['licenses_files'] = ['/licenses.yml']
+    if  'last_updated_skip' not in step['module_options']:
+        step['module_options']['last_updated_skip'] = []
     licenses_list = []
     for filename in step['module_options']['licenses_files']:
         licenses_list = licenses_list + load_yaml_data(step['module_options']['source_directory'] + '/' + filename)

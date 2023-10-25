@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 #### [v1.2.1](https://github.com/nodiscc/hecat/releases/tag/1.2.1) - UNRELEASED
 
+**Added:**
+- processors/awesome_lint: allow skipping last update checks for specific items by `source_code_url`
+
 **Fixed:**
 - processors/awesome_lint: don't log last update date check errors twice
 
