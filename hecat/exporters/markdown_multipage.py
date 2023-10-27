@@ -72,6 +72,7 @@ import os
 import sys
 import logging
 from datetime import datetime, timedelta
+import urllib
 import ruamel.yaml
 from jinja2 import Template
 from ..utils import load_yaml_data, to_kebab_case, render_markdown_licenses
@@ -257,9 +258,9 @@ def render_markdown_software(software, tags_relative_url='tags/', platforms_rela
     tags_dicts_list = []
     platforms_dicts_list = []
     for tag in software['tags']:
-        tags_dicts_list.append({"name": tag, "href": tags_relative_url + to_kebab_case(tag) + '.html'})
+        tags_dicts_list.append({"name": tag, "href": tags_relative_url + urllib.parse.quote(to_kebab_case(tag)) + '.html'})
     for platform in software['platforms']:
-        platforms_dicts_list.append({"name": platform, "href": platforms_relative_url + to_kebab_case(platform) + '.html'})
+        platforms_dicts_list.append({"name": platform, "href": platforms_relative_url + urllib.parse.quote(to_kebab_case(platform)) + '.html'})
     date_css_class = 'updated-at'
     if 'updated_at' in software:
         last_update_time = datetime.strptime(software['updated_at'], "%Y-%m-%d")

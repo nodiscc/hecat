@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - processors/awesome_lint: allow skipping last update checks for specific items by `source_code_url`
 
 **Fixed:**
+- exporters/markdown_multipage: URL encode links `href` in literal HTML blocks
 - processors/awesome_lint: don't log last update date check errors twice
 
 ---------------------
