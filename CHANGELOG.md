@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-#### [v1.2.1](https://github.com/nodiscc/hecat/releases/tag/1.2.1) - UNRELEASED
+#### [v1.2.1](https://github.com/nodiscc/hecat/releases/tag/1.2.1) - 2023-10-27
 
 **Added:**
 - processors/awesome_lint: allow skipping last update checks for specific items by `source_code_url`
