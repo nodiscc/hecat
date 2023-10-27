@@ -129,6 +129,9 @@ steps:
     module: processors/awesome_lint
     module_options:
       source_directory: awesome-selfhosted-data
+      licenses_files:
+        - licenses.yml
+        - licenses-nonfree.yml
 
   - name: export YAML data to single-page markdown
     module: exporters/markdown_singlepage
@@ -198,39 +201,34 @@ steps:
 # $ rm -r tests/awesome-selfhosted-html/html/.buildinfo tests/awesome-selfhosted-html/html/objects.inv awesome-selfhosted-html/html/.doctrees
 ```
 
-Schedule daily automatic metadata update from Github Actions:
+<details><summary>Example automation using Github actions:</summary>
 
 ```yaml
-# .github/workflows/update-metadata.yml
-on:
-  schedule:
-    - cron: '22 * * * *'
-
-env:
-  GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-
+# .github/workflows/build.yml
 jobs:
-  test_schedule:
+  build-markdown:
     runs-on: ubuntu-latest
     steps:
-      - name: checkout
-        uses: actions/checkout@v3
-      - name: install hecat
-        run: |
-          python3 -m venv .venv
-          source .venv/bin/activate
-          pip3 install wheel
-          pip3 install --force git+https://github.com/nodiscc/hecat.git@master
-      - name: update all metadata from Github API
-        run: source .venv/bin/activate && hecat --config .hecat.update_metadata.yml
-      - name: commit and push changes
-        run: |
-          git config user.name awesome-selfhosted-bot
-          git config user.email github-actions@github.com
-          git add software/ tags/ platforms/ licenses*.yml
-          git diff-index --quiet HEAD || git commit -m "[bot] update projects metadata"
-          git push
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
+      - run: python3 -m venv .venv && source .venv/bin/activate && pip3 install wheel && pip3 install --force git+https://github.com/nodiscc/hecat.git@1.2.0
+      - run: source .venv/bin/activate && hecat --config .hecat/awesome-lint.yml
+      - run: source .venv/bin/activate && hecat --config .hecat/export-markdown.yml
+
+  build-html:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
+      - run: python3 -m venv .venv && source .venv/bin/activate && pip3 install wheel && pip3 install --force git+https://github.com/nodiscc/hecat.git@1.2.0
+      - run: source .venv/bin/activate && hecat --config .hecat/awesome-lint.yml
+      - run: source .venv/bin/activate && hecat --config .hecat/export-html.yml
 ```
+</details>
+
+Update metadata before rebuilding HTML/markdown output:
 
 ```yaml
 # .hecat.update_metadata.yml
@@ -243,32 +241,50 @@ steps:
       sleep_time: 7.3 # (default 0) sleep for this amount of time before each request to Github API
 ```
 
-Schedule daily URL checks from Github Actions:
+<details><summary>Example automation using Github actions:</summary>
 
 ```yaml
-# .github/workflows/url-check.yml
+# .github/workflows/update-metadata.yml
+name: update metadata
 on:
   schedule:
-    - cron: '22 * * * *'
+    - cron: '22 22 * * *'
+  workflow_dispatch:
 
 env:
   GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
+concurrency:
+  group: update-metadata-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  test_schedule:
+  update-metadata:
+    if: github.repository == 'awesome-selfhosted/awesome-selfhosted-data'
     runs-on: ubuntu-latest
     steps:
-      - name: checkout
-        uses: actions/checkout@v3
-      - name: install hecat
+      - uses: actions/checkout@v3
+      - run: python3 -m venv .venv && source .venv/bin/activate && pip3 install wheel && pip3 install --force git+https://github.com/nodiscc/hecat.git@1.2.0
+      - run: source .venv/bin/activate && hecat --config .hecat/update-metadata.yml
+      - name: commit and push changes
         run: |
-          python3 -m venv .venv
-          source .venv/bin/activate
-          pip3 install wheel
-          pip3 install --force git+https://github.com/nodiscc/hecat.git@master
-      - name: check URLs
-        run: source .venv/bin/activate && hecat --config .hecat.url_check.yml
+          git config user.name awesome-selfhosted-bot
+          git config user.email github-actions@github.com
+          git add software/ tags/ platforms/ licenses*.yml
+          git diff-index --quiet HEAD || git commit -m "[bot] update projects metadata"
+          git push
+  build:
+    if: github.repository == 'awesome-selfhosted/awesome-selfhosted-data'
+    needs: update-metadata
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
 ```
+
+</details>
+
+
+Check URLs for dead links:
+
 ```yaml
 # .hecat.url_check.yml
 steps:
@@ -298,6 +314,36 @@ steps:
         - '^https://crates.io/crates/vigil-server$' # hecat/python-requests bug? always returns 404 but the website works in a browser
         - '^https://nitter.net$' # always times out from github actions but the website works in a browser
 ```
+
+<details><summary>Example automation using Github actions:</summary>
+
+```yaml
+# .github/workflows/url-check.yml
+name: dead links
+
+on:
+  schedule:
+    - cron: '22 22 * * *'
+  workflow_dispatch:
+
+env:
+  GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+concurrency:
+  group: dead-links-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check-dead-links:
+    if: github.repository == 'awesome-selfhosted/awesome-selfhosted-data'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: python3 -m venv .venv && source .venv/bin/activate && pip3 install wheel && pip3 install --force git+https://github.com/nodiscc/hecat.git@1.2.0
+      - run: source .venv/bin/activate && hecat --config .hecat/url-check.yml
+```
+
+</details>
 
 #### Shaarli
 
