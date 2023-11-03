@@ -58,7 +58,7 @@ def get_gh_metadata(step, github_url, g, errors):
     project = re.sub('/$', '', project)
     try:
         gh_metadata = g.get_repo(project)
-        latest_commit_date = gh_metadata.get_commits()[0].commit.author.date
+        latest_commit_date = gh_metadata.get_commits()[0].commit.committer.date
     except github.GithubException as github_error:
         error_msg = '{} : {}'.format(github_url, github_error)
         logging.error(error_msg)

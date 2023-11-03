@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+#### [v1.2.2](https://github.com/nodiscc/hecat/releases/tag/1.2.2) - UNERELASED
+
+**Changed:**
+- processors/github_metadata: use git commit date instead of author date
+
+---------------------
+
 #### [v1.2.1](https://github.com/nodiscc/hecat/releases/tag/1.2.1) - 2023-10-27
 
 **Added:**
