@@ -1,0 +1,6 @@
+steps:
+  - name: export github-stars-backup YAML to multi-page markdown site
+    module: exporters/markdown_multipage
+    module_options:
+      source_directory: tests/github-stars-backup.yml
+      output_directory: tests/github-stars-backup-html
