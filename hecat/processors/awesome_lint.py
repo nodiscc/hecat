@@ -188,6 +188,13 @@ def check_last_updated(software, step, errors):
         else:
             logging.debug('%s: last updated %s ago', software['name'], time_since_last_update)
 
+def check_boolean_attributes(software, errors):
+    """check if the depends_3rdparty attribute is a boolean"""
+    if 'depends_3rdparty' in software:
+        if not type(software['depends_3rdparty']) == bool:
+            message = '{}: depends_3rdparty must be a valid boolean value (true/false/True/False), got "{}"'.format(software['name'], software['depends_3rdparty'])
+            log_exception(message, errors, severity=logging.error)
+
 def awesome_lint(step):
     """check all software entries against awesome-selfhosted formatting guidelines"""
     logging.info('checking software entries/tags against awesome-selfhosted formatting guidelines.')
@@ -228,6 +235,7 @@ def awesome_lint(step):
         check_external_link_syntax(software, errors)
         check_not_archived(software, errors)
         check_last_updated(software, step, errors)
+        check_boolean_attributes(software, errors)
     for license in licenses_list:
         check_required_fields(license, errors, required_fields=LICENSES_REQUIRED_FIELDS)
     if errors:

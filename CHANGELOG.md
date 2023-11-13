@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+#### [v1.2.3](https://github.com/nodiscc/hecat/releases/tag/1.2.3) - UNRELEASED
+
+**Changed:**
+- processors/awesome_lint: check that `depends_3rdparty` is a valid boolean value (`true/false/True/False`)
+
+---------------------
+
 #### [v1.2.2](https://github.com/nodiscc/hecat/releases/tag/1.2.2) - 2023-11-03
 
 **Changed:**
