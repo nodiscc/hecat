@@ -196,8 +196,8 @@ def check_boolean_attributes(software, errors):
             log_exception(message, errors, severity=logging.error)
 
 def awesome_lint(step):
-    """check all software entries against awesome-selfhosted formatting guidelines"""
-    logging.info('checking software entries/tags against awesome-selfhosted formatting guidelines.')
+    """check all software entries against formatting guidelines"""
+    logging.info('checking software entries/tags against formatting guidelines.')
     software_list = load_yaml_data(step['module_options']['source_directory'] + '/software')
     if 'last_updated_info_days' not in step['module_options']:
         step['module_options']['last_updated_info_days'] = 186
