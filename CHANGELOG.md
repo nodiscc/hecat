@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 #### [v1.2.3](https://github.com/nodiscc/hecat/releases/tag/1.2.3) - UNRELEASED
 
+**Added:**
+- processors/awesome_lint: make the list of required fields/attributes for `platforms` configurable through `platforms_required_fields` module option (default to `['description']`)
+
 **Changed:**
 - processors/awesome_lint: check that `depends_3rdparty` is a valid boolean value (`true/false/True/False`)
 

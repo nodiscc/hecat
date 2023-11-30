@@ -20,6 +20,7 @@ steps:
         - https://github.com/abrenaut/posio # simple/no maintenance required
         - https://github.com/knrdl/bicimon # simple/no maintenance required
         - https://github.com/Kshitij-Banerjee/Cubiks-2048 # simple/no maintenance required
+      platforms_required_fields: ['description'] # (optional, default ['description']) attributes that must be defined for all platforms
 
 
 source_directory: path to directory where data can be found. Directory structure:
@@ -48,7 +49,6 @@ from ..utils import load_yaml_data
 SOFTWARE_REQUIRED_FIELDS = ['description', 'website_url', 'source_code_url', 'licenses', 'tags']
 SOFTWARE_REQUIRED_LISTS = ['licenses', 'tags']
 TAGS_REQUIRED_FIELDS = ['description']
-PLATFORMS_REQUIRED_FIELDS = ['description']
 LICENSES_REQUIRED_FIELDS= ['identifier', 'name', 'url']
 
 def check_required_fields(item, errors, required_fields=[], required_lists=[], severity=logging.error):
@@ -209,6 +209,8 @@ def awesome_lint(step):
         step['module_options']['licenses_files'] = ['/licenses.yml']
     if  'last_updated_skip' not in step['module_options']:
         step['module_options']['last_updated_skip'] = []
+    if 'platforms_required_fields' not in step['module_options']:
+        step['module_options']['platforms_required_fields'] = ['description']
     licenses_list = []
     for filename in step['module_options']['licenses_files']:
         licenses_list = licenses_list + load_yaml_data(step['module_options']['source_directory'] + '/' + filename)
@@ -224,7 +226,7 @@ def awesome_lint(step):
         check_required_fields(tag, errors, required_fields=TAGS_REQUIRED_FIELDS, severity=logging.warning)
         check_tag_has_at_least_items(tag, software_list, tags_with_redirect, errors, min_items=3)
     for platform in platforms_list:
-        check_required_fields(platform, errors, required_fields=PLATFORMS_REQUIRED_FIELDS)
+        check_required_fields(platform, errors, required_fields=step['module_options']['platforms_required_fields'])
     for software in software_list:
         check_required_fields(software, errors, required_fields=SOFTWARE_REQUIRED_FIELDS, required_lists=SOFTWARE_REQUIRED_LISTS)
         check_description_syntax(software, errors)
