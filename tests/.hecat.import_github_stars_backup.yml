@@ -1,0 +1,6 @@
+steps:
+  - name: import data from github-stars-backup output
+    module: importers/github_stars_backup
+    module_options:
+      source_file: tests/github-stars-backup.json
+      output_file: tests/github-stars-backup.yml
