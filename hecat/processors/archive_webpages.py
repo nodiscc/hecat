@@ -102,6 +102,7 @@ def wget(step, item):
                                      '--page-requisites',
                                      '--no-verbose',
                                      '--timeout=30',
+                                     '--tries=3',
                                      '-e', 'robots=off',
                                      '--user-agent="Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0"',
                                      item['url']],
