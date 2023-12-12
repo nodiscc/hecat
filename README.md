@@ -25,6 +25,7 @@ Perform processing tasks on YAML data:
 - [processors/awesome_lint](hecat/processors/awesome_lint.py): check data against [awesome-selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted) consistency/completeness guidelines
 - [processors/download_media](hecat/processors/download_media.py): download video/audio files using [yt-dlp](https://github.com/yt-dlp/yt-dlp) for bookmarks imported from Shaarli
 - [processors/url_check](hecat/processors/url_check.py): check data for dead links
+- [processors/archive_webpages](hecat/processors/archive_webpages.py): archive webpages locally
 
 [![](https://gitlab.com/nodiscc/toolbox/-/raw/master/DOC/SCREENSHOTS/Heg3Esg.png)](hecat/processors/url_check.py)
 [![](https://gitlab.com/nodiscc/toolbox/-/raw/master/DOC/SCREENSHOTS/RtiDE91.png)](hecat/processors/download_media.py)
