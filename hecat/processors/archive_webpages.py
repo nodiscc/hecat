@@ -1,9 +1,8 @@
 """archive webpages
-TODO description
-TODO allow silencing wget output
-TODO split changes to this module and exporters/html table to separate commits
-TODO deduplicate output files
-TODO implement 'greedy' mode for skip_already_archived option (if archive_path key is found, also check that the path it points to actually exists)
+Downloads a local archive of webpages ('url:' key of items in the data file). It is designed to archive bookmarks of Shaarli instances
+You probably want to import data from Shaarli to hecat using the importers/shaarli_api module first.
+Each webpage is saved in a separate directory named after the item 'id' key, under the ouptout directory configured in the module options.
+The exporters/html_table module will display links to local copies of webpages in the output HTML list.
 
 Note that yo may want to setup a system-wide ad-blocking mechanism to prevent wget from downloading
 ads and annoyances, and save bandwidth and disk space in the process. See
