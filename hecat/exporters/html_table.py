@@ -19,12 +19,11 @@ Output directory structure:
 """
 
 import sys
-import os
 import logging
-from jinja2 import Template
-from ..utils import load_yaml_data
 from datetime import datetime
+from jinja2 import Template
 import markdown
+from ..utils import load_yaml_data
 
 HTML_JINJA = """
 <html>
