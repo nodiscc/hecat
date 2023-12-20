@@ -229,6 +229,7 @@ def archive_webpages(step):
                     if local_archive_path is not None:
                         item2['archive_path'] = local_archive_path
                         downloaded_count = downloaded_count + 1
+                        item2.pop('archive_error', None)
                     else:
                         item2['archive_error'] = True
                         error_count = error_count + 1
