@@ -177,7 +177,7 @@ def check_last_updated(software, step, errors):
         last_update_time = datetime.strptime(software['updated_at'], "%Y-%m-%d")
         time_since_last_update = last_update_time - datetime.now()
         if software['source_code_url'] in step['module_options']['last_updated_skip']:
-           logging.info('%s: skipping last update time check as per configuration (last_updated_skip) (%s)', software['name'], time_since_last_update)
+            logging.info('%s: skipping last update time check as per configuration (last_updated_skip) (%s)', software['name'], time_since_last_update)
         elif last_update_time < datetime.now() - timedelta(days=step['module_options']['last_updated_error_days']):
             message = '{}: last updated {} ago, older than {} days'.format(software['name'], time_since_last_update, step['module_options']['last_updated_error_days'])
             log_exception(message, errors, severity=logging.error)
