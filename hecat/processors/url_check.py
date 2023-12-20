@@ -33,7 +33,7 @@ import requests
 VALID_HTTP_CODES = [200, 206]
 # INVALID_HTTP_CODES = [403, 404, 500]
 
-def check_return_code(url, current_item_index, total_item_count, errors, success_count, error_count):
+def check_return_code(url, current_item_index, total_item_count, errors):
     try:
         # GET only first 200 bytes when possible, servers that do not support the Range: header will simply return the entire page
         response = requests.get(url, headers={"Range": "bytes=0-200", "User-Agent": "hecat/0.0.1"}, timeout=10)
@@ -81,7 +81,7 @@ def check_urls(step):
                     continue
                 else:
                     if item[key_name] not in checked_urls:
-                        if check_return_code(item[key_name], current_item_index, total_item_count, errors, success_count, error_count):
+                        if check_return_code(item[key_name], current_item_index, total_item_count, errors):
                             success_count = success_count + 1
                         else:
                             error_count = error_count + 1
