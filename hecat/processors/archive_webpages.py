@@ -245,12 +245,12 @@ def archive_webpages(step):
         elif visibility == 'private':
             dirs_list = next(os.walk(step['module_options']['output_directory'] + '/private'))
             ids_in_data = [value['id'] for value in items if value['private'] == True]
-        for dir in dirs_list[1]:
-            if not any(id == int(dir) for id in ids_in_data):
+        for directory in dirs_list[1]:
+            if not any(id == int(directory) for id in ids_in_data):
                 if step['module_options']['clean_removed']:
                     # TODO if an item was changed from private to public or the other way around, the local archive will be deleted, but it will not be archived again since archive_path is already set
-                    logging.info('local webpage archive found with id %s, but not in data. Deleting %s', dir, dirs_list[0] + '/' + dir)
-                    shutil.rmtree(dirs_list[0] + '/' + dir)
+                    logging.info('local webpage archive found with id %s, but not in data. Deleting %s', directory, dirs_list[0] + '/' + directory)
+                    shutil.rmtree(dirs_list[0] + '/' + directory)
                 else:
-                    logging.warning('local webpage archive found with id %s, but not in data. You may want to delete %s manually', dir, dirs_list[0] + '/' + dir)
+                    logging.warning('local webpage archive found with id %s, but not in data. You may want to delete %s manually', dir, dirs_list[0] + '/' + directory)
     logging.info('processing complete. Downloaded: %s - Skipped: %s - Errors %s', downloaded_count, skipped_count, error_count)
