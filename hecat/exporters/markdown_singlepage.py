@@ -308,9 +308,9 @@ def render_markdown_singlepage(step):
     markdown_header = ''
     markdown_footer = ''
     if 'markdown_header' in step['module_options']:
-        markdown_header = open(step['module_options']['source_directory'] + '/' + step['module_options']['markdown_header'], 'r').read()
+        markdown_header = open(step['module_options']['source_directory'] + '/' + step['module_options']['markdown_header'], 'r', encoding="utf-8").read()
     if 'markdown_footer' in step['module_options']:
-        markdown_footer = open(step['module_options']['source_directory'] + '/' + step['module_options']['markdown_footer'], 'r').read()
+        markdown_footer = open(step['module_options']['source_directory'] + '/' + step['module_options']['markdown_footer'], 'r', encoding="utf-8").read()
     markdown_software_list = '## Software\n\n'
     if ('exclude_licenses' in step['module_options']) and ('include_licenses' in step['module_options']):
         logging.error('module options exclude_licenses and include_licenses cannot be used together.')
