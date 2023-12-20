@@ -27,6 +27,7 @@ steps:
       output_directory: 'tests/webpages' # path to the output directory for archived pages
       skip_already_archived: True # (default True) skip processing when item already has a 'archive_path': key
       clean_removed: True # (default False) remove existing archived pages which do not match any id in the data file
+      skip_failed: False # (default False) don't attempt to archive items for which the previous archival attempt failed (archive_error: True)
 
 # $ hecat --config tests/.hecat.archive_webpages.yml
 
@@ -203,6 +204,8 @@ def archive_webpages(step):
     items = load_yaml_data(step['module_options']['data_file'])
     if 'clean_removed' not in step['module_options']:
         step['module_options']['clean_removed'] = False
+    if 'skip_failed' not in step['module_options']:
+        step['module_options']['skip_failed'] = False
     for item in items:
         # skip already archived items when skip_already_archived: True
         if (('skip_already_archived' not in step['module_options'].keys() or
@@ -212,6 +215,10 @@ def archive_webpages(step):
         # skip items matching exclude_tags
         elif ('exclude_tags' in step['module_options'] and any(tag in item['tags'] for tag in step['module_options']['exclude_tags'])):
             logging.debug('skipping %s (id %s): one or more tags are present in exclude_tags', item['url'], item['id'])
+            skipped_count = skipped_count +1
+        # skip failed items when skip_failed: True
+        elif (step['module_options']['skip_failed'] and 'archive_error' in item.keys() and item['archive_error']):
+            logging.debug('skipping %s (id %s): the previous archival attempt failed, and skip_failed is set to True')
             skipped_count = skipped_count +1
         # archive items matching only_tags
         elif list(set(step['module_options']['only_tags']) & set(item['tags'])):
