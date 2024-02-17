@@ -435,6 +435,12 @@ steps:
 
 [ffmpeg](https://ffmpeg.org/) must be installed for audio/video conversion support. [jdupes](https://github.com/jbruchon/jdupes), [soundalike](https://github.com/derat/soundalike) and [videoduplicatefinder](https://github.com/0x90d/videoduplicatefinder) may further help dealing with duplicate files and media.
 
+[yq](https://github.com/kislyuk/yq) can be used to manipulate YAML data produced/used by hecat. For example, to remove the `archive_path` key/value of all items that have one of their tags with a value of `cuisine` from a shaarli export:
+
+```bash
+# DOES NOT WORK, INFINITE LOOP (reverse-i-search)`del': yq --yaml-output -s '.[] | select(.[].tags[] == "cuisine") | del(.[].archive_path)' Nextcloud/data/shaarli.yml > shaarli.yml.new
+
+```
 
 ## Support
 
