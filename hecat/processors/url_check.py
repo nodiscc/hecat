@@ -17,6 +17,8 @@ steps:
         - source_code_url
         - website_url
         - demo_url
+      failed_urls_file: 'failed_urls.txt'  # specify the file to store failed URLs
+      escalation_limit: 3  # specify the limit for escalating from warning to error
       errors_are_fatal: False # (default False) if True exit with error code 1 at the end of processing, if any checks were unsuccessful
       exclude_regex: # (default []) don't check URLs matching these regular expressions
         - '^https://github.com/[\w\.\-]+/[\w\.\-]+$' # don't check URLs that will be processed by the github_metadata module
@@ -33,7 +35,7 @@ import requests
 VALID_HTTP_CODES = [200, 206]
 # INVALID_HTTP_CODES = [403, 404, 500]
 
-def check_return_code(url, current_item_index, total_item_count, errors):
+def check_return_code(url, current_item_index, total_item_count, errors, failed_urls_file, escalation_limit):
     try:
         # GET only first 200 bytes when possible, servers that do not support the Range: header will simply return the entire page
         response = requests.get(url, headers={"Range": "bytes=0-200", "User-Agent": "hecat/0.0.1"}, timeout=10)
@@ -42,13 +44,16 @@ def check_return_code(url, current_item_index, total_item_count, errors):
             return True
         else:
             error_msg = '{} : HTTP {}'.format(url, response.status_code)
-            logging.error('[%s/%s] %s', current_item_index, total_item_count, error_msg)
-            errors.append(error_msg)
+            logging.warning('[%s/%s] %s', current_item_index, total_item_count, error_msg)
+            handle_failed_url(url, failed_urls_file, escalation_limit)
             return False
     except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout, requests.exceptions.ContentDecodingError) as connection_error:
         error_msg = '{} : {}'.format(url, connection_error)
-        logging.error('[%s/%s] %s', current_item_index, total_item_count, error_msg)
-        errors.append(error_msg)
+        if should_escalate(url, failed_urls_file, escalation_limit):
+            logging.error('[%s/%s] %s', current_item_index, total_item_count, error_msg)
+        else:
+            logging.warning('[%s/%s] %s', current_item_index, total_item_count, error_msg)
+        handle_failed_url(url, failed_urls_file, escalation_limit)
         return False
 
 def check_urls(step):
@@ -76,16 +81,17 @@ def check_urls(step):
         for key_name in step['module_options']['check_keys']:
             try:
                 if any(re.search(regex, item[key_name]) for regex in step['module_options']['exclude_regex']):
-                    logging.info('[%s/%s] skipping URL %s, matches exclude_regex', current_item_index, total_item_count, item[key_name])
-                    skipped_count = skipped_count + 1
-                    continue
+                    ...
                 else:
                     if item[key_name] not in checked_urls:
-                        if check_return_code(item[key_name], current_item_index, total_item_count, errors):
+                        if check_return_code(item[key_name], current_item_index, total_item_count, errors,
+                                             step['module_options']['failed_urls_file'],
+                                             step['module_options']['escalation_limit']):
                             success_count = success_count + 1
+                            remove_from_failed_urls(item[key_name], step['module_options']['failed_urls_file'])
                         else:
                             error_count = error_count + 1
-                        checked_urls.append(item[key_name])
+                            checked_urls.append(item[key_name])
             except KeyError:
                 pass
         current_item_index = current_item_index + 1
@@ -95,3 +101,60 @@ def check_urls(step):
         print('\n'.join(errors))
         if 'errors_are_fatal' in step['module_options'].keys() and step['module_options']['errors_are_fatal']:
             sys.exit(1)
+
+def should_escalate(url, failed_urls_file, escalation_limit):
+    # Load existing failed URLs or create an empty list
+    try:
+        with open(failed_urls_file, 'r') as file:
+            failed_urls = [line.strip() for line in file.readlines()]
+    except FileNotFoundError:
+        return False
+
+    # Check if the URL has reached the escalation limit
+    if url in failed_urls:
+        index = failed_urls.index(url)
+        count = int(failed_urls[index + 1])
+        return count >= escalation_limit
+
+    return False
+
+def handle_failed_url(url, failed_urls_file, escalation_limit):
+    # Load existing failed URLs or create an empty list
+    try:
+        with open(failed_urls_file, 'r') as file:
+            failed_urls = [line.strip() for line in file.readlines()]
+    except FileNotFoundError:
+        failed_urls = []
+
+    # Update the count for the current URL
+    if url in failed_urls:
+        index = failed_urls.index(url)
+        count = int(failed_urls[index + 1]) + 1
+        failed_urls[index + 1] = str(count)
+        if count >= escalation_limit:
+            logging.error('URL %s reached the escalation limit (%s).', url, escalation_limit)
+    else:
+        # Add the URL to the list with count 1
+        failed_urls.extend([url, '1'])
+
+    # Write the updated failed URLs list back to the file
+    with open(failed_urls_file, 'w') as file:
+        file.write('\n'.join(failed_urls))
+
+def remove_from_failed_urls(url, failed_urls_file):
+    # Load existing failed URLs or create an empty list
+    try:
+        with open(failed_urls_file, 'r') as file:
+            failed_urls = [line.strip() for line in file.readlines()]
+    except FileNotFoundError:
+        return
+
+    # Remove the URL from the list
+    if url in failed_urls:
+        index = failed_urls.index(url)
+        failed_urls.pop(index)
+        failed_urls.pop(index)  # Remove the corresponding count
+
+    # Write the updated failed URLs list back to the file
+    with open(failed_urls_file, 'w') as file:
+        file.write('\n'.join(failed_urls))
