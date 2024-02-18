@@ -50,7 +50,7 @@ def check_return_code(url, current_item_index, total_item_count, errors, failed_
             handle_failed_url(url, failed_urls_file, escalation_limit)
             return False
     # Invalid URL should be handled as an error directly
-    except requests.exceptions.InvalidURL as invalid_url_error:
+    except (requests.exceptions.InvalidURL, requests.exceptions.InvalidSchema) as invalid_url_error:
         error_msg = '{} : {}'.format(url, invalid_url_error)
         logging.error('[%s/%s] %s', current_item_index, total_item_count, error_msg)
         handle_failed_url(url, failed_urls_file, escalation_limit)
