@@ -37,6 +37,8 @@ VALID_HTTP_CODES = [200, 206]
 
 def check_return_code(url, current_item_index, total_item_count, errors, failed_urls_file, escalation_limit):
     try:
+        # Check if the URL is valid, if valid, proceed with the regular checks
+        requests.get(url, headers={"Range": "bytes=0-200", "User-Agent": "hecat/0.0.1"}, timeout=10)
         # GET only first 200 bytes when possible, servers that do not support the Range: header will simply return the entire page
         response = requests.get(url, headers={"Range": "bytes=0-200", "User-Agent": "hecat/0.0.1"}, timeout=10)
         if response.status_code in VALID_HTTP_CODES:
@@ -47,6 +49,13 @@ def check_return_code(url, current_item_index, total_item_count, errors, failed_
             logging.warning('[%s/%s] %s', current_item_index, total_item_count, error_msg)
             handle_failed_url(url, failed_urls_file, escalation_limit)
             return False
+    # Invalid URL should be handled as an error directly
+    except requests.exceptions.InvalidURL as invalid_url_error:
+        error_msg = '{} : {}'.format(url, invalid_url_error)
+        logging.error('[%s/%s] %s', current_item_index, total_item_count, error_msg)
+        handle_failed_url(url, failed_urls_file, escalation_limit)
+        return False
+    # Connection errors should be handled as warnings, but escalate to errors after a certain number of attempts
     except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout, requests.exceptions.ContentDecodingError) as connection_error:
         error_msg = '{} : {}'.format(url, connection_error)
         if should_escalate(url, failed_urls_file, escalation_limit):
