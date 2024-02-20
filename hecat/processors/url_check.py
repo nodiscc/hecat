@@ -163,7 +163,6 @@ def remove_from_failed_urls(url, failed_urls_file):
         index = failed_urls.index(url)
         failed_urls.pop(index)
         failed_urls.pop(index)  # Remove the corresponding count
-
-    # Write the updated failed URLs list back to the file
-    with open(failed_urls_file, 'w') as file:
-        file.write('\n'.join(failed_urls))
+        # Write the updated failed URLs list back to the file
+        with open(failed_urls_file, 'w') as file:
+            file.write('\n'.join(failed_urls))
