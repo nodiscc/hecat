@@ -95,7 +95,7 @@ def check_urls(step):
                                              step['module_options']['failed_urls_file'],
                                              step['module_options']['escalation_limit']):
                             success_count = success_count + 1
-                            remove_from_failed_urls(item[key_name], step['module_options']['failed_urls_file'])
+                            handle_successful_url(item[key_name], step['module_options']['failed_urls_file'])
                         else:
                             error_count = error_count + 1
                             checked_urls.append(item[key_name])
@@ -150,7 +150,7 @@ def handle_failed_url(url, failed_urls_file, escalation_limit):
     with open(failed_urls_file, 'w') as file:
         file.write('\n'.join(failed_urls))
 
-def remove_from_failed_urls(url, failed_urls_file):
+def handle_successful_url(url, failed_urls_file):
     # Load existing failed URLs or create an empty list
     try:
         with open(failed_urls_file, 'r') as file:
