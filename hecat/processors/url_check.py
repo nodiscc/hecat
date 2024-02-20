@@ -120,7 +120,7 @@ def handle_failed_url(url, errors, failed_urls_file, escalation_limit):
         count = int(failed_urls[index + 1]) + 1
         failed_urls[index + 1] = str(count)
         if count >= escalation_limit:
-            error_msg = 'URL check for {} failed {} times in a row.'.format(url, escalation_limit)
+            error_msg = 'URL check for {} failed {} times in a row (Limit: {}).'.format(url, count, escalation_limit)
             logging.error(error_msg)
             errors.append(error_msg)
     else:
