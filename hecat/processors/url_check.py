@@ -106,22 +106,6 @@ def check_urls(step):
         if 'errors_are_fatal' in step['module_options'].keys() and step['module_options']['errors_are_fatal']:
             sys.exit(1)
 
-def should_escalate(url, failed_urls_file, escalation_limit):
-    # Load existing failed URLs or create an empty list
-    try:
-        with open(failed_urls_file, 'r') as file:
-            failed_urls = [line.strip() for line in file.readlines()]
-    except FileNotFoundError:
-        return False
-
-    # Check if the URL has reached the escalation limit
-    if url in failed_urls:
-        index = failed_urls.index(url)
-        count = int(failed_urls[index + 1])
-        return count >= escalation_limit
-
-    return False
-
 def handle_failed_url(url, errors, failed_urls_file, escalation_limit):
     # Load existing failed URLs or create an empty list
     try:
