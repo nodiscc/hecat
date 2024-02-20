@@ -45,7 +45,7 @@ def check_return_code(url, current_item_index, total_item_count, errors, failed_
         else:
             error_msg = '{} : HTTP {}'.format(url, response.status_code)
             logging.warning('[%s/%s] %s', current_item_index, total_item_count, error_msg)
-            handle_failed_url(url, failed_urls_file, escalation_limit)
+            handle_failed_url(url, errors, failed_urls_file, escalation_limit)
             return False
     # Invalid URL should be handled as an error directly
     except (requests.exceptions.InvalidURL, requests.exceptions.InvalidSchema) as invalid_url_error:
@@ -57,7 +57,7 @@ def check_return_code(url, current_item_index, total_item_count, errors, failed_
     except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout, requests.exceptions.ContentDecodingError) as connection_error:
         error_msg = '{} : {}'.format(url, connection_error)
         logging.warning('[%s/%s] %s', current_item_index, total_item_count, error_msg)
-        handle_failed_url(url, failed_urls_file, escalation_limit)
+        handle_failed_url(url, errors, failed_urls_file, escalation_limit)
         return False
 
 def check_urls(step):
