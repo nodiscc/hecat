@@ -56,10 +56,7 @@ def check_return_code(url, current_item_index, total_item_count, errors, failed_
     # Connection errors should be handled as warnings, but escalate to errors after a certain number of attempts
     except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout, requests.exceptions.ContentDecodingError) as connection_error:
         error_msg = '{} : {}'.format(url, connection_error)
-        if should_escalate(url, failed_urls_file, escalation_limit):
-            logging.error('[%s/%s] %s', current_item_index, total_item_count, error_msg)
-        else:
-            logging.warning('[%s/%s] %s', current_item_index, total_item_count, error_msg)
+        logging.warning('[%s/%s] %s', current_item_index, total_item_count, error_msg)
         handle_failed_url(url, failed_urls_file, escalation_limit)
         return False
 
