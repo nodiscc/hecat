@@ -18,7 +18,7 @@ steps:
         - website_url
         - demo_url
       failed_urls_file: 'failed_urls.txt'  # specify the file to store failed URLs
-      escalation_limit: 3  # specify the limit for escalating from warning to error
+      escalation_limit: 3  # raise an error instead of a warning after this number of consecutive failures on a single URL
       errors_are_fatal: False # (default False) if True exit with error code 1 at the end of processing, if any checks were unsuccessful
       exclude_regex: # (default []) don't check URLs matching these regular expressions
         - '^https://github.com/[\w\.\-]+/[\w\.\-]+$' # don't check URLs that will be processed by the github_metadata module
