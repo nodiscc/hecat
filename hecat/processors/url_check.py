@@ -125,7 +125,7 @@ def should_escalate(url, failed_urls_file, escalation_limit):
 
     return False
 
-def handle_failed_url(url, failed_urls_file, escalation_limit):
+def handle_failed_url(url, errors, failed_urls_file, escalation_limit):
     # Load existing failed URLs or create an empty list
     try:
         with open(failed_urls_file, 'r') as file:
