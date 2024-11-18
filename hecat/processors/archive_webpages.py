@@ -86,12 +86,8 @@ yaml = ruamel.yaml.YAML()
 yaml.indent(sequence=2, offset=0)
 yaml.width = 99999
 
-def wget(step, item):
+def wget(step, item, wget_output_directory):
     """archive a webpage with wget, return the local path of the archived file"""
-    if item['private']: # TODO DRY
-        wget_output_directory = step['module_options']['output_directory'] + '/private/' + str(item['id'])
-    else:
-        wget_output_directory = step['module_options']['output_directory'] + '/public/' + str(item['id'])
     try:
         os.mkdir(wget_output_directory)
     except FileExistsError:
@@ -210,6 +206,10 @@ def archive_webpages(step):
     if 'skip_failed' not in step['module_options']:
         step['module_options']['skip_failed'] = False
     for item in items:
+        if item['private']:
+            local_archive_dir = step['module_options']['output_directory'] + '/private/' + str(item['id'])
+        else:
+            local_archive_dir = step['module_options']['output_directory'] + '/public/' + str(item['id'])
         # skip already archived items when skip_already_archived: True
         if (('skip_already_archived' not in step['module_options'].keys() or
                 step['module_options']['skip_already_archived']) and 'archive_path' in item.keys() and item['archive_path'] is not None):
@@ -224,12 +224,8 @@ def archive_webpages(step):
             logging.debug('skipping %s (id %s): URL matches exclude_regex', item['url'], item['id'])
             skipped_count = skipped_count +1
             if 'clean_excluded' in step['module_options'] and step['module_options']['clean_excluded']:
-                if item['private']: # TODO DRY
-                    archive_path = step['module_options']['output_directory'] + '/private/' + str(item['id'])
-                else:
-                    archive_path = step['module_options']['output_directory'] + '/public/' + str(item['id'])
-                if os.path.isdir(archive_path):
-                    logging.info('removing local archive directory %s', archive_path)
+                if os.path.isdir(local_archive_dir):
+                    logging.info('removing local archive directory %s', local_archive_dir)
                     shutil.rmtree(archive_path)
                 item.pop('archive_path', None)
         # skip failed items when skip_failed: True
@@ -239,7 +235,7 @@ def archive_webpages(step):
         # archive items matching only_tags
         elif list(set(step['module_options']['only_tags']) & set(item['tags'])):
             logging.info('archiving %s (id %s)', item['url'], item['id'])
-            local_archive_path = wget(step, item)
+            local_archive_path = wget(step, item, local_archive_dir)
             for item2 in items:
                 if item2['id'] == item['id']:
                     if local_archive_path is not None:
