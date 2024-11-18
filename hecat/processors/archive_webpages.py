@@ -24,9 +24,12 @@ steps:
       data_file: tests/shaarli.yml # path to the YAML data file
       only_tags: ['doc'] # only download items tagged with all these tags
       exclude_tags: ['nodl'] # (default []), don't download items tagged with any of these tags
+      exclude_regex: # (default []) don't archive URLs matching these regular expressions
+        - '^https://[a-z]\.wikipedia.org/wiki/.*$' # don't archive wikipedia pages, supposing you have a local copy of wikipedia dumps from https://dumps.wikimedia.org/
       output_directory: 'tests/webpages' # path to the output directory for archived pages
       skip_already_archived: True # (default True) skip processing when item already has a 'archive_path': key
       clean_removed: True # (default False) remove existing archived pages which do not match any id in the data file
+      clean_excluded: True # (default False) remove existing archived pages matching exclude_regex
       skip_failed: False # (default False) don't attempt to archive items for which the previous archival attempt failed (archive_error: True)
 
 # $ hecat --config tests/.hecat.archive_webpages.yml
@@ -216,13 +219,26 @@ def archive_webpages(step):
         elif ('exclude_tags' in step['module_options'] and any(tag in item['tags'] for tag in step['module_options']['exclude_tags'])):
             logging.debug('skipping %s (id %s): one or more tags are present in exclude_tags', item['url'], item['id'])
             skipped_count = skipped_count +1
+        # skip items matching exclude_regex
+        elif ('exclude_regex' in step['module_options'] and any(re.search(regex, item['url']) for regex in step['module_options']['exclude_regex'])):
+            logging.debug('skipping %s (id %s): URL matches exclude_regex', item['url'], item['id'])
+            skipped_count = skipped_count +1
+            if 'clean_excluded' in step['module_options'] and step['module_options']['clean_excluded']:
+                if item['private']:
+                    archive_path = step['module_options']['output_directory'] + '/private/' + str(item['id'])
+                else:
+                    archive_path = step['module_options']['output_directory'] + '/public/' + str(item['id'])
+                if os.path.isdir(archive_path):
+                    logging.info('removing local archive directory %s', archive_path)
+                    shutil.rmtree(archive_path)
+                item.pop('archive_path', None)
         # skip failed items when skip_failed: True
         elif (step['module_options']['skip_failed'] and 'archive_error' in item.keys() and item['archive_error']):
             logging.debug('skipping %s (id %s): the previous archival attempt failed, and skip_failed is set to True')
             skipped_count = skipped_count +1
         # archive items matching only_tags
         elif list(set(step['module_options']['only_tags']) & set(item['tags'])):
-            logging.info('archiving %s (id %s)', item['url'], item ['id'])
+            logging.info('archiving %s (id %s)', item['url'], item['id'])
             local_archive_path = wget(step, item)
             for item2 in items:
                 if item2['id'] == item['id']:
