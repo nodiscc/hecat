@@ -88,7 +88,7 @@ yaml.width = 99999
 
 def wget(step, item):
     """archive a webpage with wget, return the local path of the archived file"""
-    if item['private']:
+    if item['private']: # TODO DRY
         wget_output_directory = step['module_options']['output_directory'] + '/private/' + str(item['id'])
     else:
         wget_output_directory = step['module_options']['output_directory'] + '/public/' + str(item['id'])
@@ -224,7 +224,7 @@ def archive_webpages(step):
             logging.debug('skipping %s (id %s): URL matches exclude_regex', item['url'], item['id'])
             skipped_count = skipped_count +1
             if 'clean_excluded' in step['module_options'] and step['module_options']['clean_excluded']:
-                if item['private']:
+                if item['private']: # TODO DRY
                     archive_path = step['module_options']['output_directory'] + '/private/' + str(item['id'])
                 else:
                     archive_path = step['module_options']['output_directory'] + '/public/' + str(item['id'])
@@ -255,6 +255,7 @@ def archive_webpages(step):
             logging.debug('skipping %s (id %s): no tags matching only_tags', item['url'], item['id'])
             skipped_count = skipped_count + 1
     for visibility in ['public', 'private']:
+        dirs_list = []
         if visibility == 'public':
             dirs_list = next(os.walk(step['module_options']['output_directory'] + '/public'))
             ids_in_data = [value['id'] for value in items if value['private'] == False]
