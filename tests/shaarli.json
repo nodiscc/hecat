@@ -85,6 +85,21 @@
         "some_key": "an example key, which should not be deleted by importing the duplicate/updated item in shaarli-duplicate.json"
     },
     {
+        "hecat_comment": "test for download_webpage module/remove_excluded",
+        "created": "2022-07-27T22:16:37+02:00",
+        "description": "This item should not have any archive_path attribute after running all steps in .hecat.archive_webpages.yml, and tests/webpages/public/6625 should not exist",
+        "id": 6625,
+        "private": false,
+        "shorturl": "U-sj1B",
+        "tags": [
+            "doc",
+            "space"
+        ],
+        "title": "Amas de galaxies — Wikipédia",
+        "updated": "2022-07-27T22:18:24+02:00",
+        "url": "https://fr.wikipedia.org/wiki/Amas_de_galaxies"
+    },
+    {
         "created": "2020-07-23T19:54:15+02:00",
         "description": "```\r\n   rescue:\r\n     - debug:\r\n         msg: 'I caught an error, can do stuff here to fix it, :-)'\r\n   always:\r\n     - debug:\r\n         msg: \"This always executes, :-)\"\r\n```",
         "id": 232,
