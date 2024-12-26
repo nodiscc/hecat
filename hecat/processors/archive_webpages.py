@@ -246,7 +246,8 @@ def archive_webpages(step):
             dirs_list = next(os.walk(step['module_options']['output_directory'] + '/private'))
             ids_in_data = [value['id'] for value in items if value['private'] == True]
         else:
-            logging.error('incorrect value for visibility: %s', visibility)
+            logging.error('invalid value for visibility: %s', visibility)
+            sys.exit(1)
         for directory in dirs_list[1]:
             if not any(id == int(directory) for id in ids_in_data):
                 if step['module_options']['clean_removed']:
