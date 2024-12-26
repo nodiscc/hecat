@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-#### [v1.2.3](https://github.com/nodiscc/hecat/releases/tag/1.2.3) - UNRELEASED
+#### [v1.3.0](https://github.com/nodiscc/hecat/releases/tag/1.3.0) - 2024-12-26
 
 **Added:**
 - add [archive_webpages](hecat/processors/archive_webpages.py) processor (download local copies of webpages linked in the `url` key of items)
