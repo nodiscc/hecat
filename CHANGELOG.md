@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 **Added:**
 - add [archive_webpages](hecat/processors/archive_webpages.py) processor (download local copies of webpages linked in the `url` key of items)
+- processors/awesome_lint: check that filenames in `software/*` match the kebab-case version of the `name:` attribute inside each file
 - processors/awesome_lint: make the list of required fields/attributes for `platforms` configurable through `platforms_required_fields` module option (default to `['description']`)
 
 **Changed:**
