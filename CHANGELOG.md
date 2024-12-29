@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+#### [v1.3.1](https://github.com/nodiscc/hecat/releases/tag/1.3.1) - 2024-12-29
+
+**Fixed:**
+- utils: to_kebab_case(): trim characters from filenames, which are invalid on MS Windows
+
+---------------------
+
 #### [v1.3.0](https://github.com/nodiscc/hecat/releases/tag/1.3.0) - 2024-12-26
 
 **Added:**
