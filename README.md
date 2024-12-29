@@ -418,8 +418,11 @@ steps:
       data_file: shaarli.yml
       only_tags: ['hecat', 'doc']
       exclude_tags: ['nodl']
+      exclude_regex:
+        - '^https://[a-z]\.wikipedia.org/wiki/.*$' # don't archive wikipedia pages, we have a local copy of wikipedia dumps from https://dumps.wikimedia.org/
       output_directory: webpages
       clean_removed: True
+      clean_excluded: True
 
   - name: export shaarli data to HTML table
     module: exporters/html_table
