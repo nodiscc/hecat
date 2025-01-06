@@ -41,6 +41,9 @@ def load_yaml_data(path, sort_key=False):
     yaml = ruamel.yaml.YAML(typ='rt')
     data = []
     if os.path.isfile(path):
+        if not path.endswith('.yml') and not path.endswith('.yaml'):
+            logging.error('file %s is not a YAML file', path)
+            sys.exit(1)
         logging.debug('loading data from %s', path)
         with open(path, 'r', encoding="utf-8") as yaml_data:
             data = yaml.load(yaml_data)
@@ -49,6 +52,9 @@ def load_yaml_data(path, sort_key=False):
         return data
     elif os.path.isdir(path):
         for file in sorted(list_files(path)):
+            if not file.endswith('.yml') and not file.endswith('.yaml'):
+                logging.debug('skipping file %s, not a YAML file', file)
+                continue
             source_file = path + '/' + file
             logging.debug('loading data from %s', source_file)
             with open(source_file, 'r', encoding="utf-8") as yaml_data:
