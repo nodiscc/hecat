@@ -210,13 +210,8 @@ def archive_webpages(step):
             local_archive_dir = step['module_options']['output_directory'] + '/private/' + str(item['id'])
         else:
             local_archive_dir = step['module_options']['output_directory'] + '/public/' + str(item['id'])
-        # skip already archived items when skip_already_archived: True
-        if (('skip_already_archived' not in step['module_options'].keys() or
-                step['module_options']['skip_already_archived']) and 'archive_path' in item.keys() and item['archive_path'] is not None):
-            logging.debug('skipping %s (id %s): already archived', item['url'], item['id'])
-            skipped_count = skipped_count +1
         # skip items matching exclude_tags
-        elif ('exclude_tags' in step['module_options'] and any(tag in item['tags'] for tag in step['module_options']['exclude_tags'])):
+        if ('exclude_tags' in step['module_options'] and any(tag in item['tags'] for tag in step['module_options']['exclude_tags'])):
             logging.debug('skipping %s (id %s): one or more tags are present in exclude_tags', item['url'], item['id'])
             skipped_count = skipped_count +1
         # skip items matching exclude_regex
@@ -228,6 +223,11 @@ def archive_webpages(step):
                     logging.info('removing local archive directory %s', local_archive_dir)
                     shutil.rmtree(local_archive_dir)
                 item.pop('archive_path', None)
+        # skip already archived items when skip_already_archived: True
+        elif (('skip_already_archived' not in step['module_options'].keys() or
+                step['module_options']['skip_already_archived']) and 'archive_path' in item.keys() and item['archive_path'] is not None):
+            logging.debug('skipping %s (id %s): already archived', item['url'], item['id'])
+            skipped_count = skipped_count +1
         # skip failed items when skip_failed: True
         elif (step['module_options']['skip_failed'] and 'archive_error' in item.keys() and item['archive_error']):
             logging.debug('skipping %s (id %s): the previous archival attempt failed, and skip_failed is set to True')
