@@ -9,6 +9,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - processors/archive_webpages: allow excluding URLs using `exclude_regex: URL_REGEX`
 - processors/archive_webpages: allow removing already existing local archives of excluded URLs (`clean_excluded: False/True`)
 
+**Fixed:**
+- processors/url_check: handle TooManyRedirects exception
+
 ---------------------
 
 #### [v1.3.1](https://github.com/nodiscc/hecat/releases/tag/1.3.1) - 2024-12-29
