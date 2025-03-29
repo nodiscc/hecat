@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-#### [v1.4.0](https://github.com/nodiscc/hecat/releases/tag/1.4.0) - UNRELEASED
+#### [v1.4.0](https://github.com/nodiscc/hecat/releases/tag/1.4.0) - 2025-03-29
 
 **Added:**
 - processors/archive_webpages: allow excluding URLs using `exclude_regex: URL_REGEX`
