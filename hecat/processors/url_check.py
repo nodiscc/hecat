@@ -45,7 +45,7 @@ def check_return_code(url, current_item_index, total_item_count, errors):
             logging.error('[%s/%s] %s', current_item_index, total_item_count, error_msg)
             errors.append(error_msg)
             return False
-    except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout, requests.exceptions.ContentDecodingError) as connection_error:
+    except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout, requests.exceptions.ContentDecodingError, requests.exceptions.TooManyRedirects) as connection_error:
         error_msg = '{} : {}'.format(url, connection_error)
         logging.error('[%s/%s] %s', current_item_index, total_item_count, error_msg)
         errors.append(error_msg)
