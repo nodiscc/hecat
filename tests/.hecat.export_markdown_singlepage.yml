@@ -1,5 +1,5 @@
 steps:
-  - name: export YAML data to single-page markdown
+  - name: export awesome-selfhosted-data YAML to single-page markdown
     module: exporters/markdown_singlepage
     module_options:
       source_directory: tests/awesome-selfhosted-data
@@ -21,7 +21,7 @@ steps:
         - NPOSL-3.0
         - SSPL-1.0
 
-  - name: export YAML data to single-page markdown (non-free)
+  - name: export awesome-selfhosted-data YAML to single-page markdown (non-free)
     module: exporters/markdown_singlepage
     module_options:
       source_directory: tests/awesome-selfhosted-data
