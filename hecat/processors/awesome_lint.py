@@ -40,11 +40,12 @@ source_directory: path to directory where data can be found. Directory structure
 └── licenses-nonfree.yml # yaml list of licenses
 """
 
+import os
 import re
 import logging
 import sys
 from datetime import datetime, timedelta
-from ..utils import load_yaml_data
+from ..utils import load_yaml_data, to_kebab_case
 
 SOFTWARE_REQUIRED_FIELDS = ['description', 'website_url', 'source_code_url', 'licenses', 'tags']
 SOFTWARE_REQUIRED_LISTS = ['licenses', 'tags']
@@ -195,6 +196,12 @@ def check_boolean_attributes(software, errors):
             message = '{}: depends_3rdparty must be a valid boolean value (true/false/True/False), got "{}"'.format(software['name'], software['depends_3rdparty'])
             log_exception(message, errors, severity=logging.error)
 
+def check_filename_is_kebab_case_software_name(filename, single_yaml_data, errors):
+    """check if the filename of a yaml match the kebab-case version of the name attribute inside that file"""
+    if not filename == to_kebab_case(single_yaml_data['name']) + '.yml':
+        message = '{}: file should be named {}'.format(filename, to_kebab_case(single_yaml_data['name'] + '.yml'))
+        log_exception(message, errors, severity=logging.error)
+
 def awesome_lint(step):
     """check all software entries against formatting guidelines"""
     logging.info('checking software entries/tags against formatting guidelines.')
@@ -240,6 +247,10 @@ def awesome_lint(step):
         check_boolean_attributes(software, errors)
     for license in licenses_list:
         check_required_fields(license, errors, required_fields=LICENSES_REQUIRED_FIELDS)
+    for (root, dirs, files) in os.walk(step['module_options']['source_directory'] + '/software'):
+        for filename in files:
+            single_yaml_data = load_yaml_data(os.path.join(root, filename))
+            check_filename_is_kebab_case_software_name(filename, single_yaml_data, errors)
     if errors:
         logging.error("There were errors during processing")
         sys.exit(1)

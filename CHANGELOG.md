@@ -3,10 +3,29 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-#### [v1.2.3](https://github.com/nodiscc/hecat/releases/tag/1.2.3) - UNRELEASED
+#### [v1.4.0](https://github.com/nodiscc/hecat/releases/tag/1.4.0) - 2025-03-29
+
+**Added:**
+- processors/archive_webpages: allow excluding URLs using `exclude_regex: URL_REGEX`
+- processors/archive_webpages: allow removing already existing local archives of excluded URLs (`clean_excluded: False/True`)
+
+**Fixed:**
+- processors/url_check: handle TooManyRedirects exception
+
+---------------------
+
+#### [v1.3.1](https://github.com/nodiscc/hecat/releases/tag/1.3.1) - 2024-12-29
+
+**Fixed:**
+- utils: to_kebab_case(): trim characters from filenames, which are invalid on MS Windows
+
+---------------------
+
+#### [v1.3.0](https://github.com/nodiscc/hecat/releases/tag/1.3.0) - 2024-12-26
 
 **Added:**
 - add [archive_webpages](hecat/processors/archive_webpages.py) processor (download local copies of webpages linked in the `url` key of items)
+- processors/awesome_lint: check that filenames in `software/*` match the kebab-case version of the `name:` attribute inside each file
 - processors/awesome_lint: make the list of required fields/attributes for `platforms` configurable through `platforms_required_fields` module option (default to `['description']`)
 
 **Changed:**
