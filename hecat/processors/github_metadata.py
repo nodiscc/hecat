@@ -9,7 +9,7 @@ steps:
       source_directory: tests/awesome-selfhosted-data # directory containing YAML data and software subdirectory
       gh_metadata_only_missing: False # (default False) only gather metadata for software entries in which one of stargazers_count,updated_at, archived, current_release, commit_history is missing
       sleep_time: 3.7 # (default 45) sleep for this amount of time before each request to Github API
-      batch_size: 10 # (default 30) number of repositories to include in each batch request to Github API
+      batch_size: 10 # (default 25) number of repositories to include in each batch request to Github API
       commit_history_clean_months: 24 # (default 12) number of months of commit history to keep after cleanup
       commit_history_fetch_months: 6 # (default 3) number of months to fetch from GitHub API
 
@@ -108,12 +108,12 @@ def add_github_metadata(step):
     github_urls = [software['source_code_url'] for software in github_projects]
     repos = [re.sub('https://github.com/', '', url) for url in github_urls]
 
-    # This limit was tested with a personal access token, batch_size = 30, timeout = 45 (new default if not provided in a config); Worked fine for the full repo (enable debug messages to see usage of API Rate limit stats)
+    # This limit was tested with a personal access token, batch_size = 25, timeout = 45 (new default if not provided in a config); Worked fine for the full repo (enable debug messages to see usage of API Rate limit stats)
     # Split repo list into batches of batch_size
     if 'batch_size' in step['module_options']:
         batch_size = step['module_options']['batch_size']
     else:
-        batch_size = 30
+        batch_size = 25
 
     # Get the number of months to keep for commit history
     if 'commit_history_clean_months' in step['module_options']:
