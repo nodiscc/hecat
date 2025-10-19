@@ -25,7 +25,8 @@ setup(
     },
     install_requires=[
         'ruamel.yaml==0.17.21',
-        'PyGithub',
+        'python-dateutil',
+        'requests',
         'yt_dlp',
         'jinja2',
         'Markdown',
