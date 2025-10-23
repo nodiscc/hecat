@@ -160,7 +160,8 @@ def add_github_metadata(step):
 
     def process_batch(batch, batch_num, total_batches, attempt=1):
         """Process a single batch of repositories"""
-        logging.info("Processing batch %s/%s (size: %s)", batch_num, total_batches, len(batch))
+        logging.info("Processing batch %s/%s (batch size: %s)", batch_num, total_batches, len(batch))
+        logging.debug('current batch: ' + str(batch))
         repos_query = " ".join([f"repo:{repo}" for repo in batch])
 
         query = f"""
@@ -253,6 +254,7 @@ def add_github_metadata(step):
                                 
                                 # Sleep between split chunks to avoid rate limiting (not after the last chunk)
                                 if i < num_splits - 1:
+                                    logging.debug('sleeping for %s seconds between split chunks', base_sleep_time)
                                     time.sleep(base_sleep_time)
                         return
                     
@@ -378,6 +380,7 @@ def add_github_metadata(step):
         
         # Sleep between batches to avoid rate limiting (only if not the last batch)
         if counter < len(batches):
+            logging.debug('sleeping for %s seconds between batches', between_batch_sleep)
             time.sleep(between_batch_sleep)
 
     if errors:
