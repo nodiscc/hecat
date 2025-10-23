@@ -66,7 +66,7 @@ def load_config(config_file):
     yaml = ruamel.yaml.YAML(typ='rt')
     logging.debug('loading configuration from %s', config_file)
     if not os.path.isfile(config_file):
-        logging.error('configuration file %s does not exist')
+        logging.error('configuration file %s does not exist', config_file)
         sys.exit(1)
     with open(config_file, 'r', encoding="utf-8") as cfg:
         config = yaml.load(cfg)

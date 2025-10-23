@@ -58,7 +58,7 @@ test_url_check: install
 .PHONY: test_update_github_metadata # test github metadata updater/processor on awesome-selfhosted-data
 test_update_github_metadata: install
 	source .venv/bin/activate && \
-	hecat --config tests/.hecat.github_metadata.yml
+	hecat --log-level DEBUG --config tests/.hecat.github_metadata.yml
 
 .PHONY: test_awesome_lint # test linter/compliance checker on awesome-sefhosted-data
 test_awesome_lint: install
@@ -107,7 +107,7 @@ test_archive_webpages: install
 	source .venv/bin/activate && \
 	hecat --log-level DEBUG --config tests/.hecat.archive_webpages.yml
 	# test existence and content of archived page
-	@grep -q 'Template Designer Documentation' tests/webpages/public/8351/jinja.palletsprojects.com/en/latest/templates/index.html
+	@grep -q 'Error handling in playbooks' tests/webpages/public/232/docs.ansible.com/ansible/latest/playbook_guide/playbooks_blocks.html
 	# test that directories were effectively removed
 	@if [[ -d tests/webpages/public/9999999999 ]]; then echo "ERROR tests/webpages/public/9999999999 should have been removed by clean_removed: True"; exit 1; fi
 	@if [[ -d tests/webpages/public/6625 ]]; then echo "ERROR tests/webpages/public/6625 should have been removed by clean_excluded: True"; exit 1; fi
