@@ -230,7 +230,7 @@ def archive_webpages(step):
                 item.pop('archive_path', None)
         # skip failed items when skip_failed: True
         elif (step['module_options']['skip_failed'] and 'archive_error' in item.keys() and item['archive_error']):
-            logging.debug('skipping %s (id %s): the previous archival attempt failed, and skip_failed is set to True')
+            logging.debug('skipping %s (id %s): the previous archival attempt failed, and skip_failed is set to True', item['url'], item['id'])
             skipped_count = skipped_count +1
         # archive items matching only_tags
         elif list(set(step['module_options']['only_tags']) & set(item['tags'])):
