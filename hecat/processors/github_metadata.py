@@ -8,10 +8,11 @@ steps:
     module_options:
       source_directory: tests/awesome-selfhosted-data # directory containing YAML data and software subdirectory
       gh_metadata_only_missing: False # (default False) only gather metadata for software entries in which one of stargazers_count,updated_at, archived, current_release, commit_history is missing
-      sleep_time: 3.7 # (default 45) sleep for this amount of time before each request to Github API
-      batch_size: 10 # (default 25) number of repositories to include in each batch request to Github API
-      commit_history_clean_months: 24 # (default 12) number of months of commit history to keep after cleanup
       commit_history_fetch_months: 6 # (default 3) number of months to fetch from GitHub API
+      commit_history_clean_months: 24 # (default 12) number of months of commit history to keep after cleanup
+      sleep_time: 3.7 # (default 60) sleep for this amount of time before each request to Github API
+      batch_size: 10 # (default 30) number of repositories to include in each batch request to Github API
+      max_retries: 3 # (default 3) maximum number of retries for API errors (502, 503, 504, 429)
 
 source_directory: path to directory where data files reside. Directory structure:
 ├── software
@@ -108,12 +109,11 @@ def add_github_metadata(step):
     github_urls = [software['source_code_url'] for software in github_projects]
     repos = [re.sub('https://github.com/', '', url) for url in github_urls]
 
-    # This limit was tested with a personal access token, batch_size = 25, timeout = 45 (new default if not provided in a config); Worked fine for the full repo (enable debug messages to see usage of API Rate limit stats)
     # Split repo list into batches of batch_size
     if 'batch_size' in step['module_options']:
         batch_size = step['module_options']['batch_size']
     else:
-        batch_size = 25
+        batch_size = 30
 
     # Get the number of months to keep for commit history
     if 'commit_history_clean_months' in step['module_options']:
@@ -126,6 +126,12 @@ def add_github_metadata(step):
         commit_history_fetch_months = step['module_options']['commit_history_fetch_months']
     else:
         commit_history_fetch_months = 3
+
+    # Get the maximum number of retries for API errors
+    if 'max_retries' in step['module_options']:
+        max_retries = step['module_options']['max_retries']
+    else:
+        max_retries = 3
 
     # build a list of lists (batches) of repo names, for each batch a graphql query will be made
     batches = [repos[i * batch_size:(i + 1) * batch_size] for i in range((len(repos) + batch_size - 1) // batch_size )]
@@ -152,10 +158,9 @@ def add_github_metadata(step):
 
     history_queries_str = "\n".join([mq[2] for mq in month_queries])
 
-    counter = 0
-    for batch in batches:
-        counter += 1
-        logging.info("Processing batch %s/%s", counter, len(batches))
+    def process_batch(batch, batch_num, total_batches, attempt=1):
+        """Process a single batch of repositories"""
+        logging.info("Processing batch %s/%s (size: %s)", batch_num, total_batches, len(batch))
         repos_query = " ".join([f"repo:{repo}" for repo in batch])
 
         query = f"""
@@ -163,7 +168,7 @@ def add_github_metadata(step):
     search(
         type: REPOSITORY
         query: "{repos_query}"
-        first: {batch_size}
+        first: {len(batch)}
     ) {{
     repos: edges {{
         repo: node {{
@@ -195,27 +200,106 @@ def add_github_metadata(step):
         """
         graphql_response_header = None
         data = None
+        batch_success = False
+        
+        # Get configured sleep_time
+        if 'sleep_time' in step['module_options']:
+            base_sleep_time = step['module_options']['sleep_time']
+        else:
+            base_sleep_time = 60
+        
         try:
             graphql_response = requests.post(github_graphql_api,
                                            json={"query": query},
                                            headers=headers,
                                            timeout=60)
             graphql_response_header = graphql_response.headers
-            # Check status code
+            
+            # Check for API errors that should be retried
+            if graphql_response.status_code in [502, 503, 504, 429]: # i.e error codes that probably will be resolved by retrying
+                if attempt <= max_retries:
+                    backoff_time = base_sleep_time * (2 ** (attempt - 1))
+                    logging.warning('GraphQL request failed with status code %s (attempt %s/%s), waiting %s seconds', 
+                                  graphql_response.status_code, attempt, max_retries, backoff_time)
+                    time.sleep(backoff_time)
+                    
+                    # Attempt 1: Retry with same batch
+                    if attempt == 1:
+                        logging.info('Retrying batch %s with same size', batch_num)
+                        return process_batch(batch, batch_num, total_batches, attempt + 1)
+                    
+                    # Attempt 2+: Split batch and retry
+                    elif len(batch) > 1:
+                        # Calculate split size: halve the batch with each retry
+                        split_factor = 2 ** (attempt - 1)  # 2, 4, 8...
+                        num_splits = min(split_factor, len(batch))
+                        
+                        logging.info('Splitting batch %s into %s smaller chunks (attempt %s)', 
+                                   batch_num, num_splits, attempt)
+                        
+                        # Split batch into chunks
+                        chunk_size = max(1, len(batch) // num_splits)
+                        for i in range(num_splits):
+                            start_idx = i * chunk_size
+                            if i == num_splits - 1:
+                                # Last chunk gets remaining items
+                                chunk = batch[start_idx:]
+                            else:
+                                chunk = batch[start_idx:start_idx + chunk_size]
+                            
+                            if chunk:
+                                chunk_suffix = chr(97 + i)  # a, b, c, ...
+                                process_batch(chunk, f"{batch_num}{chunk_suffix}", total_batches, attempt)
+                                
+                                # Sleep between split chunks to avoid rate limiting (not after the last chunk)
+                                if i < num_splits - 1:
+                                    time.sleep(base_sleep_time)
+                        return
+                    
+                    # Single repo that keeps failing
+                    else:
+                        logging.error('Single repository %s failed after attempt %s', batch[0], attempt)
+                        if attempt < max_retries:
+                            return process_batch(batch, batch_num, total_batches, attempt + 1)
+                        else:
+                            errors.append(f'Failed to fetch metadata for repository {batch[0]} after {max_retries} attempts')
+                            logging.error('Failed to fetch metadata for repository %s after all retries', batch[0])
+                            return
+                else:
+                    errors.append(f'Response code of POST request (GraphQL): {graphql_response.status_code} after {max_retries} retries')
+                    logging.error('GraphQL request failed with status code %s after %s retries, skipping batch', 
+                                graphql_response.status_code, max_retries)
+                    logging.debug('Query: %s', query)
+                    logging.debug('Headers: %s', headers)
+                    logging.debug('Response: %s', graphql_response.text)
+                    return
+            
+            # Check for other non-200 status codes (don't retry these)
             if graphql_response.status_code != 200:
-                # print body
                 errors.append(f'Response code of POST request (GraphQL): {graphql_response.status_code}')
                 logging.error('GraphQL request failed with status code %s, skipping batch', graphql_response.status_code)
-                continue
+                return
+            
+            # Success - parse the response
             data = graphql_response.json()
             if 'errors' in data:
                 for error in data['errors']:
                     errors.append(error['message'])
                 sys.exit(1)
+            
+            batch_success = True
+            
         except Exception as e:
-            errors.append(str(e))
-            logging.error('Exception during GraphQL request: %s, skipping batch', str(e))
-            continue
+            exception_type = type(e).__name__
+            exception_details = str(e)
+            logging.error('Exception during GraphQL request for batch %s: %s', batch_num, exception_type)
+            logging.debug('Exception details: %s - %s', exception_type, exception_details)
+            errors.append(f'Batch {batch_num}: {exception_type} - {exception_details}')
+            return
+        
+        # If we didn't succeed, return early (already handled above)
+        if not batch_success:
+            return
 
         # make header names lowercase
         if graphql_response_header:
@@ -231,7 +315,7 @@ def add_github_metadata(step):
         if data is None:
             # This should be catched earlier, however I somehow still get here
             logging.error('No data received from GraphQL API, skipping batch')
-            continue
+            return
 
         for edge in data["data"]["search"]["repos"]:
             repo = edge["repo"]
@@ -281,11 +365,20 @@ def add_github_metadata(step):
                 logging.error('could not write software entry for %s', repo["url"])
                 continue
 
-        # Sleep for the specified amount of time before the next request
-        if 'sleep_time' in step['module_options']:
-            time.sleep(step['module_options']['sleep_time'])
-        else:
-            time.sleep(45)
+    # Get sleep time for spacing between batches (rate limit prevention)
+    if 'sleep_time' in step['module_options']:
+        between_batch_sleep = step['module_options']['sleep_time']
+    else:
+        between_batch_sleep = 60
+
+    counter = 0
+    for batch in batches:
+        counter += 1
+        process_batch(batch, counter, len(batches))
+        
+        # Sleep between batches to avoid rate limiting (only if not the last batch)
+        if counter < len(batches):
+            time.sleep(between_batch_sleep)
 
     if errors:
         logging.error("There were errors during processing")
