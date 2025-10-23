@@ -222,6 +222,7 @@ def add_github_metadata(step):
                     backoff_time = base_sleep_time * (2 ** (attempt - 1))
                     logging.warning('GraphQL request failed with status code %s (attempt %s/%s), waiting %s seconds', 
                                   graphql_response.status_code, attempt, max_retries, backoff_time)
+                    logging.debug('sleeping for %s' backoff_time)
                     time.sleep(backoff_time)
                     
                     # Attempt 1: Retry with same batch
