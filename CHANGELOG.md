@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+#### [v1.5.0](https://github.com/nodiscc/hecat/releases/tag/1.5.0) - 2025-10-23
+
+**Changed:**
+- processors/github_metadata: use GraphQL instad of REST API
+- processors/github_metadata: add new additional metadata keys `commit_history, current_release`
+- processors/github_metadata: new module options `batch_size, commit_history_clean_months, commit_history_fetch_months` with default values
+
+**Fixed:**
+- fix failing tests when `make test_archive_webpages` is run from Github Actions
+
+---------------------
+
 #### [v1.4.0](https://github.com/nodiscc/hecat/releases/tag/1.4.0) - 2025-03-29
 
 **Added:**
