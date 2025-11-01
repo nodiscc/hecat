@@ -42,6 +42,7 @@ import logging
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import requests
+from requests.exceptions import ChunkedEncodingError, ConnectionError, Timeout
 import ruamel.yaml
 from ..utils import load_yaml_data, to_kebab_case
 
@@ -202,43 +203,43 @@ def add_github_metadata(step):
         graphql_response_header = None
         data = None
         batch_success = False
-        
+
         # Get configured sleep_time
         if 'sleep_time' in step['module_options']:
             base_sleep_time = step['module_options']['sleep_time']
         else:
             base_sleep_time = 60
-        
+
         try:
             graphql_response = requests.post(github_graphql_api,
                                            json={"query": query},
                                            headers=headers,
                                            timeout=60)
             graphql_response_header = graphql_response.headers
-            
+
             # Check for API errors that should be retried
             if graphql_response.status_code in [502, 503, 504, 429]: # i.e error codes that probably will be resolved by retrying
                 if attempt <= max_retries:
                     backoff_time = base_sleep_time * (2 ** (attempt - 1))
-                    logging.warning('GraphQL request failed with status code %s (attempt %s/%s), waiting %s seconds', 
+                    logging.warning('GraphQL request failed with status code %s (attempt %s/%s), waiting %s seconds',
                                   graphql_response.status_code, attempt, max_retries, backoff_time)
                     logging.debug('sleeping for %s between attempts', backoff_time)
                     time.sleep(backoff_time)
-                    
+
                     # Attempt 1: Retry with same batch
                     if attempt == 1:
                         logging.info('Retrying batch %s with same size', batch_num)
                         return process_batch(batch, batch_num, total_batches, attempt + 1)
-                    
+
                     # Attempt 2+: Split batch and retry
                     elif len(batch) > 1:
                         # Calculate split size: halve the batch with each retry
                         split_factor = 2 ** (attempt - 1)  # 2, 4, 8...
                         num_splits = min(split_factor, len(batch))
-                        
-                        logging.info('Splitting batch %s into %s smaller chunks (attempt %s)', 
+
+                        logging.info('Splitting batch %s into %s smaller chunks (attempt %s)',
                                    batch_num, num_splits, attempt)
-                        
+
                         # Split batch into chunks
                         chunk_size = max(1, len(batch) // num_splits)
                         for i in range(num_splits):
@@ -248,17 +249,17 @@ def add_github_metadata(step):
                                 chunk = batch[start_idx:]
                             else:
                                 chunk = batch[start_idx:start_idx + chunk_size]
-                            
+
                             if chunk:
                                 chunk_suffix = chr(97 + i)  # a, b, c, ...
                                 process_batch(chunk, f"{batch_num}{chunk_suffix}", total_batches, attempt)
-                                
+
                                 # Sleep between split chunks to avoid rate limiting (not after the last chunk)
                                 if i < num_splits - 1:
                                     logging.debug('sleeping for %s seconds between split chunks', base_sleep_time)
                                     time.sleep(base_sleep_time)
                         return
-                    
+
                     # Single repo that keeps failing
                     else:
                         logging.error('Single repository %s failed after attempt %s', batch[0], attempt)
@@ -270,28 +271,91 @@ def add_github_metadata(step):
                             return
                 else:
                     errors.append(f'Response code of POST request (GraphQL): {graphql_response.status_code} after {max_retries} retries')
-                    logging.error('GraphQL request failed with status code %s after %s retries, skipping batch', 
+                    logging.error('GraphQL request failed with status code %s after %s retries, skipping batch',
                                 graphql_response.status_code, max_retries)
                     logging.debug('Query: %s', query)
                     logging.debug('Headers: %s', headers)
                     logging.debug('Response: %s', graphql_response.text)
                     return
-            
+
             # Check for other non-200 status codes (don't retry these)
             if graphql_response.status_code != 200:
                 errors.append(f'Response code of POST request (GraphQL): {graphql_response.status_code}')
                 logging.error('GraphQL request failed with status code %s, skipping batch', graphql_response.status_code)
                 return
-            
+
             # Success - parse the response
             data = graphql_response.json()
             if 'errors' in data:
                 for error in data['errors']:
                     errors.append(error['message'])
                 sys.exit(1)
-            
+
             batch_success = True
-            
+
+        except (ChunkedEncodingError, ConnectionError, Timeout) as e:
+            # Treat network exceptions like HTTP errors
+            exception_type = type(e).__name__
+            exception_details = str(e)
+
+            if attempt <= max_retries:
+                backoff_time = base_sleep_time * (2 ** (attempt - 1))
+                logging.warning('Network exception %s for batch %s (attempt %s/%s), waiting %s seconds',
+                              exception_type, batch_num, attempt, max_retries, backoff_time)
+                logging.debug('Exception details: %s', exception_details)
+                logging.debug('sleeping for %s seconds before retry', backoff_time)
+                time.sleep(backoff_time)
+
+                # Attempt 1: Retry with same batch
+                if attempt == 1:
+                    logging.info('Retrying batch %s with same size', batch_num)
+                    return process_batch(batch, batch_num, total_batches, attempt + 1)
+
+                # Attempt 2+: Split batch and retry
+                elif len(batch) > 1:
+                    # Calculate split size: halve the batch with each retry
+                    split_factor = 2 ** (attempt - 1)  # 2, 4, 8...
+                    num_splits = min(split_factor, len(batch))
+
+                    logging.info('Splitting batch %s into %s smaller chunks (attempt %s)',
+                               batch_num, num_splits, attempt)
+
+                    # Split batch into chunks
+                    chunk_size = max(1, len(batch) // num_splits)
+                    for i in range(num_splits):
+                        start_idx = i * chunk_size
+                        if i == num_splits - 1:
+                            # Last chunk gets remaining items
+                            chunk = batch[start_idx:]
+                        else:
+                            chunk = batch[start_idx:start_idx + chunk_size]
+
+                        if chunk:
+                            chunk_suffix = chr(97 + i)  # a, b, c, ...
+                            process_batch(chunk, f"{batch_num}{chunk_suffix}", total_batches, attempt)
+
+                            # Sleep between split chunks to avoid rate limiting (not after the last chunk)
+                            if i < num_splits - 1:
+                                logging.debug('sleeping for %s seconds between split chunks', base_sleep_time)
+                                time.sleep(base_sleep_time)
+                    return
+
+                # Single repo that keeps failing
+                else:
+                    logging.error('Single repository %s failed with %s after attempt %s', batch[0], exception_type, attempt)
+                    if attempt < max_retries:
+                        return process_batch(batch, batch_num, total_batches, attempt + 1)
+                    else:
+                        errors.append(f'Batch {batch_num}: {exception_type} - {exception_details}')
+                        logging.error('Failed to fetch metadata for repository %s after all retries', batch[0])
+                        return
+            else:
+                logging.error('Network exception %s for batch %s after %s retries, skipping batch',
+                            exception_type, batch_num, max_retries)
+                logging.debug('Exception details: %s', exception_details)
+                errors.append(f'Batch {batch_num}: {exception_type} - {exception_details}')
+                return
+
         except Exception as e:
             exception_type = type(e).__name__
             exception_details = str(e)
@@ -299,7 +363,7 @@ def add_github_metadata(step):
             logging.debug('Exception details: %s - %s', exception_type, exception_details)
             errors.append(f'Batch {batch_num}: {exception_type} - {exception_details}')
             return
-        
+
         # If we didn't succeed, return early (already handled above)
         if not batch_success:
             return
@@ -378,7 +442,7 @@ def add_github_metadata(step):
     for batch in batches:
         counter += 1
         process_batch(batch, counter, len(batches))
-        
+
         # Sleep between batches to avoid rate limiting (only if not the last batch)
         if counter < len(batches):
             logging.debug('sleeping for %s seconds between batches', between_batch_sleep)
