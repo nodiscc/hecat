@@ -3,7 +3,7 @@ import sys
 import argparse
 import logging
 from .utils import load_yaml_data
-from .importers import import_markdown_awesome, import_shaarli_json
+from .importers import import_markdown_awesome, import_shaarli_json, import_github_stars_backup_json
 from .processors import add_github_metadata, awesome_lint, check_urls, download_media, archive_webpages
 from .exporters import render_markdown_singlepage, render_html_table
 from .exporters import render_markdown_multipage
@@ -35,6 +35,8 @@ def main():
             import_markdown_awesome(step)
         elif step['module'] == 'importers/shaarli_api':
             import_shaarli_json(step)
+        elif step['module'] == 'importers/github_stars_backup':
+            import_github_stars_backup_json(step)
         elif step['module'] == 'processors/github_metadata':
             add_github_metadata(step)
         elif step['module'] == 'processors/awesome_lint':

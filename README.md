@@ -12,7 +12,8 @@ Functionality is implemented in separate modules.
 Import data from various input formats:
 
 - [importers/markdown_awesome](hecat/importers/markdown_awesome.py): import data from the [awesome-selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted) markdown format
-- [importers/shaarli_api](hecat/importers//shaarli_api.py): import data from a [Shaarli](https://github.com/shaarli/Shaarli) instance using the [API](https://shaarli.github.io/api-documentation/)
+- [importers/shaarli_api](hecat/importers/shaarli_api.py): import data from a [Shaarli](https://github.com/shaarli/Shaarli) instance using the [API](https://shaarli.github.io/api-documentation/)
+- [importers/github_stars_backup](hecat/importers/github_stars_backup.py): import data from [github-stars-backup](https://gitlab.com/nodiscc/github-stars-backup)
 
 [![](https://gitlab.com/nodiscc/toolbox/-/raw/master/DOC/SCREENSHOTS/tMAxhLw.png)](hecat/importers/markdown_awesome.py)
 
