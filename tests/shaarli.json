@@ -110,9 +110,9 @@
             "admin",
             "ansible"
         ],
-        "title": "Blocks \u2014 Ansible Documentation",
+        "title": "1.5. Getting Debian",
         "updated": "2023-01-25T15:02:16+01:00",
-        "url": "https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_blocks.html"
+        "url": "https://www.debian.org/releases/stable/amd64/ch01s05.en.html"
     },
     {
         "created": "2017-07-13T03:05:20+02:00",
