@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-#### [v1.5.1](https://github.com/nodiscc/hecat/releases/tag/1.5.1) - 2025-1129
+#### [v1.5.1](https://github.com/nodiscc/hecat/releases/tag/1.5.1) - 2025-11-29
 
 **Fixed:**
 - processors/github_metadata: match repos by full owner/name path, prevents wrong metadata when 2 projects have the same name
