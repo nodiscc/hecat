@@ -49,10 +49,15 @@ yaml = ruamel.yaml.YAML(typ='rt')
 yaml.indent(sequence=4, offset=2)
 yaml.width = 99999
 
-def extract_repo_name(url):
-    """extract the repository name from the URL"""
-    re_result = re.search(r'^https?:\/\/github\.com\/[^\/]+\/([^\/]+)\/?$', url)
-    return re_result.group(1) if re_result else None
+def extract_repo_identifier(url):
+    """extract the repository owner/name from the URL"""
+    re_result = re.search(r'^https?:\/\/github\.com\/([^\/]+)\/([^\/]+)\/?$', url)
+    if re_result:
+        owner = re_result.group(1)
+        repo = re_result.group(2)
+        return f"{owner}/{repo}"
+    logging.debug('extract_repo_identifier: failed to extract owner/repo from URL: %s', url)
+    return None
 
 def cleanup_old_commit_history(commit_history, months_to_keep=12):
     """Remove commit history entries older than the specified number of months"""
@@ -324,7 +329,7 @@ def add_github_metadata(step):
             repo = edge["repo"]
             software = None
             for project in github_projects:
-                if extract_repo_name(repo["url"]).casefold() == extract_repo_name(project['source_code_url']).casefold():
+                if extract_repo_identifier(repo["url"]).casefold() == extract_repo_identifier(project['source_code_url']).casefold():
                     software = project
                     break
             if not software:
