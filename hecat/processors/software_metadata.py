@@ -359,7 +359,6 @@ def process_github_batch(batch, batch_num, total_batches, github_projects, step,
         try:
             write_software_yaml(step, software)
         except Exception as e:
-            errors.append(str(e))
             logging.error('could not write software entry for %s', repo["url"])
             errors.append(f'could not write software entry for {repo["url"]}')
             continue
