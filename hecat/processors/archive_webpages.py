@@ -200,14 +200,16 @@ def archive_webpages(step):
             os.mkdir(step['module_options']['output_directory'] + visibility)
         except FileExistsError:
             pass
+
     items = load_yaml_data(step['module_options']['data_file'])
+
     if 'clean_removed' not in step['module_options']:
         step['module_options']['clean_removed'] = False
     if 'skip_failed' not in step['module_options']:
         step['module_options']['skip_failed'] = False
     if 'only_tags' not in step['module_options']:
         step['module_options']['only_tags'] = []
-    
+
     for item in items:
         if item['private']:
             local_archive_dir = step['module_options']['output_directory'] + '/private/' + str(item['id'])
@@ -215,9 +217,9 @@ def archive_webpages(step):
             local_archive_dir = step['module_options']['output_directory'] + '/public/' + str(item['id'])
 
         # Check if item should be excluded (tags or regex)
-        excluded_by_tags = ('exclude_tags' in step['module_options'] and 
-                        any(tag in item['tags'] for tag in step['module_options']['exclude_tags']))
-        excluded_by_regex = ('exclude_regex' in step['module_options'] and 
+        excluded_by_tags = ('exclude_tags' in step['module_options'] and
+                           any(tag in item['tags'] for tag in step['module_options']['exclude_tags']))
+        excluded_by_regex = ('exclude_regex' in step['module_options'] and
                             any(re.search(regex, item['url']) for regex in step['module_options']['exclude_regex']))
 
         # Clean excluded items if clean_excluded is True
@@ -271,6 +273,7 @@ def archive_webpages(step):
         else:
             logging.error('invalid value for visibility: %s', visibility)
             sys.exit(1)
+
         for directory in dirs_list[1]:
             if not any(id == int(directory) for id in ids_in_data):
                 if step['module_options']['clean_removed']:
@@ -279,4 +282,5 @@ def archive_webpages(step):
                     shutil.rmtree(dirs_list[0] + '/' + directory)
                 else:
                     logging.warning('local webpage archive found with id %s, but not in data. You may want to delete %s manually', directory, dirs_list[0] + '/' + directory)
+
     logging.info('processing complete. Downloaded: %s - Skipped: %s - Errors %s', downloaded_count, skipped_count, error_count)
