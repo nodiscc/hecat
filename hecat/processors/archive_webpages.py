@@ -213,6 +213,17 @@ def get_local_archive_dir(output_directory, item):
     return f"{output_directory}/{visibility}/{item['id']}"
 
 
+def is_item_excluded(item, module_options):
+    """Check if item should be excluded based on tags or regex patterns
+    Returns: (is_excluded: bool, excluded_by_tags: bool, excluded_by_regex: bool)
+    """
+    excluded_by_tags = ('exclude_tags' in module_options and
+                       any(tag in item['tags'] for tag in module_options['exclude_tags']))
+    excluded_by_regex = ('exclude_regex' in module_options and
+                        any(re.search(regex, item['url']) for regex in module_options['exclude_regex']))
+    return (excluded_by_tags or excluded_by_regex, excluded_by_tags, excluded_by_regex)
+
+
 def archive_webpages(step):
     """archive webpages linked from each item's 'url', if their tags match one of step['only_tags'],
     write path to local archive to a new key 'archive_path' in the original data file for each downloaded item
@@ -231,13 +242,10 @@ def archive_webpages(step):
         local_archive_dir = get_local_archive_dir(step['module_options']['output_directory'], item)
 
         # Check if item should be excluded (tags or regex)
-        excluded_by_tags = ('exclude_tags' in step['module_options'] and
-                           any(tag in item['tags'] for tag in step['module_options']['exclude_tags']))
-        excluded_by_regex = ('exclude_regex' in step['module_options'] and
-                            any(re.search(regex, item['url']) for regex in step['module_options']['exclude_regex']))
+        is_excluded, excluded_by_tags, excluded_by_regex = is_item_excluded(item, step['module_options'])
 
         # Clean excluded items if clean_excluded is True
-        if (excluded_by_tags or excluded_by_regex):
+        if is_excluded:
             if 'clean_excluded' in step['module_options'] and step['module_options']['clean_excluded']:
                 if os.path.isdir(local_archive_dir):
                     logging.info('removing local archive directory %s', local_archive_dir)
