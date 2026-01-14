@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 #### [v1.5.2](https://github.com/nodiscc/hecat/releases/tag/1.5.2) - UNRELEASED
 
+**Changed:**
+- processors/archive_webpages: improve performance, do not perform unnecessary searches/comparisons
+
 **Fixed:**
 - processors/archive_webpages: fix clean_excluded: True not really deleting webpage archives for URLs which match the exclude regex
 - processors/archive_webpages: fix undefined variable in `local webpage archive found with id N, but not in data` log message

@@ -195,6 +195,7 @@ def archive_webpages(step):
     downloaded_count = 0
     skipped_count = 0
     error_count = 0
+
     for visibility in ['/public', '/private']:
         try:
             os.mkdir(step['module_options']['output_directory'] + visibility)
@@ -229,7 +230,7 @@ def archive_webpages(step):
                     logging.info('removing local archive directory %s', local_archive_dir)
                     shutil.rmtree(local_archive_dir)
                 item.pop('archive_path', None)
-                write_data_file(step, items)
+
             if excluded_by_tags:
                 logging.debug('skipping %s (id %s): one or more tags are present in exclude_tags', item['url'], item['id'])
             else:
@@ -244,24 +245,22 @@ def archive_webpages(step):
         elif (step['module_options']['skip_failed'] and 'archive_error' in item.keys() and item['archive_error']):
             logging.debug('skipping %s (id %s): the previous archival attempt failed, and skip_failed is set to True', item['url'], item['id'])
             skipped_count = skipped_count + 1
-        # archive items matching only_tags
-        elif list(set(step['module_options']['only_tags']) & set(item['tags'])):
+        # archive items matching only_tags (ALL tags must be present)
+        elif set(step['module_options']['only_tags']).issubset(set(item['tags'])):
             logging.info('archiving %s (id %s)', item['url'], item['id'])
             local_archive_path = wget(step, item, local_archive_dir)
-            for item2 in items:
-                if item2['id'] == item['id']:
-                    if local_archive_path is not None:
-                        item2['archive_path'] = local_archive_path
-                        downloaded_count = downloaded_count + 1
-                        item2.pop('archive_error', None)
-                    else:
-                        item2['archive_error'] = True
-                        error_count = error_count + 1
-                    break
-            write_data_file(step, items)
+            if local_archive_path is not None:
+                item['archive_path'] = local_archive_path
+                downloaded_count = downloaded_count + 1
+                item.pop('archive_error', None)
+            else:
+                item['archive_error'] = True
+                error_count = error_count + 1
+            write_data_file(step, items)  # Checkpoint after each download
         else:
             logging.debug('skipping %s (id %s): no tags matching only_tags', item['url'], item['id'])
             skipped_count = skipped_count + 1
+
     for visibility in ['public', 'private']:
         dirs_list = []
         if visibility == 'public':
