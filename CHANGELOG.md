@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+
+#### [v1.5.2](https://github.com/nodiscc/hecat/releases/tag/1.5.2) - UNRELEASED
+
+**Fixed:**
+- processors/archive_webpages: fix clean_excluded: True not really deleting webpage archives for URLs which match the exclude regex
+
+---------------------
+
 #### [v1.5.1](https://github.com/nodiscc/hecat/releases/tag/1.5.1) - 2025-11-29
 
 **Fixed:**

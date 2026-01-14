@@ -210,28 +210,34 @@ def archive_webpages(step):
             local_archive_dir = step['module_options']['output_directory'] + '/private/' + str(item['id'])
         else:
             local_archive_dir = step['module_options']['output_directory'] + '/public/' + str(item['id'])
-        # skip already archived items when skip_already_archived: True
-        if (('skip_already_archived' not in step['module_options'].keys() or
-                step['module_options']['skip_already_archived']) and 'archive_path' in item.keys() and item['archive_path'] is not None):
-            logging.debug('skipping %s (id %s): already archived', item['url'], item['id'])
-            skipped_count = skipped_count +1
-        # skip items matching exclude_tags
-        elif ('exclude_tags' in step['module_options'] and any(tag in item['tags'] for tag in step['module_options']['exclude_tags'])):
-            logging.debug('skipping %s (id %s): one or more tags are present in exclude_tags', item['url'], item['id'])
-            skipped_count = skipped_count +1
-        # skip items matching exclude_regex
-        elif ('exclude_regex' in step['module_options'] and any(re.search(regex, item['url']) for regex in step['module_options']['exclude_regex'])):
-            logging.debug('skipping %s (id %s): URL matches exclude_regex', item['url'], item['id'])
-            skipped_count = skipped_count +1
+
+        # Check if item should be excluded (tags or regex)
+        excluded_by_tags = ('exclude_tags' in step['module_options'] and 
+                        any(tag in item['tags'] for tag in step['module_options']['exclude_tags']))
+        excluded_by_regex = ('exclude_regex' in step['module_options'] and 
+                            any(re.search(regex, item['url']) for regex in step['module_options']['exclude_regex']))
+
+        # Clean excluded items if clean_excluded is True
+        if (excluded_by_tags or excluded_by_regex):
             if 'clean_excluded' in step['module_options'] and step['module_options']['clean_excluded']:
                 if os.path.isdir(local_archive_dir):
                     logging.info('removing local archive directory %s', local_archive_dir)
                     shutil.rmtree(local_archive_dir)
                 item.pop('archive_path', None)
+            if excluded_by_tags:
+                logging.debug('skipping %s (id %s): one or more tags are present in exclude_tags', item['url'], item['id'])
+            else:
+                logging.debug('skipping %s (id %s): URL matches exclude_regex', item['url'], item['id'])
+            skipped_count = skipped_count + 1
+        # skip already archived items when skip_already_archived: True
+        elif (('skip_already_archived' not in step['module_options'].keys() or
+                step['module_options']['skip_already_archived']) and 'archive_path' in item.keys() and item['archive_path'] is not None):
+            logging.debug('skipping %s (id %s): already archived', item['url'], item['id'])
+            skipped_count = skipped_count + 1
         # skip failed items when skip_failed: True
         elif (step['module_options']['skip_failed'] and 'archive_error' in item.keys() and item['archive_error']):
             logging.debug('skipping %s (id %s): the previous archival attempt failed, and skip_failed is set to True', item['url'], item['id'])
-            skipped_count = skipped_count +1
+            skipped_count = skipped_count + 1
         # archive items matching only_tags
         elif list(set(step['module_options']['only_tags']) & set(item['tags'])):
             logging.info('archiving %s (id %s)', item['url'], item['id'])
