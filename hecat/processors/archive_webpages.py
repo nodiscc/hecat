@@ -197,6 +197,16 @@ def initialize_output_directories(output_directory):
             pass
 
 
+def set_default_options(module_options):
+    """Set default values for module options if not present"""
+    if 'clean_removed' not in module_options:
+        module_options['clean_removed'] = False
+    if 'skip_failed' not in module_options:
+        module_options['skip_failed'] = False
+    if 'only_tags' not in module_options:
+        module_options['only_tags'] = []
+
+
 def archive_webpages(step):
     """archive webpages linked from each item's 'url', if their tags match one of step['only_tags'],
     write path to local archive to a new key 'archive_path' in the original data file for each downloaded item
@@ -209,12 +219,7 @@ def archive_webpages(step):
 
     items = load_yaml_data(step['module_options']['data_file'])
 
-    if 'clean_removed' not in step['module_options']:
-        step['module_options']['clean_removed'] = False
-    if 'skip_failed' not in step['module_options']:
-        step['module_options']['skip_failed'] = False
-    if 'only_tags' not in step['module_options']:
-        step['module_options']['only_tags'] = []
+    set_default_options(step['module_options'])
 
     for item in items:
         if item['private']:
