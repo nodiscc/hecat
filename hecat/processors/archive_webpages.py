@@ -207,6 +207,12 @@ def set_default_options(module_options):
         module_options['only_tags'] = []
 
 
+def get_local_archive_dir(output_directory, item):
+    """Get the local archive directory path for an item based on its privacy setting"""
+    visibility = 'private' if item['private'] else 'public'
+    return f"{output_directory}/{visibility}/{item['id']}"
+
+
 def archive_webpages(step):
     """archive webpages linked from each item's 'url', if their tags match one of step['only_tags'],
     write path to local archive to a new key 'archive_path' in the original data file for each downloaded item
@@ -222,10 +228,7 @@ def archive_webpages(step):
     set_default_options(step['module_options'])
 
     for item in items:
-        if item['private']:
-            local_archive_dir = step['module_options']['output_directory'] + '/private/' + str(item['id'])
-        else:
-            local_archive_dir = step['module_options']['output_directory'] + '/public/' + str(item['id'])
+        local_archive_dir = get_local_archive_dir(step['module_options']['output_directory'], item)
 
         # Check if item should be excluded (tags or regex)
         excluded_by_tags = ('exclude_tags' in step['module_options'] and
