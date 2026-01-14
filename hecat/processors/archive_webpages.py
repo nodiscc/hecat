@@ -288,12 +288,13 @@ def process_single_item(step, item, local_archive_dir, items):
     if local_archive_path is not None:
         item['archive_path'] = local_archive_path
         item.pop('archive_error', None)
-        write_data_file(step, items)  # Checkpoint after each download
-        return (True, False)
+        success, error = True, False
     else:
         item['archive_error'] = True
-        write_data_file(step, items)  # Checkpoint after each download
-        return (False, True)
+        success, error = False, True
+
+    write_data_file(step, items)  # Checkpoint after processing
+    return (success, error)
 
 
 def archive_webpages(step):
