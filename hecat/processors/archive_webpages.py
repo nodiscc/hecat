@@ -278,6 +278,24 @@ def cleanup_removed_archives(output_directory, items, clean_removed):
                     logging.warning('local webpage archive found with id %s, but not in data. You may want to delete %s manually', directory, archive_path)
 
 
+def process_single_item(step, item, local_archive_dir, items):
+    """Archive a single item and update its metadata
+    Returns: (success: bool, error_occurred: bool)
+    """
+    logging.info('archiving %s (id %s)', item['url'], item['id'])
+    local_archive_path = wget(step, item, local_archive_dir)
+
+    if local_archive_path is not None:
+        item['archive_path'] = local_archive_path
+        item.pop('archive_error', None)
+        write_data_file(step, items)  # Checkpoint after each download
+        return (True, False)
+    else:
+        item['archive_error'] = True
+        write_data_file(step, items)  # Checkpoint after each download
+        return (False, True)
+
+
 def archive_webpages(step):
     """archive webpages linked from each item's 'url', if their tags match one of step['only_tags'],
     write path to local archive to a new key 'archive_path' in the original data file for each downloaded item
@@ -307,16 +325,11 @@ def archive_webpages(step):
             should_process, reason = should_process_item(item, step['module_options'])
 
             if should_process:
-                logging.info('archiving %s (id %s)', item['url'], item['id'])
-                local_archive_path = wget(step, item, local_archive_dir)
-                if local_archive_path is not None:
-                    item['archive_path'] = local_archive_path
+                success, error = process_single_item(step, item, local_archive_dir, items)
+                if success:
                     downloaded_count = downloaded_count + 1
-                    item.pop('archive_error', None)
-                else:
-                    item['archive_error'] = True
+                if error:
                     error_count = error_count + 1
-                write_data_file(step, items)  # Checkpoint after each download
             else:
                 if reason == 'already_archived':
                     logging.debug('skipping %s (id %s): already archived', item['url'], item['id'])
