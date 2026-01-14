@@ -261,6 +261,23 @@ def should_process_item(item, module_options):
     return (False, 'no_matching_tags')
 
 
+def cleanup_removed_archives(output_directory, items, clean_removed):
+    """Remove archived directories for items that no longer exist in the data file"""
+    for visibility in ['public', 'private']:
+        dirs_list = next(os.walk(f"{output_directory}/{visibility}"))
+        ids_in_data = [value['id'] for value in items if value['private'] == (visibility == 'private')]
+
+        for directory in dirs_list[1]:
+            if not any(id == int(directory) for id in ids_in_data):
+                archive_path = f"{dirs_list[0]}/{directory}"
+                if clean_removed:
+                    # TODO if an item was changed from private to public or the other way around, the local archive will be deleted, but it will not be archived again since archive_path is already set
+                    logging.info('local webpage archive found with id %s, but not in data. Deleting %s', directory, archive_path)
+                    shutil.rmtree(archive_path)
+                else:
+                    logging.warning('local webpage archive found with id %s, but not in data. You may want to delete %s manually', directory, archive_path)
+
+
 def archive_webpages(step):
     """archive webpages linked from each item's 'url', if their tags match one of step['only_tags'],
     write path to local archive to a new key 'archive_path' in the original data file for each downloaded item
@@ -309,25 +326,7 @@ def archive_webpages(step):
                     logging.debug('skipping %s (id %s): no tags matching only_tags', item['url'], item['id'])
                 skipped_count = skipped_count + 1
 
-    for visibility in ['public', 'private']:
-        dirs_list = []
-        if visibility == 'public':
-            dirs_list = next(os.walk(step['module_options']['output_directory'] + '/public'))
-            ids_in_data = [value['id'] for value in items if value['private'] == False]
-        elif visibility == 'private':
-            dirs_list = next(os.walk(step['module_options']['output_directory'] + '/private'))
-            ids_in_data = [value['id'] for value in items if value['private'] == True]
-        else:
-            logging.error('invalid value for visibility: %s', visibility)
-            sys.exit(1)
-
-        for directory in dirs_list[1]:
-            if not any(id == int(directory) for id in ids_in_data):
-                if step['module_options']['clean_removed']:
-                    # TODO if an item was changed from private to public or the other way around, the local archive will be deleted, but it will not be archived again since archive_path is already set
-                    logging.info('local webpage archive found with id %s, but not in data. Deleting %s', directory, dirs_list[0] + '/' + directory)
-                    shutil.rmtree(dirs_list[0] + '/' + directory)
-                else:
-                    logging.warning('local webpage archive found with id %s, but not in data. You may want to delete %s manually', directory, dirs_list[0] + '/' + directory)
+    cleanup_removed_archives(step['module_options']['output_directory'], items,
+                            step['module_options']['clean_removed'])
 
     logging.info('processing complete. Downloaded: %s - Skipped: %s - Errors %s', downloaded_count, skipped_count, error_count)
