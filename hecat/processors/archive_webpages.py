@@ -224,6 +224,20 @@ def is_item_excluded(item, module_options):
     return (excluded_by_tags or excluded_by_regex, excluded_by_tags, excluded_by_regex)
 
 
+def handle_excluded_item(item, local_archive_dir, excluded_by_tags, excluded_by_regex, clean_excluded):
+    """Handle an excluded item: clean up if needed and log the reason"""
+    if clean_excluded:
+        if os.path.isdir(local_archive_dir):
+            logging.info('removing local archive directory %s', local_archive_dir)
+            shutil.rmtree(local_archive_dir)
+        item.pop('archive_path', None)
+
+    if excluded_by_tags:
+        logging.debug('skipping %s (id %s): one or more tags are present in exclude_tags', item['url'], item['id'])
+    else:
+        logging.debug('skipping %s (id %s): URL matches exclude_regex', item['url'], item['id'])
+
+
 def archive_webpages(step):
     """archive webpages linked from each item's 'url', if their tags match one of step['only_tags'],
     write path to local archive to a new key 'archive_path' in the original data file for each downloaded item
@@ -246,16 +260,8 @@ def archive_webpages(step):
 
         # Clean excluded items if clean_excluded is True
         if is_excluded:
-            if 'clean_excluded' in step['module_options'] and step['module_options']['clean_excluded']:
-                if os.path.isdir(local_archive_dir):
-                    logging.info('removing local archive directory %s', local_archive_dir)
-                    shutil.rmtree(local_archive_dir)
-                item.pop('archive_path', None)
-
-            if excluded_by_tags:
-                logging.debug('skipping %s (id %s): one or more tags are present in exclude_tags', item['url'], item['id'])
-            else:
-                logging.debug('skipping %s (id %s): URL matches exclude_regex', item['url'], item['id'])
+            handle_excluded_item(item, local_archive_dir, excluded_by_tags, excluded_by_regex,
+                               step['module_options'].get('clean_excluded', False))
             skipped_count = skipped_count + 1
         # skip already archived items when skip_already_archived: True
         elif (('skip_already_archived' not in step['module_options'].keys() or
