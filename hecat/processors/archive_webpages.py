@@ -238,6 +238,29 @@ def handle_excluded_item(item, local_archive_dir, excluded_by_tags, excluded_by_
         logging.debug('skipping %s (id %s): URL matches exclude_regex', item['url'], item['id'])
 
 
+def should_process_item(item, module_options):
+    """Determine if an item should be processed for archiving
+    Returns: (should_process: bool, reason: str)
+    Reasons: 'process', 'already_archived', 'failed', 'no_matching_tags'
+    """
+    # skip already archived items when skip_already_archived: True
+    if (('skip_already_archived' not in module_options or
+            module_options['skip_already_archived']) and
+        'archive_path' in item and item['archive_path'] is not None):
+        return (False, 'already_archived')
+
+    # skip failed items when skip_failed: True
+    if (module_options.get('skip_failed', False) and
+        item.get('archive_error', False)):
+        return (False, 'failed')
+
+    # archive items matching only_tags (ALL tags must be present)
+    if set(module_options['only_tags']).issubset(set(item['tags'])):
+        return (True, 'process')
+
+    return (False, 'no_matching_tags')
+
+
 def archive_webpages(step):
     """archive webpages linked from each item's 'url', if their tags match one of step['only_tags'],
     write path to local archive to a new key 'archive_path' in the original data file for each downloaded item
@@ -263,30 +286,28 @@ def archive_webpages(step):
             handle_excluded_item(item, local_archive_dir, excluded_by_tags, excluded_by_regex,
                                step['module_options'].get('clean_excluded', False))
             skipped_count = skipped_count + 1
-        # skip already archived items when skip_already_archived: True
-        elif (('skip_already_archived' not in step['module_options'].keys() or
-                step['module_options']['skip_already_archived']) and 'archive_path' in item.keys() and item['archive_path'] is not None):
-            logging.debug('skipping %s (id %s): already archived', item['url'], item['id'])
-            skipped_count = skipped_count + 1
-        # skip failed items when skip_failed: True
-        elif (step['module_options']['skip_failed'] and 'archive_error' in item.keys() and item['archive_error']):
-            logging.debug('skipping %s (id %s): the previous archival attempt failed, and skip_failed is set to True', item['url'], item['id'])
-            skipped_count = skipped_count + 1
-        # archive items matching only_tags (ALL tags must be present)
-        elif set(step['module_options']['only_tags']).issubset(set(item['tags'])):
-            logging.info('archiving %s (id %s)', item['url'], item['id'])
-            local_archive_path = wget(step, item, local_archive_dir)
-            if local_archive_path is not None:
-                item['archive_path'] = local_archive_path
-                downloaded_count = downloaded_count + 1
-                item.pop('archive_error', None)
-            else:
-                item['archive_error'] = True
-                error_count = error_count + 1
-            write_data_file(step, items)  # Checkpoint after each download
         else:
-            logging.debug('skipping %s (id %s): no tags matching only_tags', item['url'], item['id'])
-            skipped_count = skipped_count + 1
+            should_process, reason = should_process_item(item, step['module_options'])
+
+            if should_process:
+                logging.info('archiving %s (id %s)', item['url'], item['id'])
+                local_archive_path = wget(step, item, local_archive_dir)
+                if local_archive_path is not None:
+                    item['archive_path'] = local_archive_path
+                    downloaded_count = downloaded_count + 1
+                    item.pop('archive_error', None)
+                else:
+                    item['archive_error'] = True
+                    error_count = error_count + 1
+                write_data_file(step, items)  # Checkpoint after each download
+            else:
+                if reason == 'already_archived':
+                    logging.debug('skipping %s (id %s): already archived', item['url'], item['id'])
+                elif reason == 'failed':
+                    logging.debug('skipping %s (id %s): the previous archival attempt failed, and skip_failed is set to True', item['url'], item['id'])
+                elif reason == 'no_matching_tags':
+                    logging.debug('skipping %s (id %s): no tags matching only_tags', item['url'], item['id'])
+                skipped_count = skipped_count + 1
 
     for visibility in ['public', 'private']:
         dirs_list = []
