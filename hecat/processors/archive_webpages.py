@@ -274,5 +274,5 @@ def archive_webpages(step):
                     logging.info('local webpage archive found with id %s, but not in data. Deleting %s', directory, dirs_list[0] + '/' + directory)
                     shutil.rmtree(dirs_list[0] + '/' + directory)
                 else:
-                    logging.warning('local webpage archive found with id %s, but not in data. You may want to delete %s manually', dir, dirs_list[0] + '/' + directory)
+                    logging.warning('local webpage archive found with id %s, but not in data. You may want to delete %s manually', directory, dirs_list[0] + '/' + directory)
     logging.info('processing complete. Downloaded: %s - Skipped: %s - Errors %s', downloaded_count, skipped_count, error_count)
