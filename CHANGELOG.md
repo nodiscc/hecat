@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 **Fixed:**
 - processors/archive_webpages: fix clean_excluded: True not really deleting webpage archives for URLs which match the exclude regex
 - processors/archive_webpages: fix undefined variable in `local webpage archive found with id N, but not in data` log message
+- processors/archive_webpages: actually write changes/removal of `archive_path` key to the data file
 
 ---------------------
 

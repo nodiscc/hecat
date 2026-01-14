@@ -224,6 +224,7 @@ def archive_webpages(step):
                     logging.info('removing local archive directory %s', local_archive_dir)
                     shutil.rmtree(local_archive_dir)
                 item.pop('archive_path', None)
+                write_data_file(step, items)
             if excluded_by_tags:
                 logging.debug('skipping %s (id %s): one or more tags are present in exclude_tags', item['url'], item['id'])
             else:
