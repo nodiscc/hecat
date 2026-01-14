@@ -205,6 +205,9 @@ def archive_webpages(step):
         step['module_options']['clean_removed'] = False
     if 'skip_failed' not in step['module_options']:
         step['module_options']['skip_failed'] = False
+    if 'only_tags' not in step['module_options']:
+        step['module_options']['only_tags'] = []
+    
     for item in items:
         if item['private']:
             local_archive_dir = step['module_options']['output_directory'] + '/private/' + str(item['id'])

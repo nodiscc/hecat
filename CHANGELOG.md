@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - processors/archive_webpages: fix clean_excluded: True not really deleting webpage archives for URLs which match the exclude regex
 - processors/archive_webpages: fix undefined variable in `local webpage archive found with id N, but not in data` log message
 - processors/archive_webpages: actually write changes/removal of `archive_path` key to the data file
+- processors/archive_webpages: doc: any intersection between `only_tags` and the item's tags will actually cause it to be archived
+- processors/archive_webpages: do not assume `only_tags` is always set
 
 ---------------------
 
