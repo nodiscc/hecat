@@ -188,6 +188,15 @@ def wget_output_path(item, wget_output_directory):
         return domain.replace(":", "+")
     return None
 
+def initialize_output_directories(output_directory):
+    """Create public and private subdirectories in the output directory"""
+    for visibility in ['/public', '/private']:
+        try:
+            os.mkdir(output_directory + visibility)
+        except FileExistsError:
+            pass
+
+
 def archive_webpages(step):
     """archive webpages linked from each item's 'url', if their tags match one of step['only_tags'],
     write path to local archive to a new key 'archive_path' in the original data file for each downloaded item
@@ -196,11 +205,7 @@ def archive_webpages(step):
     skipped_count = 0
     error_count = 0
 
-    for visibility in ['/public', '/private']:
-        try:
-            os.mkdir(step['module_options']['output_directory'] + visibility)
-        except FileExistsError:
-            pass
+    initialize_output_directories(step['module_options']['output_directory'])
 
     items = load_yaml_data(step['module_options']['data_file'])
 
