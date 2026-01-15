@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 #### [v1.5.2](https://github.com/nodiscc/hecat/releases/tag/1.5.2) - UNRELEASED
 
+**Added:**
+- processors/archive_webpages: add `wget_errors_are_fatal: False` module option
+
+
 **Changed:**
 - processors/archive_webpages: improve performance, do not perform unnecessary searches/comparisons
 - processors/archive_webpages: refactoring, separation of concerns, readability

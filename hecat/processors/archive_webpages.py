@@ -31,6 +31,7 @@ steps:
       clean_removed: True # (default False) remove existing archived pages which do not match any id in the data file
       clean_excluded: True # (default False) remove existing archived pages matching exclude_regex
       skip_failed: False # (default False) don't attempt to archive items for which the previous archival attempt failed (archive_error: True)
+      wget_errors_are_fatal: True # (default False) exit immediately if a wget download error occurs
 
 # $ hecat --config tests/.hecat.archive_webpages.yml
 
@@ -116,6 +117,9 @@ def wget(step, item, wget_output_directory):
     else:
         local_archive_path = None
         logging.error('error while archiving %s', item['url'])
+        if step['module_options'].get('wget_errors_are_fatal', False):
+            logging.error('wget error encountered and wget_errors_are_fatal is True. Exiting.')
+            sys.exit(1)
     return local_archive_path
 
 # adapted from https://github.com/ArchiveBox/ArchiveBox/blob/master/archivebox/extractors/wget.py, MIT license
@@ -199,12 +203,10 @@ def initialize_output_directories(output_directory):
 
 def set_default_options(module_options):
     """Set default values for module options if not present"""
-    if 'clean_removed' not in module_options:
-        module_options['clean_removed'] = False
-    if 'skip_failed' not in module_options:
-        module_options['skip_failed'] = False
-    if 'only_tags' not in module_options:
-        module_options['only_tags'] = []
+    module_options.setdefault('clean_removed', False)
+    module_options.setdefault('skip_failed', False)
+    module_options.setdefault('only_tags', [])
+    module_options.setdefault('wget_errors_are_fatal', True)
 
 
 def get_local_archive_dir(output_directory, item):
@@ -217,9 +219,9 @@ def is_item_excluded(item, module_options):
     """Check if item should be excluded based on tags or regex patterns
     Returns: (is_excluded: bool, excluded_by_tags: bool, excluded_by_regex: bool)
     """
-    excluded_by_tags = ('exclude_tags' in module_options and
+    excluded_by_tags = (module_options.get('exclude_tags') and
                        any(tag in item['tags'] for tag in module_options['exclude_tags']))
-    excluded_by_regex = ('exclude_regex' in module_options and
+    excluded_by_regex = (module_options.get('exclude_regex') and
                         any(re.search(regex, item['url']) for regex in module_options['exclude_regex']))
     return (excluded_by_tags or excluded_by_regex, excluded_by_tags, excluded_by_regex)
 
@@ -244,9 +246,8 @@ def should_process_item(item, module_options):
     Reasons: 'process', 'already_archived', 'failed', 'no_matching_tags'
     """
     # skip already archived items when skip_already_archived: True
-    if (('skip_already_archived' not in module_options or
-            module_options['skip_already_archived']) and
-        'archive_path' in item and item['archive_path'] is not None):
+    if (module_options.get('skip_already_archived', True) and
+        item.get('archive_path') is not None):
         return (False, 'already_archived')
 
     # skip failed items when skip_failed: True
@@ -255,7 +256,8 @@ def should_process_item(item, module_options):
         return (False, 'failed')
 
     # archive items matching only_tags (ALL tags must be present)
-    if set(module_options['only_tags']).issubset(set(item['tags'])):
+    only_tags = module_options.get('only_tags', [])
+    if set(only_tags).issubset(set(item['tags'])):
         return (True, 'process')
 
     return (False, 'no_matching_tags')
@@ -321,16 +323,16 @@ def archive_webpages(step):
         if is_excluded:
             handle_excluded_item(item, local_archive_dir, excluded_by_tags, excluded_by_regex,
                                step['module_options'].get('clean_excluded', False))
-            skipped_count = skipped_count + 1
+            skipped_count += 1
         else:
             should_process, reason = should_process_item(item, step['module_options'])
 
             if should_process:
                 success, error = process_single_item(step, item, local_archive_dir, items)
                 if success:
-                    downloaded_count = downloaded_count + 1
+                    downloaded_count += 1
                 if error:
-                    error_count = error_count + 1
+                    error_count += 1
             else:
                 if reason == 'already_archived':
                     logging.debug('skipping %s (id %s): already archived', item['url'], item['id'])
@@ -338,7 +340,7 @@ def archive_webpages(step):
                     logging.debug('skipping %s (id %s): the previous archival attempt failed, and skip_failed is set to True', item['url'], item['id'])
                 elif reason == 'no_matching_tags':
                     logging.debug('skipping %s (id %s): no tags matching only_tags', item['url'], item['id'])
-                skipped_count = skipped_count + 1
+                skipped_count += 1
 
     cleanup_removed_archives(step['module_options']['output_directory'], items,
                             step['module_options']['clean_removed'])
