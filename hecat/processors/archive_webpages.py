@@ -83,17 +83,24 @@ from urllib.parse import urlparse, unquote, quote
 import ruamel.yaml
 from ..utils import load_yaml_data, write_data_file
 
+# Constants
+DEFAULT_WGET_TIMEOUT = 30
+DEFAULT_WGET_TRIES = 3
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0"
+
 yaml = ruamel.yaml.YAML()
 yaml.indent(sequence=2, offset=0)
 yaml.width = 99999
 
 def wget(step, item, wget_output_directory):
     """archive a webpage with wget, return the local path of the archived file"""
-    try:
-        os.mkdir(wget_output_directory)
-    except FileExistsError:
-        pass
-    wget_process = subprocess.Popen(['/usr/bin/wget',
+    os.makedirs(wget_output_directory, exist_ok=True)
+
+    wget_bin = shutil.which('wget')
+    if not wget_bin:
+        raise FileNotFoundError("wget not found in PATH")
+
+    wget_process = subprocess.Popen([wget_bin,
                                      '--continue',
                                      '--span-hosts',
                                      '--adjust-extension',
@@ -101,10 +108,10 @@ def wget(step, item, wget_output_directory):
                                      '--convert-links',
                                      '--page-requisites',
                                      '--no-verbose',
-                                     '--timeout=30',
-                                     '--tries=3',
+                                     f'--timeout={DEFAULT_WGET_TIMEOUT}',
+                                     f'--tries={DEFAULT_WGET_TRIES}',
                                      '-e', 'robots=off',
-                                     '--user-agent="Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0"',
+                                     f'--user-agent={USER_AGENT}',
                                      item['url']],
                                    cwd=wget_output_directory,
                                    stdout=sys.stdout,
@@ -195,10 +202,7 @@ def wget_output_path(item, wget_output_directory):
 def initialize_output_directories(output_directory):
     """Create public and private subdirectories in the output directory"""
     for visibility in ['/public', '/private']:
-        try:
-            os.mkdir(output_directory + visibility)
-        except FileExistsError:
-            pass
+        os.makedirs(output_directory + visibility, exist_ok=True)
 
 
 def set_default_options(module_options):
@@ -303,6 +307,12 @@ def archive_webpages(step):
     """archive webpages linked from each item's 'url', if their tags match one of step['only_tags'],
     write path to local archive to a new key 'archive_path' in the original data file for each downloaded item
     """
+    # Validate required options
+    required_options = ['data_file', 'output_directory']
+    for opt in required_options:
+        if opt not in step['module_options']:
+            raise ValueError(f"Missing required module option: {opt}")
+
     downloaded_count = 0
     skipped_count = 0
     error_count = 0
