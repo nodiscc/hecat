@@ -81,6 +81,30 @@ def extract_gitlab_repo_identifier(url):
     return None
 
 # Common utilities
+def get_config_option(step, key, default):
+    """Get configuration option with default value"""
+    return step['module_options'].get(key, default)
+
+def find_missing_repos(batch, found_repos, projects, extract_repo_func, base_url, errors):
+    """Find and report missing repositories from batch"""
+    # TODO: How do we handle GitLabs annoying sub-groups? (org/subgroup/repo) / (org/subgroup/subgroup/repo) / etc.
+    # We can never be sure if the repo is an actual repo or a subgroup. Not throwing an error here, means that a rename of a repo will not be detected and metadata would get updated anymore leading to false data. Keeping this error here, means that we can't allow GitLab projects that point to a 2+ segment path to a non-repo as it will throw otherwise an error.
+    batch_repos = set(batch)
+    missing_repos = batch_repos - found_repos
+    if missing_repos:
+        # Repo from the batch wasn't returned by the API at all (repo not found in search results)
+        for missing_repo in missing_repos:
+            missing_url = None
+            for project in projects:
+                repo_identifier = extract_repo_func(project.get('source_code_url', ''))
+                if repo_identifier and repo_identifier.casefold() == missing_repo:
+                    missing_url = project.get('source_code_url', f'{base_url}/{missing_repo}')
+                    break
+            if not missing_url:
+                missing_url = f'{base_url}/{missing_repo}'
+            logging.error('Repository not found in search results: %s', missing_url)
+            errors.append(f'Repository not found in search results: {missing_url}')
+
 def cleanup_old_commit_history(commit_history, months_to_keep=12):
     """Remove commit history entries older than the specified number of months"""
     if not commit_history:
@@ -113,10 +137,7 @@ def process_graphql_request(query, graphql_api, headers, step, max_retries, erro
     data = None
 
     # Get configured sleep_time
-    if 'sleep_time' in step['module_options']:
-        base_sleep_time = step['module_options']['sleep_time']
-    else:
-        base_sleep_time = 60
+    base_sleep_time = get_config_option(step, 'sleep_time', 60)
 
     try:
         graphql_response = requests.post(graphql_api, json={"query": query}, headers=headers, timeout=60)
@@ -252,8 +273,8 @@ def process_graphql_request(query, graphql_api, headers, step, max_retries, erro
 def process_github_batch(batch, batch_num, total_batches, github_projects, step, headers, github_graphql_api, month_queries, commit_history_clean_months, max_retries, errors, attempt=1):
     """Process a single batch of GitHub repositories"""
     logging.info("Processing GitHub batch %s/%s (batch size: %s)", batch_num, total_batches, len(batch))
-    logging.debug('current batch: ' + str(batch))
-    repos_query = " ".join([f"repo:{repo}" for repo in batch])
+    logging.debug('current batch: %s', batch)
+    repos_query = "fork:true " + " ".join([f"repo:{repo}" for repo in batch])
 
     history_queries_str = "\n".join([mq[2] for mq in month_queries])
 
@@ -307,21 +328,36 @@ def process_github_batch(batch, batch_num, total_batches, github_projects, step,
     # Skip this batch if data is None
     if data is None:
         logging.error('No data received from GraphQL API, skipping batch')
-        errors.append(f'No data received from GraphQL API, skipping batch')
+        errors.append('No data received from GraphQL API, skipping batch')
         return
 
     # If batch was split and processed via callback, no need to process data here
     if isinstance(data, dict) and data.get("split_processed"):
         return
 
+    # Track which repos from the batch were found in the results
+    found_repos = set()
+
     for edge in data["data"]["search"]["repos"]:
         repo = edge["repo"]
+        repo_identifier = extract_github_repo_identifier(repo["url"])
+        if not repo_identifier:
+            logging.error('could not extract repo identifier from %s', repo["url"])
+            errors.append(f'could not extract repo identifier from {repo["url"]}')
+            continue
+
         software = None
+        repo_id_lower = repo_identifier.casefold()
+        # Mark as found since it was returned by the API (even if we can't match it to software entry)
+        found_repos.add(repo_id_lower)
+
         for project in github_projects:
-            if extract_github_repo_identifier(repo["url"]).casefold() == extract_github_repo_identifier(project['source_code_url']).casefold():
+            project_repo_id = extract_github_repo_identifier(project.get('source_code_url', ''))
+            if project_repo_id and project_repo_id.casefold() == repo_id_lower:
                 software = project
                 break
         if not software:
+            # Repo was returned by the API, but we can't match it to a software entry in our list (data consistency issue)
             logging.error('could not find software entry for %s', repo["url"])
             errors.append(f'could not find software entry for {repo["url"]}')
             continue
@@ -358,10 +394,13 @@ def process_github_batch(batch, batch_num, total_batches, github_projects, step,
 
         try:
             write_software_yaml(step, software)
-        except Exception as e:
+        except Exception:
             logging.error('could not write software entry for %s', repo["url"])
             errors.append(f'could not write software entry for {repo["url"]}')
             continue
+
+    # Check for missing repositories
+    find_missing_repos(batch, found_repos, github_projects, extract_github_repo_identifier, 'https://github.com', errors)
 
 def add_github_metadata(step, github_projects, errors):
     """gather github project data and add it to source YAML files"""
@@ -375,31 +414,14 @@ def add_github_metadata(step, github_projects, errors):
 
     # Get the URLs of the queued repositories
     github_urls = [software['source_code_url'] for software in github_projects]
-    repos = [re.sub('https://github.com/', '', url) for url in github_urls]
+    # Normalize repo identifiers by stripping trailing slashes and lowercasing
+    repos = [re.sub('https://github.com/', '', url).rstrip('/').casefold() for url in github_urls]
 
-    # Split repo list into batches of batch_size_github
-    if 'batch_size_github' in step['module_options']:
-        batch_size = step['module_options']['batch_size_github']
-    else:
-        batch_size = 30
-
-    # Get the number of months to keep for commit history
-    if 'commit_history_clean_months' in step['module_options']:
-        commit_history_clean_months = step['module_options']['commit_history_clean_months']
-    else:
-        commit_history_clean_months = 12
-
-    # Get the number of months to fetch from GitHub API
-    if 'commit_history_fetch_months' in step['module_options']:
-        commit_history_fetch_months = step['module_options']['commit_history_fetch_months']
-    else:
-        commit_history_fetch_months = 3
-
-    # Get the maximum number of retries for API errors
-    if 'max_retries' in step['module_options']:
-        max_retries = step['module_options']['max_retries']
-    else:
-        max_retries = 3
+    # Get configuration options
+    batch_size = get_config_option(step, 'batch_size_github', 30)
+    commit_history_clean_months = get_config_option(step, 'commit_history_clean_months', 12)
+    commit_history_fetch_months = get_config_option(step, 'commit_history_fetch_months', 3)
+    max_retries = get_config_option(step, 'max_retries', 3)
 
     # build a list of lists (batches) of repo names, for each batch a graphql query will be made
     batches = [repos[i * batch_size:(i + 1) * batch_size] for i in range((len(repos) + batch_size - 1) // batch_size )]
@@ -425,10 +447,7 @@ def add_github_metadata(step, github_projects, errors):
         month_queries.append((month_alias, year_month, month_query))
 
     # Get sleep time for spacing between batches (rate limit prevention)
-    if 'sleep_time' in step['module_options']:
-        between_batch_sleep = step['module_options']['sleep_time']
-    else:
-        between_batch_sleep = 60
+    between_batch_sleep = get_config_option(step, 'sleep_time', 60)
 
     counter = 0
     for batch in batches:
@@ -453,7 +472,7 @@ def generate_gitlab_alias(repo_path):
 def process_gitlab_batch(batch, batch_num, total_batches, gitlab_projects, step, headers, gitlab_graphql_api, max_retries, errors, attempt=1):
     """Process a single batch of GitLab repositories using GraphQL fragments"""
     logging.info("Processing GitLab batch %s/%s (batch size: %s)", batch_num, total_batches, len(batch))
-    logging.debug('current batch: ' + str(batch))
+    logging.debug('current batch: %s', batch)
 
     # Build fragment and query with aliases for each repo
     fragment = """
@@ -504,12 +523,14 @@ fragment ProjectDetails on Project {
     # Skip this batch if data is None
     if data is None:
         logging.error('No data received from GraphQL API, skipping batch')
-        errors.append(f'No data received from GraphQL API, skipping batch')
+        errors.append('No data received from GraphQL API, skipping batch')
         return
 
     # If batch was split and processed via callback, no need to process data here
     if isinstance(data, dict) and data.get("split_processed"):
         return
+
+    found_repos = set()
 
     # Process each project from the batch response
     response_data = data.get("data", {})
@@ -517,17 +538,15 @@ fragment ProjectDetails on Project {
         alias = repo_to_alias[repo_path]
         project_data = response_data.get(alias)
 
-        # TODO: How do we handle GitLabs annoying sub-groups? (org/subgroup/repo) / (org/subgroup/subgroup/repo) / etc.
-        # We can never be sure if the repo is an actual repo or a subgroup. Not throwing an error here, means that a rename of a repo will not be detected and metadata would get updated anymore leading to false data. Keeping this error here, means that we can't allow GitLab projects that point to a 2+ segment path to a non-repo as it will throw otherwise an error.
+        # We skip processing and let find_missing_repos() report it at the end.
         if not project_data:
-            logging.error('could not find project data for %s (alias: %s)', repo_path, alias)
-            errors.append(f'could not find project data for {repo_path} (alias: {alias})')
             continue
 
         # Find the matching software entry
         software = None
         for project in gitlab_projects:
-            if extract_gitlab_repo_identifier(project['source_code_url']).casefold() == repo_path.casefold():
+            project_repo = extract_gitlab_repo_identifier(project['source_code_url'])
+            if project_repo and project_repo.casefold() == repo_path:
                 software = project
                 break
 
@@ -535,6 +554,9 @@ fragment ProjectDetails on Project {
             logging.error('could not find software entry for %s', repo_path)
             errors.append(f'could not find software entry for {repo_path}')
             continue
+
+        # Mark this repo as found
+        found_repos.add(repo_path)
 
         software["stargazers_count"] = project_data.get("starCount", 0)
 
@@ -568,10 +590,12 @@ fragment ProjectDetails on Project {
         try:
             write_software_yaml(step, software)
         except Exception as e:
-            errors.append(str(e))
-            logging.error('could not write software entry for %s', repo_path)
-            errors.append(f'could not write software entry for {repo_path}')
+            logging.error('could not write software entry for %s: %s', repo_path, str(e))
+            errors.append(f'could not write software entry for {repo_path}: {str(e)}')
             continue
+
+    # Check for missing repositories
+    find_missing_repos(batch, found_repos, gitlab_projects, extract_gitlab_repo_identifier, 'https://gitlab.com', errors)
 
 def add_gitlab_metadata(step, gitlab_projects, errors):
     """gather gitlab project data and add it to source YAML files"""
@@ -585,28 +609,25 @@ def add_gitlab_metadata(step, gitlab_projects, errors):
 
     # Get the full paths of the queued repositories
     gitlab_urls = [software['source_code_url'] for software in gitlab_projects]
-    repos = [extract_gitlab_repo_identifier(url) for url in gitlab_urls]
+    # Normalize repo identifiers by stripping trailing slashes and lowercasing
+    repos = []
+    for url in gitlab_urls:
+        repo_identifier = extract_gitlab_repo_identifier(url)
+        if repo_identifier:
+            repos.append(repo_identifier.rstrip('/').casefold())
+        else:
+            logging.warning('Failed to extract repo identifier from URL: %s', url)
+            errors.append(f'Failed to extract repo identifier from URL: {url}')
 
-    # Split repo list into batches of batch_size_gitlab
-    if 'batch_size_gitlab' in step['module_options']:
-        batch_size = step['module_options']['batch_size_gitlab']
-    else:
-        batch_size = 10
-
-    # Get the maximum number of retries for API errors
-    if 'max_retries' in step['module_options']:
-        max_retries = step['module_options']['max_retries']
-    else:
-        max_retries = 3
+    # Get configuration options
+    batch_size = get_config_option(step, 'batch_size_gitlab', 10)
+    max_retries = get_config_option(step, 'max_retries', 3)
 
     # build a list of lists (batches) of repo paths, for each batch repositories will be processed
     batches = [repos[i * batch_size:(i + 1) * batch_size] for i in range((len(repos) + batch_size - 1) // batch_size )]
 
     # Get sleep time for spacing between batches (rate limit prevention)
-    if 'sleep_time' in step['module_options']:
-        between_batch_sleep = step['module_options']['sleep_time']
-    else:
-        between_batch_sleep = 60
+    between_batch_sleep = get_config_option(step, 'sleep_time', 60)
 
     counter = 0
     for batch in batches:
