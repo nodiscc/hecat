@@ -103,11 +103,11 @@ def build_ydl_options(module_options, is_audio=False):
     """Build yt-dlp options based on module configuration.
 
     Args:
-        module_options: Module options from the step configuration
+        module_options: Configuration dict from step['module_options']
         is_audio: Whether to configure for audio-only downloads
 
     Returns:
-        dict: Complete yt-dlp options dictionary
+        Complete yt-dlp options dictionary
     """
     # Start with base options
     ydl_opts = BASE_YDL_OPTIONS.copy()
@@ -137,18 +137,21 @@ def build_ydl_options(module_options, is_audio=False):
 
 
 def download_single_item(item, items, ydl_opts, filename_key, error_key, step):
-    """Download a single media item and update the data file.
+    """Download a single media item using yt-dlp and update the data file.
+
+    Updates the item dict in-place with the downloaded filename or error message,
+    then writes the updated items list back to the data file.
 
     Args:
-        item: The item to download (will be updated in-place)
-        items: Full list of items (for write_data_file)
+        item: Item dict to download (updated in-place)
+        items: Full list of items for writing to data file
         ydl_opts: yt-dlp options dictionary
-        filename_key: Key to store filename in ('video_filename' or 'audio_filename')
-        error_key: Key to store errors in ('video_download_error' or 'audio_download_error')
-        step: Step configuration (needed for write_data_file)
+        filename_key: Key name for storing filename
+        error_key: Key name for storing error messages
+        step: Step configuration dict
 
     Returns:
-        tuple: (success: bool, error_message: str or None)
+        Tuple of (success: bool, error_message: str or None)
     """
     logging.info('downloading %s (id %s)', item['url'], item['id'])
 
@@ -178,10 +181,18 @@ def download_single_item(item, items, ydl_opts, filename_key, error_key, step):
 
 
 def should_skip_item(item, module_options, filename_key, error_key):
-    """Determine if an item should be skipped and return (should_skip, reason).
+    """Determine if an item should be skipped during download.
+
+    Checks for existing filenames, previous errors, excluded tags, and required tags.
+
+    Args:
+        item: Item dict containing 'url', 'tags', and optionally filename/error keys
+        module_options: Configuration dict from step['module_options']
+        filename_key: Key name for stored filename ('video_filename' or 'audio_filename')
+        error_key: Key name for stored errors ('video_download_error' or 'audio_download_error')
 
     Returns:
-        tuple: (bool, str) - (True, reason) if item should be skipped, (False, None) otherwise
+        Tuple of (should_skip: bool, reason: str or None)
     """
     # Check if filename already present and skip_when_filename_present is True
     skip_when_present = module_options.get('skip_when_filename_present', True)
@@ -207,8 +218,15 @@ def should_skip_item(item, module_options, filename_key, error_key):
 
 
 def download_media(step):
-    """download videos from the each item's 'url', if it matches one of step['only_tags'],
-    write downloaded filenames to a new key audio_filename/video_filename in the original data file for each downloaded item
+    """Download video or audio files from URLs in a YAML data file.
+
+    Processes each item in the data file, downloading media from supported sites
+    using yt-dlp. Writes downloaded filenames back to the data file. Supports
+    filtering by tags, skipping already-downloaded items, and error retry control.
+
+    Args:
+        step: Step configuration dict containing 'module_options' with settings
+              for data_file path, output_directory, tag filters, and download options
     """
     module_options = step['module_options']
     is_audio = module_options.get('only_audio', False)
