@@ -74,6 +74,67 @@ VIDEO_ARCHIVE_FILENAME = 'yt-dlp.video.archive'
 AUDIO_ARCHIVE_FILENAME = 'yt-dlp.audio.archive'
 OUTPUT_TEMPLATE = '%(uploader)s - %(title)s - %(extractor)s-%(id)s.%(ext)s'
 
+# Base yt-dlp configuration
+BASE_YDL_OPTIONS = {
+    'outtmpl': OUTPUT_TEMPLATE,
+    'trim_file_name': 180,
+    'writeinfojson': True,
+    'writesubtitles': True,
+    'restrictfilenames': True,
+    'compat_opts': ['no-live-chat'],
+    'noplaylist': True
+}
+
+# Video-specific configuration
+VIDEO_YDL_OPTIONS = {
+    'download_archive': VIDEO_ARCHIVE_FILENAME,
+}
+
+# Audio-specific configuration
+AUDIO_YDL_OPTIONS = {
+    'postprocessors': [{'key': 'FFmpegExtractAudio'}],
+    'keepvideo': False,
+    'format': 'bestaudio',
+    'download_archive': AUDIO_ARCHIVE_FILENAME,
+}
+
+
+def build_ydl_options(module_options, is_audio=False):
+    """Build yt-dlp options based on module configuration.
+
+    Args:
+        module_options: Module options from the step configuration
+        is_audio: Whether to configure for audio-only downloads
+
+    Returns:
+        dict: Complete yt-dlp options dictionary
+    """
+    # Start with base options
+    ydl_opts = BASE_YDL_OPTIONS.copy()
+
+    # Add media-type specific options
+    if is_audio:
+        ydl_opts.update(AUDIO_YDL_OPTIONS)
+    else:
+        ydl_opts.update(VIDEO_YDL_OPTIONS)
+
+    # Add output directory to paths
+    output_dir = module_options['output_directory']
+    ydl_opts['outtmpl'] = f"{output_dir}/{ydl_opts['outtmpl']}"
+
+    if 'download_archive' in ydl_opts:
+        ydl_opts['download_archive'] = f"{output_dir}/{ydl_opts['download_archive']}"
+
+    # Remove download archive if disabled
+    if not module_options.get('use_download_archive', True):
+        ydl_opts.pop('download_archive', None)
+
+    # Enable playlists if requested
+    if module_options.get('download_playlists', False):
+        ydl_opts['noplaylist'] = False
+
+    return ydl_opts
+
 
 def should_skip_item(item, module_options, filename_key, error_key):
     """Determine if an item should be skipped and return (should_skip, reason).
@@ -108,47 +169,24 @@ def download_media(step):
     """download videos from the each item's 'url', if it matches one of step['only_tags'],
     write downloaded filenames to a new key audio_filename/video_filename in the original data file for each downloaded item
     """
-    # print(help(yt_dlp.YoutubeDL))
-    ydl_opts = {
-        'outtmpl': OUTPUT_TEMPLATE,
-        'trim_file_name': 180,
-        'writeinfojson': True,
-        'writesubtitles': True,
-        'restrictfilenames': True,
-        'compat_opts': ['no-live-chat'],
-        'download_archive': VIDEO_ARCHIVE_FILENAME,
-        'noplaylist': True
-    }
-    filename_key = VIDEO_FILENAME_KEY
-    error_key = VIDEO_ERROR_KEY
+    module_options = step['module_options']
+    is_audio = module_options.get('only_audio', False)
+
+    # Build yt-dlp options and determine keys
+    ydl_opts = build_ydl_options(module_options, is_audio)
+    filename_key = AUDIO_FILENAME_KEY if is_audio else VIDEO_FILENAME_KEY
+    error_key = AUDIO_ERROR_KEY if is_audio else VIDEO_ERROR_KEY
+
     skipped_count = 0
     downloaded_count = 0
     error_count = 0
 
-    # add specific options when only_audio = True
-    if step['module_options'].get('only_audio', False):
-        ydl_opts['postprocessors'] = [{'key': 'FFmpegExtractAudio'}]
-        ydl_opts['keepvideo'] = False
-        ydl_opts['format'] = 'bestaudio'
-        ydl_opts['download_archive'] = AUDIO_ARCHIVE_FILENAME
-        filename_key = AUDIO_FILENAME_KEY
-        error_key = AUDIO_ERROR_KEY
-
-    ydl_opts['outtmpl'] = step['module_options']['output_directory'] + '/' + ydl_opts['outtmpl']
-    ydl_opts['download_archive'] = step['module_options']['output_directory'] + '/' + ydl_opts['download_archive']
-
-    if not step['module_options'].get('use_download_archive', True):
-        del ydl_opts['download_archive']
-
-    if step.get('download_playlists', False):
-        ydl_opts['noplaylist'] = False
-
-    items = load_yaml_data(step['module_options']['data_file'])
+    items = load_yaml_data(module_options['data_file'])
 
     for item in items:
         should_skip, skip_reason = should_skip_item(
             item,
-            step['module_options'],
+            module_options,
             filename_key,
             error_key
         )
