@@ -136,6 +136,50 @@ def build_ydl_options(module_options, is_audio=False):
     return ydl_opts
 
 
+def download_single_item(item, items, ydl_opts, filename_key, error_key, step):
+    """Download a single media item and update the data file.
+
+    Args:
+        item: The item to download
+        items: Full list of items (for updating)
+        ydl_opts: yt-dlp options dictionary
+        filename_key: Key to store filename in ('video_filename' or 'audio_filename')
+        error_key: Key to store errors in ('video_download_error' or 'audio_download_error')
+        step: Step configuration (needed for write_data_file)
+
+    Returns:
+        tuple: (success: bool, error_message: str or None)
+    """
+    logging.info('downloading %s (id %s)', item['url'], item['id'])
+
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        try:
+            info = ydl.extract_info(item['url'], download=True)
+            if info is not None:
+                # TODO does not get the real, final filename after audio extraction
+                # https://github.com/ytdl-org/youtube-dl/issues/5710
+                # https://github.com/ytdl-org/youtube-dl/issues/7137
+                outpath = ydl.prepare_filename(info)
+
+                # Update the item in the list
+                for target_item in items:
+                    if target_item['id'] == item['id']:
+                        target_item[filename_key] = outpath
+                        target_item.pop(error_key, None)
+                        break
+
+                write_data_file(step, items)
+                return True, None
+        except (yt_dlp.utils.DownloadError, AttributeError) as e:
+            error_message = str(e)
+            logging.error('%s (id %s): %s', item['url'], item['id'], error_message)
+            item[error_key] = error_message
+            write_data_file(step, items)
+            return False, error_message
+
+    return False, "No info returned from yt-dlp"
+
+
 def should_skip_item(item, module_options, filename_key, error_key):
     """Determine if an item should be skipped and return (should_skip, reason).
 
@@ -197,27 +241,12 @@ def download_media(step):
             continue
 
         # Download the item
-        logging.info('downloading %s (id %s)', item['url'], item['id'])
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            try:
-                info = ydl.extract_info(item['url'], download=True)
-                if info is not None:
-                    # TODO does not get the real, final filename after audio extraction
-                    # https://github.com/ytdl-org/youtube-dl/issues/5710
-                    # https://github.com/ytdl-org/youtube-dl/issues/7137
-                    outpath = ydl.prepare_filename(info)
-                    for item2 in items:
-                        if item2['id'] == item['id']:
-                            item2[filename_key] = outpath
-                            item2.pop(error_key, None)
-                            break
-                    write_data_file(step, items)
-                downloaded_count += 1
-            except (yt_dlp.utils.DownloadError, AttributeError) as e:
-                logging.error('%s (id %s): %s', item['url'], item['id'], str(e))
-                item[error_key] = str(e)
-                write_data_file(step, items)
-                error_count += 1
+        success, error = download_single_item(item, items, ydl_opts, filename_key, error_key, step)
+
+        if success:
+            downloaded_count += 1
+        else:
+            error_count += 1
 
     logging.info('processing complete. Downloaded: %s - Skipped: %s - Errors %s',
                  downloaded_count, skipped_count, error_count)
