@@ -140,8 +140,8 @@ def download_single_item(item, items, ydl_opts, filename_key, error_key, step):
     """Download a single media item and update the data file.
 
     Args:
-        item: The item to download
-        items: Full list of items (for updating)
+        item: The item to download (will be updated in-place)
+        items: Full list of items (for write_data_file)
         ydl_opts: yt-dlp options dictionary
         filename_key: Key to store filename in ('video_filename' or 'audio_filename')
         error_key: Key to store errors in ('video_download_error' or 'audio_download_error')
@@ -161,12 +161,9 @@ def download_single_item(item, items, ydl_opts, filename_key, error_key, step):
                 # https://github.com/ytdl-org/youtube-dl/issues/7137
                 outpath = ydl.prepare_filename(info)
 
-                # Update the item in the list
-                for target_item in items:
-                    if target_item['id'] == item['id']:
-                        target_item[filename_key] = outpath
-                        target_item.pop(error_key, None)
-                        break
+                # Update item directly (it's a reference to the dict in items list)
+                item[filename_key] = outpath
+                item.pop(error_key, None)
 
                 write_data_file(step, items)
                 return True, None
