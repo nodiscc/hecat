@@ -65,6 +65,15 @@ yaml = ruamel.yaml.YAML()
 yaml.indent(sequence=2, offset=0)
 yaml.width = 99999
 
+# Constants
+VIDEO_FILENAME_KEY = 'video_filename'
+AUDIO_FILENAME_KEY = 'audio_filename'
+VIDEO_ERROR_KEY = 'video_download_error'
+AUDIO_ERROR_KEY = 'audio_download_error'
+VIDEO_ARCHIVE_FILENAME = 'yt-dlp.video.archive'
+AUDIO_ARCHIVE_FILENAME = 'yt-dlp.audio.archive'
+OUTPUT_TEMPLATE = '%(uploader)s - %(title)s - %(extractor)s-%(id)s.%(ext)s'
+
 
 def should_skip_item(item, module_options, filename_key, error_key):
     """Determine if an item should be skipped and return (should_skip, reason).
@@ -101,17 +110,17 @@ def download_media(step):
     """
     # print(help(yt_dlp.YoutubeDL))
     ydl_opts = {
-        'outtmpl': '%(uploader)s - %(title)s - %(extractor)s-%(id)s.%(ext)s',
+        'outtmpl': OUTPUT_TEMPLATE,
         'trim_file_name': 180,
         'writeinfojson': True,
         'writesubtitles': True,
         'restrictfilenames': True,
         'compat_opts': ['no-live-chat'],
-        'download_archive': 'yt-dlp.video.archive',
+        'download_archive': VIDEO_ARCHIVE_FILENAME,
         'noplaylist': True
     }
-    filename_key = 'video_filename'
-    error_key = 'video_download_error'
+    filename_key = VIDEO_FILENAME_KEY
+    error_key = VIDEO_ERROR_KEY
     skipped_count = 0
     downloaded_count = 0
     error_count = 0
@@ -121,9 +130,9 @@ def download_media(step):
         ydl_opts['postprocessors'] = [{'key': 'FFmpegExtractAudio'}]
         ydl_opts['keepvideo'] = False
         ydl_opts['format'] = 'bestaudio'
-        ydl_opts['download_archive'] = 'yt-dlp.audio.archive'
-        filename_key = 'audio_filename'
-        error_key = 'audio_download_error'
+        ydl_opts['download_archive'] = AUDIO_ARCHIVE_FILENAME
+        filename_key = AUDIO_FILENAME_KEY
+        error_key = AUDIO_ERROR_KEY
 
     ydl_opts['outtmpl'] = step['module_options']['output_directory'] + '/' + ydl_opts['outtmpl']
     ydl_opts['download_archive'] = step['module_options']['output_directory'] + '/' + ydl_opts['download_archive']
