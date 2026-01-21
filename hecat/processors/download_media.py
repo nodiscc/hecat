@@ -65,6 +65,36 @@ yaml = ruamel.yaml.YAML()
 yaml.indent(sequence=2, offset=0)
 yaml.width = 99999
 
+
+def should_skip_item(item, module_options, filename_key, error_key):
+    """Determine if an item should be skipped and return (should_skip, reason).
+
+    Returns:
+        tuple: (bool, str) - (True, reason) if item should be skipped, (False, None) otherwise
+    """
+    # Check if filename already present and skip_when_filename_present is True
+    skip_when_present = module_options.get('skip_when_filename_present', True)
+    if skip_when_present and filename_key in item:
+        return True, f'{filename_key} already recorded in the data file'
+
+    # Check if we should skip items with errors
+    retry_errors = module_options.get('retry_items_with_error', True)
+    if not retry_errors and error_key in item:
+        return True, f'not retrying download on items with {error_key} set'
+
+    # Check if item has any excluded tags
+    exclude_tags = module_options.get('exclude_tags', [])
+    if exclude_tags and any(tag in item.get('tags', []) for tag in exclude_tags):
+        return True, 'one or more tags are present in exclude_tags'
+
+    # Check if item has any required tags
+    only_tags = module_options.get('only_tags', [])
+    if not list(set(only_tags) & set(item.get('tags', []))):
+        return True, 'no tags matching only_tags'
+
+    return False, None
+
+
 def download_media(step):
     """download videos from the each item's 'url', if it matches one of step['only_tags'],
     write downloaded filenames to a new key audio_filename/video_filename in the original data file for each downloaded item
@@ -85,61 +115,62 @@ def download_media(step):
     skipped_count = 0
     downloaded_count = 0
     error_count = 0
+
     # add specific options when only_audio = True
-    if 'only_audio' in step['module_options'] and step['module_options']['only_audio']:
-        ydl_opts['postprocessors'] =  [ {'key': 'FFmpegExtractAudio'} ]
+    if step['module_options'].get('only_audio', False):
+        ydl_opts['postprocessors'] = [{'key': 'FFmpegExtractAudio'}]
         ydl_opts['keepvideo'] = False
         ydl_opts['format'] = 'bestaudio'
         ydl_opts['download_archive'] = 'yt-dlp.audio.archive'
         filename_key = 'audio_filename'
         error_key = 'audio_download_error'
+
     ydl_opts['outtmpl'] = step['module_options']['output_directory'] + '/' + ydl_opts['outtmpl']
     ydl_opts['download_archive'] = step['module_options']['output_directory'] + '/' + ydl_opts['download_archive']
-    if 'use_download_archive' in step['module_options'] and not step['module_options']['use_download_archive']:
+
+    if not step['module_options'].get('use_download_archive', True):
         del ydl_opts['download_archive']
-    if 'download_playlists' in step.keys() and step['download_playlists']:
-        ydl_opts['noplaylist'] == False
+
+    if step.get('download_playlists', False):
+        ydl_opts['noplaylist'] = False
 
     items = load_yaml_data(step['module_options']['data_file'])
+
     for item in items:
-        # skip download when skip_when_filename_present = True, and video/audio_filename key already exists
-        if (('skip_when_filename_present' not in step['module_options'].keys() or
-                step['module_options']['skip_when_filename_present']) and filename_key in item.keys()):
-            logging.debug('skipping %s (id %s): %s already recorded in the data file', item['url'], item['id'], filename_key)
-            skipped_count = skipped_count +1
-        # skip download when retry_items_with_error = False, and video/audio_download_error key already exists
-        elif ('retry_items_with_error' in step['module_options'] and
-                not step['module_options']['retry_items_with_error'] and
-                error_key in item.keys()):
-            logging.debug('skipping %s (id %s): not retrying download on items with %s set', item['url'], item['id'], error_key)
-            skipped_count = skipped_count +1
-        # skip download when one of the item's tags matches a tag in exclude_tags
-        elif ('exclude_tags' in step['module_options'] and
-                any(tag in item['tags'] for tag in step['module_options']['exclude_tags'])):
-            logging.debug('skipping %s (id %s): one or more tags are present in exclude_tags', item['url'], item['id'])
-            skipped_count = skipped_count +1
-        # download if all tags in only_tags are present in the item's tags
-        elif list(set(step['module_options']['only_tags']) & set(item['tags'])):
-            logging.info('downloading %s (id %s)', item['url'], item ['id'])
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                try:
-                    info = ydl.extract_info(item['url'], download=True)
-                    if info is not None:
-                        # TODO does not get the real, final filename after audio extraction https://github.com/ytdl-org/youtube-dl/issues/5710, https://github.com/ytdl-org/youtube-dl/issues/7137
-                        outpath = ydl.prepare_filename(info)
-                        for item2 in items:
-                            if item2['id'] == item['id']:
-                                item2[filename_key] = outpath
-                                item.pop(error_key, False)
-                                break
-                        write_data_file(step, items)
-                    downloaded_count = downloaded_count +1
-                except (yt_dlp.utils.DownloadError, AttributeError) as e:
-                    logging.error('%s (id %s): %s', item['url'], item['id'], str(e))
-                    item[error_key] = str(e)
+        should_skip, skip_reason = should_skip_item(
+            item,
+            step['module_options'],
+            filename_key,
+            error_key
+        )
+
+        if should_skip:
+            logging.debug('skipping %s (id %s): %s', item['url'], item['id'], skip_reason)
+            skipped_count += 1
+            continue
+
+        # Download the item
+        logging.info('downloading %s (id %s)', item['url'], item['id'])
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            try:
+                info = ydl.extract_info(item['url'], download=True)
+                if info is not None:
+                    # TODO does not get the real, final filename after audio extraction
+                    # https://github.com/ytdl-org/youtube-dl/issues/5710
+                    # https://github.com/ytdl-org/youtube-dl/issues/7137
+                    outpath = ydl.prepare_filename(info)
+                    for item2 in items:
+                        if item2['id'] == item['id']:
+                            item2[filename_key] = outpath
+                            item2.pop(error_key, None)
+                            break
                     write_data_file(step, items)
-                    error_count = error_count + 1
-        else:
-            logging.debug('skipping %s (id %s): no tags matching only_tags', item['url'], item['id'])
-            skipped_count = skipped_count + 1
-    logging.info('processing complete. Downloaded: %s - Skipped: %s - Errors %s', downloaded_count, skipped_count, error_count)
+                downloaded_count += 1
+            except (yt_dlp.utils.DownloadError, AttributeError) as e:
+                logging.error('%s (id %s): %s', item['url'], item['id'], str(e))
+                item[error_key] = str(e)
+                write_data_file(step, items)
+                error_count += 1
+
+    logging.info('processing complete. Downloaded: %s - Skipped: %s - Errors %s',
+                 downloaded_count, skipped_count, error_count)
