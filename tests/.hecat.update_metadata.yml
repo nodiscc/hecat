@@ -5,7 +5,7 @@ steps:
       source_directory: tests/awesome-selfhosted-data
       metadata_only_missing: True
       sleep_time: 5
-      batch_size_github: 30
+      batch_size_github: 25
       batch_size_gitlab: 10
       commit_history_clean_months: 12
       commit_history_fetch_months: 3
