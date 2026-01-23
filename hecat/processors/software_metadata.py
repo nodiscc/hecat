@@ -467,8 +467,11 @@ def _process_github_batch( batch, batch_num, total_batches, github_projects, ste
 
     # Process response
     found_repos = set()
+    response_data = data.get("data", {})
+    search_data = response_data.get("search", {})
+    repos = search_data.get("repos", [])
 
-    for edge in data["data"]["search"]["repos"]:
+    for edge in repos:
         repo = edge["repo"]
         repo_id = extract_github_repo_identifier(repo["url"])
 
