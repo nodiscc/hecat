@@ -35,6 +35,7 @@ Rate Limits:
     GitLab: 2,000 requests/minute/user [[2]](https://docs.gitlab.com/user/gitlab_com/#rate-limits-on-gitlabcom)
 """
 
+import calendar
 import os
 import re
 import sys
@@ -44,7 +45,8 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import requests
 import ruamel.yaml
-from requests.exceptions import ChunkedEncodingError, ConnectionError, Timeout
+from requests.exceptions import ChunkedEncodingError, ConnectionError, Timeout, RequestException
+from json import JSONDecodeError
 from ..utils import load_yaml_data, to_kebab_case
 
 # Variables
@@ -148,11 +150,7 @@ def build_month_queries(fetch_months):
         year_month = month_date.strftime('%Y-%m')
 
         # Calculate last day of month
-        if month_date.month == 12:
-            last_day = 31
-        else:
-            next_month = month_date.replace(day=28) + relativedelta(days=4)
-            last_day = (next_month - relativedelta(days=next_month.day)).day
+        last_day = calendar.monthrange(month_date.year, month_date.month)[1]
 
         month_alias = f"month_{year_month.replace('-', '_')}"
         query_fragment = f"""
@@ -263,7 +261,7 @@ def process_graphql_request(query, graphql_api, headers, step, max_retries, erro
             is_exception=True, exception_details=exception_details
         )
 
-    except Exception as e:
+    except (RequestException, JSONDecodeError) as e:
         exception_type = type(e).__name__
         exception_details = str(e)
 
@@ -519,9 +517,9 @@ def _process_github_batch( batch, batch_num, total_batches, github_projects, ste
 
         try:
             write_software_yaml(step, software)
-        except Exception:
-            logging.error('could not write software entry for %s', repo["url"])
-            errors.append(f'could not write software entry for {repo["url"]}')
+        except (OSError) as e:
+            logging.error('could not write software entry for %s: %s', repo["url"], str(e))
+            errors.append(f'could not write software entry for {repo["url"]}: {str(e)}')
 
     find_missing_repos(batch, found_repos, github_projects, extract_github_repo_identifier, 'https://github.com', errors)
 
@@ -669,7 +667,7 @@ fragment ProjectDetails on Project {
 
         try:
             write_software_yaml(step, software)
-        except Exception as e:
+        except (OSError) as e:
             logging.error('could not write software entry for %s: %s', repo_path, str(e))
             errors.append(f'could not write software entry for {repo_path}: {str(e)}')
 
