@@ -76,6 +76,8 @@ AUDIO_ARCHIVE_FILENAME = 'yt-dlp.audio.archive'
 OUTPUT_TEMPLATE = '%(uploader)s - %(title)s - %(extractor)s-%(id)s.%(ext)s'
 
 # Base yt-dlp configuration
+# https://github.com/ytdl-org/youtube-dl/blob/master/youtube_dl/YoutubeDL.py
+# https://github.com/ytdl-org/youtube-dl/blob/master/youtube_dl/downloader/common.py
 BASE_YDL_OPTIONS = {
     'outtmpl': OUTPUT_TEMPLATE,
     'trim_file_name': 180,
