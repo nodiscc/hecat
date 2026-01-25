@@ -22,16 +22,23 @@ install:
 .PHONY: test # run tests
 test: test_pylint clean test_import_shaarli test_download_video test_download_audio test_export_html_table clone_awesome_selfhosted test_import_awesome_selfhosted test_process_awesome_selfhosted test_awesome_lint test_export_awesome_selfhosted_md test_export_awesome_selfhosted_html test_archive_webpages scan_trivy
 
-.PHONY: test_short # run tests except those that consume github API requests/long URL checks
 test_short: test_pylint clean test_import_shaarli test_archive_webpages test_download_video test_download_audio test_export_html_table clone_awesome_selfhosted test_awesome_lint test_export_awesome_selfhosted_md test_export_awesome_selfhosted_html
+
+.PHONY: test # run all tests
+test: test_short test_long
+
+.PHONY: test_short # run tests except those that consume github API requests/long URL checks
+test_short: clean test_import_shaarli test_archive_webpages test_download_video test_download_audio test_export_html_table \
+    clone_awesome_selfhosted test_export_awesome_selfhosted_md test_awesome_lint \
+    test_export_awesome_selfhosted_html
+
+.PHONY: test_short # run long tests
+test_long: test_process_awesome_selfhosted
 
 .PHONY: test_pylint # run linter (non blocking)
 test_pylint: install
-	source .venv/bin/activate && \
-	pip3 install pylint pyyaml && \
-	pylint --errors-only --disable=too-many-locals,line-too-long,consider-using-f-string hecat
-	-source .venv/bin/activate && \
-	pylint --disable=too-many-locals,line-too-long,consider-using-f-string hecat
+	.venv/bin/pip3 install pylint pyyaml
+	.venv/bin/pylint --fail-on E --fail-under=9.45 --disable=too-many-locals,line-too-long,consider-using-f-string hecat
 
 .PHONY: clone_awesome_selfhosted # clone awesome-selfhosted/awesome-selfhosted-data
 clone_awesome_selfhosted:

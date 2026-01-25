@@ -22,7 +22,7 @@ steps:
     module: processors/archive_webpages
     module_options:
       data_file: tests/shaarli.yml # path to the YAML data file
-      only_tags: ['doc'] # only download items tagged with all these tags
+      only_tags: ['doc'] # only download items tagged with any of these tags
       exclude_tags: ['nodl'] # (default []), don't download items tagged with any of these tags
       exclude_regex: # (default []) don't archive URLs matching these regular expressions
         - '^https://[a-z]\.wikipedia.org/wiki/.*$' # don't archive wikipedia pages, supposing you have a local copy of wikipedia dumps from https://dumps.wikimedia.org/
@@ -31,6 +31,7 @@ steps:
       clean_removed: True # (default False) remove existing archived pages which do not match any id in the data file
       clean_excluded: True # (default False) remove existing archived pages matching exclude_regex
       skip_failed: False # (default False) don't attempt to archive items for which the previous archival attempt failed (archive_error: True)
+      wget_errors_are_fatal: True # (default False) exit immediately if a wget download error occurs
 
 # $ hecat --config tests/.hecat.archive_webpages.yml
 
@@ -82,17 +83,24 @@ from urllib.parse import urlparse, unquote, quote
 import ruamel.yaml
 from ..utils import load_yaml_data, write_data_file
 
+# Constants
+DEFAULT_WGET_TIMEOUT = 30
+DEFAULT_WGET_TRIES = 3
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0"
+
 yaml = ruamel.yaml.YAML()
 yaml.indent(sequence=2, offset=0)
 yaml.width = 99999
 
 def wget(step, item, wget_output_directory):
     """archive a webpage with wget, return the local path of the archived file"""
-    try:
-        os.mkdir(wget_output_directory)
-    except FileExistsError:
-        pass
-    wget_process = subprocess.Popen(['/usr/bin/wget',
+    os.makedirs(wget_output_directory, exist_ok=True)
+
+    wget_bin = shutil.which('wget')
+    if not wget_bin:
+        raise FileNotFoundError("wget not found in PATH")
+
+    wget_process = subprocess.Popen([wget_bin,
                                      '--continue',
                                      '--span-hosts',
                                      '--adjust-extension',
@@ -100,10 +108,10 @@ def wget(step, item, wget_output_directory):
                                      '--convert-links',
                                      '--page-requisites',
                                      '--no-verbose',
-                                     '--timeout=30',
-                                     '--tries=3',
+                                     f'--timeout={DEFAULT_WGET_TIMEOUT}',
+                                     f'--tries={DEFAULT_WGET_TRIES}',
                                      '-e', 'robots=off',
-                                     '--user-agent="Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0"',
+                                     f'--user-agent={USER_AGENT}',
                                      item['url']],
                                    cwd=wget_output_directory,
                                    stdout=sys.stdout,
@@ -116,6 +124,9 @@ def wget(step, item, wget_output_directory):
     else:
         local_archive_path = None
         logging.error('error while archiving %s', item['url'])
+        if step['module_options'].get('wget_errors_are_fatal', False):
+            logging.error('wget error encountered and wget_errors_are_fatal is True. Exiting.')
+            sys.exit(1)
     return local_archive_path
 
 # adapted from https://github.com/ArchiveBox/ArchiveBox/blob/master/archivebox/extractors/wget.py, MIT license
@@ -188,85 +199,163 @@ def wget_output_path(item, wget_output_directory):
         return domain.replace(":", "+")
     return None
 
+def initialize_output_directories(output_directory):
+    """Create public and private subdirectories in the output directory"""
+    for visibility in ['/public', '/private']:
+        os.makedirs(output_directory + visibility, exist_ok=True)
+
+
+def set_default_options(module_options):
+    """Set default values for module options if not present"""
+    module_options.setdefault('clean_removed', False)
+    module_options.setdefault('skip_failed', False)
+    module_options.setdefault('only_tags', [])
+    module_options.setdefault('wget_errors_are_fatal', True)
+
+
+def get_local_archive_dir(output_directory, item):
+    """Get the local archive directory path for an item based on its privacy setting"""
+    visibility = 'private' if item['private'] else 'public'
+    return f"{output_directory}/{visibility}/{item['id']}"
+
+
+def is_item_excluded(item, module_options):
+    """Check if item should be excluded based on tags or regex patterns
+    Returns: (is_excluded: bool, excluded_by_tags: bool, excluded_by_regex: bool)
+    """
+    excluded_by_tags = (module_options.get('exclude_tags') and
+                       any(tag in item['tags'] for tag in module_options['exclude_tags']))
+    excluded_by_regex = (module_options.get('exclude_regex') and
+                        any(re.search(regex, item['url']) for regex in module_options['exclude_regex']))
+    return (excluded_by_tags or excluded_by_regex, excluded_by_tags, excluded_by_regex)
+
+
+def handle_excluded_item(item, local_archive_dir, excluded_by_tags, excluded_by_regex, clean_excluded):
+    """Handle an excluded item: clean up if needed and log the reason"""
+    if clean_excluded:
+        if os.path.isdir(local_archive_dir):
+            if excluded_by_tags:
+                logging.info('removing local archive directory %s for URL %s (one or more tags match exclude_tags)', local_archive_dir, item['url'])
+            else:
+                logging.info('removing local archive directory %s for URL %s (URL matches exclude_regex)', local_archive_dir, item['url'])
+            shutil.rmtree(local_archive_dir)
+        item.pop('archive_path', None)
+
+    if excluded_by_tags:
+        logging.debug('skipping %s (id %s): one or more tags are present in exclude_tags', item['url'], item['id'])
+    else:
+        logging.debug('skipping %s (id %s): URL matches exclude_regex', item['url'], item['id'])
+
+
+def should_process_item(item, module_options):
+    """Determine if an item should be processed for archiving
+    Returns: (should_process: bool, reason: str)
+    Reasons: 'process', 'already_archived', 'failed', 'no_matching_tags'
+    """
+    # skip already archived items when skip_already_archived: True
+    if (module_options.get('skip_already_archived', True) and
+        item.get('archive_path') is not None):
+        return (False, 'already_archived')
+
+    # skip failed items when skip_failed: True
+    if (module_options.get('skip_failed', False) and
+        item.get('archive_error', False)):
+        return (False, 'failed')
+
+    # archive items matching only_tags (ANY tag must be present)
+    only_tags = module_options.get('only_tags', [])
+    if set(only_tags).intersection(set(item['tags'])):
+        return (True, 'process')
+
+    return (False, 'no_matching_tags')
+
+
+def cleanup_removed_archives(output_directory, items, clean_removed):
+    """Remove archived directories for items that no longer exist in the data file"""
+    for visibility in ['public', 'private']:
+        dirs_list = next(os.walk(f"{output_directory}/{visibility}"))
+        ids_in_data = [value['id'] for value in items if value['private'] == (visibility == 'private')]
+
+        for directory in dirs_list[1]:
+            if not any(id == int(directory) for id in ids_in_data):
+                archive_path = f"{dirs_list[0]}/{directory}"
+                if clean_removed:
+                    # TODO if an item was changed from private to public or the other way around, the local archive will be deleted, but it will not be archived again since archive_path is already set
+                    logging.info('local webpage archive found with id %s, but not in data. Deleting %s', directory, archive_path)
+                    shutil.rmtree(archive_path)
+                else:
+                    logging.warning('local webpage archive found with id %s, but not in data. You may want to delete %s manually', directory, archive_path)
+
+
+def process_single_item(step, item, local_archive_dir, items):
+    """Archive a single item and update its metadata
+    Returns: (success: bool, error_occurred: bool)
+    """
+    logging.info('archiving %s (id %s)', item['url'], item['id'])
+    local_archive_path = wget(step, item, local_archive_dir)
+
+    if local_archive_path is not None:
+        item['archive_path'] = local_archive_path
+        item.pop('archive_error', None)
+        success, error = True, False
+    else:
+        item['archive_error'] = True
+        success, error = False, True
+
+    write_data_file(step, items)  # Checkpoint after processing
+    return (success, error)
+
+
 def archive_webpages(step):
-    """archive webpages linked from each item's 'url', if their tags match one of step['only_tags'],
+    """archive webpages linked from each item's 'url', if one of their tags matches one of step['only_tags'],
     write path to local archive to a new key 'archive_path' in the original data file for each downloaded item
     """
+    # Validate required options
+    required_options = ['data_file', 'output_directory']
+    for opt in required_options:
+        if opt not in step['module_options']:
+            raise ValueError(f"Missing required module option: {opt}")
+
     downloaded_count = 0
     skipped_count = 0
     error_count = 0
-    for visibility in ['/public', '/private']:
-        try:
-            os.mkdir(step['module_options']['output_directory'] + visibility)
-        except FileExistsError:
-            pass
+
+    initialize_output_directories(step['module_options']['output_directory'])
+
     items = load_yaml_data(step['module_options']['data_file'])
-    if 'clean_removed' not in step['module_options']:
-        step['module_options']['clean_removed'] = False
-    if 'skip_failed' not in step['module_options']:
-        step['module_options']['skip_failed'] = False
+
+    set_default_options(step['module_options'])
+
     for item in items:
-        if item['private']:
-            local_archive_dir = step['module_options']['output_directory'] + '/private/' + str(item['id'])
+        local_archive_dir = get_local_archive_dir(step['module_options']['output_directory'], item)
+
+        # Check if item should be excluded (tags or regex)
+        is_excluded, excluded_by_tags, excluded_by_regex = is_item_excluded(item, step['module_options'])
+
+        # Clean excluded items if clean_excluded is True
+        if is_excluded:
+            handle_excluded_item(item, local_archive_dir, excluded_by_tags, excluded_by_regex,
+                               step['module_options'].get('clean_excluded', False))
+            skipped_count += 1
         else:
-            local_archive_dir = step['module_options']['output_directory'] + '/public/' + str(item['id'])
-        # skip already archived items when skip_already_archived: True
-        if (('skip_already_archived' not in step['module_options'].keys() or
-                step['module_options']['skip_already_archived']) and 'archive_path' in item.keys() and item['archive_path'] is not None):
-            logging.debug('skipping %s (id %s): already archived', item['url'], item['id'])
-            skipped_count = skipped_count +1
-        # skip items matching exclude_tags
-        elif ('exclude_tags' in step['module_options'] and any(tag in item['tags'] for tag in step['module_options']['exclude_tags'])):
-            logging.debug('skipping %s (id %s): one or more tags are present in exclude_tags', item['url'], item['id'])
-            skipped_count = skipped_count +1
-        # skip items matching exclude_regex
-        elif ('exclude_regex' in step['module_options'] and any(re.search(regex, item['url']) for regex in step['module_options']['exclude_regex'])):
-            logging.debug('skipping %s (id %s): URL matches exclude_regex', item['url'], item['id'])
-            skipped_count = skipped_count +1
-            if 'clean_excluded' in step['module_options'] and step['module_options']['clean_excluded']:
-                if os.path.isdir(local_archive_dir):
-                    logging.info('removing local archive directory %s', local_archive_dir)
-                    shutil.rmtree(local_archive_dir)
-                item.pop('archive_path', None)
-        # skip failed items when skip_failed: True
-        elif (step['module_options']['skip_failed'] and 'archive_error' in item.keys() and item['archive_error']):
-            logging.debug('skipping %s (id %s): the previous archival attempt failed, and skip_failed is set to True', item['url'], item['id'])
-            skipped_count = skipped_count +1
-        # archive items matching only_tags
-        elif list(set(step['module_options']['only_tags']) & set(item['tags'])):
-            logging.info('archiving %s (id %s)', item['url'], item['id'])
-            local_archive_path = wget(step, item, local_archive_dir)
-            for item2 in items:
-                if item2['id'] == item['id']:
-                    if local_archive_path is not None:
-                        item2['archive_path'] = local_archive_path
-                        downloaded_count = downloaded_count + 1
-                        item2.pop('archive_error', None)
-                    else:
-                        item2['archive_error'] = True
-                        error_count = error_count + 1
-                    break
-            write_data_file(step, items)
-        else:
-            logging.debug('skipping %s (id %s): no tags matching only_tags', item['url'], item['id'])
-            skipped_count = skipped_count + 1
-    for visibility in ['public', 'private']:
-        dirs_list = []
-        if visibility == 'public':
-            dirs_list = next(os.walk(step['module_options']['output_directory'] + '/public'))
-            ids_in_data = [value['id'] for value in items if value['private'] == False]
-        elif visibility == 'private':
-            dirs_list = next(os.walk(step['module_options']['output_directory'] + '/private'))
-            ids_in_data = [value['id'] for value in items if value['private'] == True]
-        else:
-            logging.error('invalid value for visibility: %s', visibility)
-            sys.exit(1)
-        for directory in dirs_list[1]:
-            if not any(id == int(directory) for id in ids_in_data):
-                if step['module_options']['clean_removed']:
-                    # TODO if an item was changed from private to public or the other way around, the local archive will be deleted, but it will not be archived again since archive_path is already set
-                    logging.info('local webpage archive found with id %s, but not in data. Deleting %s', directory, dirs_list[0] + '/' + directory)
-                    shutil.rmtree(dirs_list[0] + '/' + directory)
-                else:
-                    logging.warning('local webpage archive found with id %s, but not in data. You may want to delete %s manually', dir, dirs_list[0] + '/' + directory)
+            should_process, reason = should_process_item(item, step['module_options'])
+
+            if should_process:
+                success, error = process_single_item(step, item, local_archive_dir, items)
+                if success:
+                    downloaded_count += 1
+                if error:
+                    error_count += 1
+            else:
+                if reason == 'already_archived':
+                    logging.debug('skipping %s (id %s): already archived', item['url'], item['id'])
+                elif reason == 'failed':
+                    logging.debug('skipping %s (id %s): the previous archival attempt failed, and skip_failed is set to True', item['url'], item['id'])
+                elif reason == 'no_matching_tags':
+                    logging.debug('skipping %s (id %s): no tags matching only_tags', item['url'], item['id'])
+                skipped_count += 1
+
+    cleanup_removed_archives(step['module_options']['output_directory'], items,
+                            step['module_options']['clean_removed'])
+
     logging.info('processing complete. Downloaded: %s - Skipped: %s - Errors %s', downloaded_count, skipped_count, error_count)

@@ -388,7 +388,7 @@ steps:
       module: processors/download_media
       module_options:
         data_file: shaarli.yml # path to the YAML data file
-        only_tags: ['video'] # only download items tagged with all these tags
+        only_tags: ['video'] # only download items tagged with any of these tags
         exclude_tags: ['nodl'] # (default []), don't download items tagged with any of these tags
         output_directory: '/path/to/video/directory' # path to the output directory for media files
         download_playlists: False # (default False) download playlists
@@ -400,7 +400,7 @@ steps:
     module: processors/download_media
     module_options:
       data_file: shaarli.yml
-      only_tags: ['music']
+      only_tags: ['music', 'musique']
       exclude_tags: ['nodl']
       output_directory: '/path/to/audio/directory'
       only_audio: True # (default False) download the 'bestaudio' format instead of the default 'best'

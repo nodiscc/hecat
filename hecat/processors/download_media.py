@@ -19,6 +19,7 @@ steps:
       retry_items_with_error: True # (default True) retry downloading items for which an error was previously recorded
       only_audio: False # (default False) download the 'bestaudio' format instead of the default 'best'
       use_download_archive: True # (default True) use a yt-dlp archive file to record downloaded items, skip them if already downloaded
+      abort_on_first_error: False # (default False) abort immediately if a download error occurs (before writing to the data file)
 
 # $ cat tests/.hecat.download_audio.yml
 steps:
@@ -55,7 +56,6 @@ Output directory structure:
 └── tests/video/Philipp_Hagemeister - youtube-dl_test_video_a - youtube-BaW_jenozKc.en.vtt
 """
 
-import os
 import logging
 import ruamel.yaml
 import yt_dlp
@@ -65,81 +65,220 @@ yaml = ruamel.yaml.YAML()
 yaml.indent(sequence=2, offset=0)
 yaml.width = 99999
 
-def download_media(step):
-    """download videos from the each item's 'url', if it matches one of step['only_tags'],
-    write downloaded filenames to a new key audio_filename/video_filename in the original data file for each downloaded item
+# Constants
+VIDEO_FILENAME_KEY = 'video_filename'
+AUDIO_FILENAME_KEY = 'audio_filename'
+VIDEO_ERROR_KEY = 'video_download_error'
+AUDIO_ERROR_KEY = 'audio_download_error'
+VIDEO_ARCHIVE_FILENAME = 'yt-dlp.video.archive'
+AUDIO_ARCHIVE_FILENAME = 'yt-dlp.audio.archive'
+OUTPUT_TEMPLATE = '%(uploader)s - %(title)s - %(extractor)s-%(id)s.%(ext)s'
+
+# Base yt-dlp configuration
+# https://github.com/ytdl-org/youtube-dl/blob/master/youtube_dl/YoutubeDL.py
+# https://github.com/ytdl-org/youtube-dl/blob/master/youtube_dl/downloader/common.py
+BASE_YDL_OPTIONS = {
+    'outtmpl': OUTPUT_TEMPLATE,
+    'trim_file_name': 180,
+    'writeinfojson': True,
+    'writesubtitles': True,
+    'restrictfilenames': True,
+    'compat_opts': ['no-live-chat'],
+    'noplaylist': True
+}
+
+# Video-specific configuration
+VIDEO_YDL_OPTIONS = {
+    'download_archive': VIDEO_ARCHIVE_FILENAME,
+}
+
+# Audio-specific configuration
+AUDIO_YDL_OPTIONS = {
+    'postprocessors': [{'key': 'FFmpegExtractAudio'}],
+    'keepvideo': False,
+    'format': 'bestaudio',
+    'download_archive': AUDIO_ARCHIVE_FILENAME,
+}
+
+
+def build_ydl_options(module_options, is_audio=False):
+    """Build yt-dlp options based on module configuration.
+
+    Args:
+        module_options: Configuration dict from step['module_options']
+        is_audio: Whether to configure for audio-only downloads
+
+    Returns:
+        Complete yt-dlp options dictionary
     """
-    # print(help(yt_dlp.YoutubeDL))
-    ydl_opts = {
-        'outtmpl': '%(uploader)s - %(title)s - %(extractor)s-%(id)s.%(ext)s',
-        'trim_file_name': 180,
-        'writeinfojson': True,
-        'writesubtitles': True,
-        'restrictfilenames': True,
-        'compat_opts': ['no-live-chat'],
-        'download_archive': 'yt-dlp.video.archive',
-        'noplaylist': True
-    }
-    filename_key = 'video_filename'
-    error_key = 'video_download_error'
+    # Start with base options
+    ydl_opts = BASE_YDL_OPTIONS.copy()
+
+    # Add media-type specific options
+    if is_audio:
+        ydl_opts.update(AUDIO_YDL_OPTIONS)
+    else:
+        ydl_opts.update(VIDEO_YDL_OPTIONS)
+
+    # Add output directory to paths
+    output_dir = module_options['output_directory']
+    ydl_opts['outtmpl'] = f"{output_dir}/{ydl_opts['outtmpl']}"
+
+    if 'download_archive' in ydl_opts:
+        ydl_opts['download_archive'] = f"{output_dir}/{ydl_opts['download_archive']}"
+
+    # Remove download archive if disabled
+    if not module_options.get('use_download_archive', True):
+        ydl_opts.pop('download_archive', None)
+
+    # Enable playlists if requested
+    if module_options.get('download_playlists', False):
+        ydl_opts['noplaylist'] = False
+
+    return ydl_opts
+
+
+def download_single_item(item, items, ydl_opts, filename_key, error_key, step, abort_on_error=False):
+    """Download a single media item using yt-dlp and update the data file.
+
+    Updates the item dict in-place with the downloaded filename or error message,
+    then writes the updated items list back to the data file.
+
+    Args:
+        item: Item dict to download (updated in-place)
+        items: Full list of items for writing to data file
+        ydl_opts: yt-dlp options dictionary
+        filename_key: Key name for storing filename
+        error_key: Key name for storing error messages
+        step: Step configuration dict
+        abort_on_error: If True, raise exception on error instead of recording it
+
+    Returns:
+        Tuple of (success: bool, error_message: str or None)
+
+    Raises:
+        Exception: If abort_on_error is True and download fails
+    """
+    logging.info('downloading %s (id %s)', item['url'], item['id'])
+
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        try:
+            info = ydl.extract_info(item['url'], download=True)
+            if info is not None:
+                # TODO does not get the real, final filename after audio extraction
+                # https://github.com/ytdl-org/youtube-dl/issues/5710
+                # https://github.com/ytdl-org/youtube-dl/issues/7137
+                outpath = ydl.prepare_filename(info)
+
+                # Update item directly (it's a reference to the dict in items list)
+                item[filename_key] = outpath
+                item.pop(error_key, None)
+
+                write_data_file(step, items)
+                return True, None
+        except (yt_dlp.utils.DownloadError, AttributeError) as e:
+            error_message = str(e)
+            logging.error('%s (id %s): %s', item['url'], item['id'], error_message)
+
+            if abort_on_error:
+                raise
+
+            item[error_key] = error_message
+            write_data_file(step, items)
+            return False, error_message
+
+    error_message = "No info returned from yt-dlp"
+    if abort_on_error:
+        raise Exception(error_message)
+
+    return False, error_message
+
+
+def should_skip_item(item, module_options, filename_key, error_key):
+    """Determine if an item should be skipped during download.
+
+    Checks for existing filenames, previous errors, excluded tags, and required tags.
+
+    Args:
+        item: Item dict containing 'url', 'tags', and optionally filename/error keys
+        module_options: Configuration dict from step['module_options']
+        filename_key: Key name for stored filename ('video_filename' or 'audio_filename')
+        error_key: Key name for stored errors ('video_download_error' or 'audio_download_error')
+
+    Returns:
+        Tuple of (should_skip: bool, reason: str or None)
+    """
+    # Check if filename already present and skip_when_filename_present is True
+    skip_when_present = module_options.get('skip_when_filename_present', True)
+    if skip_when_present and filename_key in item:
+        return True, f'{filename_key} already recorded in the data file'
+
+    # Check if we should skip items with errors
+    retry_errors = module_options.get('retry_items_with_error', True)
+    if not retry_errors and error_key in item:
+        return True, f'not retrying download on items with {error_key} set'
+
+    # Check if item has any excluded tags
+    exclude_tags = module_options.get('exclude_tags', [])
+    if exclude_tags and any(tag in item.get('tags', []) for tag in exclude_tags):
+        return True, 'one or more tags are present in exclude_tags'
+
+    # Check if item has any required tags
+    only_tags = module_options.get('only_tags', [])
+    if not list(set(only_tags) & set(item.get('tags', []))):
+        return True, 'no tags matching only_tags'
+
+    return False, None
+
+
+def download_media(step):
+    """Download video or audio files from URLs in a YAML data file.
+
+    Processes each item in the data file, downloading media from supported sites
+    using yt-dlp. Writes downloaded filenames back to the data file. Supports
+    filtering by tags, skipping already-downloaded items, and error retry control.
+
+    Args:
+        step: Step configuration dict containing 'module_options' with settings
+              for data_file path, output_directory, tag filters, and download options
+    """
+    module_options = step['module_options']
+    is_audio = module_options.get('only_audio', False)
+    abort_on_error = module_options.get('abort_on_first_error', False)
+
+    # Build yt-dlp options and determine keys
+    ydl_opts = build_ydl_options(module_options, is_audio)
+    filename_key = AUDIO_FILENAME_KEY if is_audio else VIDEO_FILENAME_KEY
+    error_key = AUDIO_ERROR_KEY if is_audio else VIDEO_ERROR_KEY
+
     skipped_count = 0
     downloaded_count = 0
     error_count = 0
-    # add specific options when only_audio = True
-    if 'only_audio' in step['module_options'] and step['module_options']['only_audio']:
-        ydl_opts['postprocessors'] =  [ {'key': 'FFmpegExtractAudio'} ]
-        ydl_opts['keepvideo'] = False
-        ydl_opts['format'] = 'bestaudio'
-        ydl_opts['download_archive'] = 'yt-dlp.audio.archive'
-        filename_key = 'audio_filename'
-        error_key = 'audio_download_error'
-    ydl_opts['outtmpl'] = step['module_options']['output_directory'] + '/' + ydl_opts['outtmpl']
-    ydl_opts['download_archive'] = step['module_options']['output_directory'] + '/' + ydl_opts['download_archive']
-    if 'use_download_archive' in step['module_options'] and not step['module_options']['use_download_archive']:
-        del ydl_opts['download_archive']
-    if 'download_playlists' in step.keys() and step['download_playlists']:
-        ydl_opts['noplaylist'] == False
 
-    items = load_yaml_data(step['module_options']['data_file'])
+    items = load_yaml_data(module_options['data_file'])
+
     for item in items:
-        # skip download when skip_when_filename_present = True, and video/audio_filename key already exists
-        if (('skip_when_filename_present' not in step['module_options'].keys() or
-                step['module_options']['skip_when_filename_present']) and filename_key in item.keys()):
-            logging.debug('skipping %s (id %s): %s already recorded in the data file', item['url'], item['id'], filename_key)
-            skipped_count = skipped_count +1
-        # skip download when retry_items_with_error = False, and video/audio_download_error key already exists
-        elif ('retry_items_with_error' in step['module_options'] and
-                not step['module_options']['retry_items_with_error'] and
-                error_key in item.keys()):
-            logging.debug('skipping %s (id %s): not retrying download on items with %s set', item['url'], item['id'], error_key)
-            skipped_count = skipped_count +1
-        # skip download when one of the item's tags matches a tag in exclude_tags
-        elif ('exclude_tags' in step['module_options'] and
-                any(tag in item['tags'] for tag in step['module_options']['exclude_tags'])):
-            logging.debug('skipping %s (id %s): one or more tags are present in exclude_tags', item['url'], item['id'])
-            skipped_count = skipped_count +1
-        # download if all tags in only_tags are present in the item's tags
-        elif list(set(step['module_options']['only_tags']) & set(item['tags'])):
-            logging.info('downloading %s (id %s)', item['url'], item ['id'])
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                try:
-                    info = ydl.extract_info(item['url'], download=True)
-                    if info is not None:
-                        # TODO does not get the real, final filename after audio extraction https://github.com/ytdl-org/youtube-dl/issues/5710, https://github.com/ytdl-org/youtube-dl/issues/7137
-                        outpath = ydl.prepare_filename(info)
-                        for item2 in items:
-                            if item2['id'] == item['id']:
-                                item2[filename_key] = outpath
-                                item.pop(error_key, False)
-                                break
-                        write_data_file(step, items)
-                    downloaded_count = downloaded_count +1
-                except (yt_dlp.utils.DownloadError, AttributeError) as e:
-                    logging.error('%s (id %s): %s', item['url'], item['id'], str(e))
-                    item[error_key] = str(e)
-                    write_data_file(step, items)
-                    error_count = error_count + 1
+        should_skip, skip_reason = should_skip_item(
+            item,
+            module_options,
+            filename_key,
+            error_key
+        )
+
+        if should_skip:
+            logging.debug('skipping %s (id %s): %s', item['url'], item['id'], skip_reason)
+            skipped_count += 1
+            continue
+
+        # Download the item
+        success, error = download_single_item(
+            item, items, ydl_opts, filename_key, error_key, step, abort_on_error
+        )
+
+        if success:
+            downloaded_count += 1
         else:
-            logging.debug('skipping %s (id %s): no tags matching only_tags', item['url'], item['id'])
-            skipped_count = skipped_count + 1
-    logging.info('processing complete. Downloaded: %s - Skipped: %s - Errors %s', downloaded_count, skipped_count, error_count)
+            error_count += 1
+
+    logging.info('processing complete. Downloaded: %s - Skipped: %s - Errors %s',
+                 downloaded_count, skipped_count, error_count)
