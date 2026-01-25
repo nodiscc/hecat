@@ -22,7 +22,7 @@ steps:
     module: processors/archive_webpages
     module_options:
       data_file: tests/shaarli.yml # path to the YAML data file
-      only_tags: ['doc'] # only download items tagged with all these tags
+      only_tags: ['doc'] # only download items tagged with any of these tags
       exclude_tags: ['nodl'] # (default []), don't download items tagged with any of these tags
       exclude_regex: # (default []) don't archive URLs matching these regular expressions
         - '^https://[a-z]\.wikipedia.org/wiki/.*$' # don't archive wikipedia pages, supposing you have a local copy of wikipedia dumps from https://dumps.wikimedia.org/
@@ -262,9 +262,9 @@ def should_process_item(item, module_options):
         item.get('archive_error', False)):
         return (False, 'failed')
 
-    # archive items matching only_tags (ALL tags must be present)
+    # archive items matching only_tags (ANY tag must be present)
     only_tags = module_options.get('only_tags', [])
-    if set(only_tags).issubset(set(item['tags'])):
+    if set(only_tags).intersection(set(item['tags'])):
         return (True, 'process')
 
     return (False, 'no_matching_tags')
@@ -307,7 +307,7 @@ def process_single_item(step, item, local_archive_dir, items):
 
 
 def archive_webpages(step):
-    """archive webpages linked from each item's 'url', if their tags match one of step['only_tags'],
+    """archive webpages linked from each item's 'url', if one of their tags matches one of step['only_tags'],
     write path to local archive to a new key 'archive_path' in the original data file for each downloaded item
     """
     # Validate required options
