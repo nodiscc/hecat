@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 **Added:**
 - processors/archive_webpages: add `wget_errors_are_fatal: False` module option
-
+- processors/download_media: add `abort_on_first_error: False` (stop on download failures if True)
 
 **Changed:**
 - processors/archive_webpages: improve performance, do not perform unnecessary searches/comparisons

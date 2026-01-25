@@ -19,6 +19,7 @@ steps:
       retry_items_with_error: True # (default True) retry downloading items for which an error was previously recorded
       only_audio: False # (default False) download the 'bestaudio' format instead of the default 'best'
       use_download_archive: True # (default True) use a yt-dlp archive file to record downloaded items, skip them if already downloaded
+      abort_on_first_error: False # (default False) abort immediately if a download error occurs (before writing to the data file)
 
 # $ cat tests/.hecat.download_audio.yml
 steps:
@@ -136,7 +137,7 @@ def build_ydl_options(module_options, is_audio=False):
     return ydl_opts
 
 
-def download_single_item(item, items, ydl_opts, filename_key, error_key, step):
+def download_single_item(item, items, ydl_opts, filename_key, error_key, step, abort_on_error=False):
     """Download a single media item using yt-dlp and update the data file.
 
     Updates the item dict in-place with the downloaded filename or error message,
@@ -149,9 +150,13 @@ def download_single_item(item, items, ydl_opts, filename_key, error_key, step):
         filename_key: Key name for storing filename
         error_key: Key name for storing error messages
         step: Step configuration dict
+        abort_on_error: If True, raise exception on error instead of recording it
 
     Returns:
         Tuple of (success: bool, error_message: str or None)
+
+    Raises:
+        Exception: If abort_on_error is True and download fails
     """
     logging.info('downloading %s (id %s)', item['url'], item['id'])
 
@@ -173,11 +178,19 @@ def download_single_item(item, items, ydl_opts, filename_key, error_key, step):
         except (yt_dlp.utils.DownloadError, AttributeError) as e:
             error_message = str(e)
             logging.error('%s (id %s): %s', item['url'], item['id'], error_message)
+
+            if abort_on_error:
+                raise
+
             item[error_key] = error_message
             write_data_file(step, items)
             return False, error_message
 
-    return False, "No info returned from yt-dlp"
+    error_message = "No info returned from yt-dlp"
+    if abort_on_error:
+        raise Exception(error_message)
+
+    return False, error_message
 
 
 def should_skip_item(item, module_options, filename_key, error_key):
@@ -230,6 +243,7 @@ def download_media(step):
     """
     module_options = step['module_options']
     is_audio = module_options.get('only_audio', False)
+    abort_on_error = module_options.get('abort_on_first_error', False)
 
     # Build yt-dlp options and determine keys
     ydl_opts = build_ydl_options(module_options, is_audio)
@@ -256,7 +270,9 @@ def download_media(step):
             continue
 
         # Download the item
-        success, error = download_single_item(item, items, ydl_opts, filename_key, error_key, step)
+        success, error = download_single_item(
+            item, items, ydl_opts, filename_key, error_key, step, abort_on_error
+        )
 
         if success:
             downloaded_count += 1
