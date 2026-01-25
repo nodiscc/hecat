@@ -114,7 +114,7 @@ test_archive_webpages: install
 	source .venv/bin/activate && \
 	hecat --log-level DEBUG --config tests/.hecat.archive_webpages.yml
 	# test existence and content of archived page
-	@grep -q 'official Debian installation media can be purchased' tests/webpages/public/232/www.debian.org/releases/stable/amd64/ch01s05.en.html
+	@grep -q 'The incident is frequently depicted in the series' tests/webpages/public/8192/finalfantasy.fandom.com/wiki/Nibelheim_Incident.html
 	# test that directories were effectively removed
 	@if [[ -d tests/webpages/public/9999999999 ]]; then echo "ERROR tests/webpages/public/9999999999 should have been removed by clean_removed: True"; exit 1; fi
 	@if [[ -d tests/webpages/public/6625 ]]; then echo "ERROR tests/webpages/public/6625 should have been removed by clean_excluded: True"; exit 1; fi
