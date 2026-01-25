@@ -9,13 +9,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 **Added:**
 - processors/archive_webpages: add `wget_errors_are_fatal: False` module option
 - processors/download_media: add `abort_on_first_error: False` (stop on download failures if True)
+- processors/archive_webpages: log reasons for skipping items and removing local archive directories
 
 **Changed:**
 - processors/archive_webpages: improve performance, do not perform unnecessary searches/comparisons
 - processors/archive_webpages: refactoring, separation of concerns, readability
 
 **Fixed:**
-- processors/archive_webpages: fix clean_excluded: True not really deleting webpage archives for URLs which match the exclude regex
+- processors/archive_webpages: fix clean_excluded: True not really deleting webpage archives for items whose URLs/tags match exclude_regex/exclude tags
 - processors/archive_webpages: fix undefined variable in `local webpage archive found with id N, but not in data` log message
 - processors/archive_webpages: actually write changes/removal of `archive_path` key to the data file
 - processors/archive_webpages: doc: any intersection between `only_tags` and the item's tags will actually cause it to be archived

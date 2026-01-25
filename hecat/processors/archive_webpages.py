@@ -234,7 +234,10 @@ def handle_excluded_item(item, local_archive_dir, excluded_by_tags, excluded_by_
     """Handle an excluded item: clean up if needed and log the reason"""
     if clean_excluded:
         if os.path.isdir(local_archive_dir):
-            logging.info('removing local archive directory %s', local_archive_dir)
+            if excluded_by_tags:
+                logging.info('removing local archive directory %s for URL %s (one or more tags match exclude_tags)', local_archive_dir, item['url'])
+            else:
+                logging.info('removing local archive directory %s for URL %s (URL matches exclude_regex)', local_archive_dir, item['url'])
             shutil.rmtree(local_archive_dir)
         item.pop('archive_path', None)
 
