@@ -56,7 +56,6 @@ Output directory structure:
 └── tests/video/Philipp_Hagemeister - youtube-dl_test_video_a - youtube-BaW_jenozKc.en.vtt
 """
 
-import os
 import logging
 import ruamel.yaml
 import yt_dlp
