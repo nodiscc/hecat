@@ -37,7 +37,7 @@
     {
         "hecat_comment": "test webpage archiving module",
         "created": "2023-06-30T19:36:24+02:00",
-        "description": "> Where can I find sheet music for this song?",
+        "description": "> The Nibelheim Incident is a pivotal event in the Final Fantasy VII series",
         "id": 8192,
         "private": false,
         "shorturl": "h97l7Q",
@@ -46,9 +46,9 @@
             "piano",
             "hecat"
         ],
-        "title": "faq - piano",
+        "title": "Nibelheim Incident | Final Fantasy Wiki | Fandom",
         "updated": "2023-07-01T00:38:03+02:00",
-        "url": "https://old.reddit.com/r/piano/wiki/faq#wiki_getting_started_as_a_beginner"
+        "url": "https://finalfantasy.fandom.com/wiki/Nibelheim_Incident"
     },
     {
         "hecat_comment": "test for nodl tag, should not be downloaded",
