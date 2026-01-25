@@ -145,7 +145,7 @@
     },
     {
         "created": "2021-04-27T21:07:20+02:00",
-        "description": "- https://docs.graylog.org/en/4.0/pages/installation/os/debian.html\r\n- https://docs.graylog.org/en/4.0/pages/getting_started/web_console.html\r\n- https://docs.graylog.org/en/4.0/pages/getting_started.html\r\n- https://docs.graylog.org/en/4.0/pages/getting_started/planning.html\r\n- https://docs.graylog.org/en/4.0/pages/getting_started/download_install.html\r\n- https://docs.graylog.org/en/4.0/pages/getting_started/configure.html\r\n- https://docs.graylog.org/en/4.0/pages/installation.html\r\n- https://gettingstarted.graylog.org/assets/v3/guides/1-first_messages.html\r\n- https://gettingstarted.graylog.org/assets/v3/guides/2-do_something.html\r\n - https://gettingstarted.graylog.org/assets/v3/guides/3-dashboards.ftl\r\n- https://gettingstarted.graylog.org/assets/v3/guides/4-alerts.ftl\r\n- https://marketplace.graylog.org/\r\n- https://buzut.net/analysez-vos-logs-graylog/\r\n- https://www.graylog.org/products/open-source-vs-enterprise\r\n- https://docs.graylog.org/en/4.0/pages/configuration/server.conf.html\r\n- https://docs.graylog.org/en/4.0/pages/streams.html\r\n- https://docs.graylog.org/en/4.0/pages/configuration/elasticsearch.html\r\n- https://docs.graylog.org/en/4.0/pages/configuration/index_model.html\r\n- https://www.graylog.org/products/open-source\r\n- https://docs.graylog.org/en/4.0/pages/sending_data.html\r\n- https://docs.graylog.org/en/4.0/pages/sending/syslog.html\r\n- https://docs.graylog.org/en/4.0/pages/queries.html\r\n- https://docs.graylog.org/en/4.0/pages/dashboards.html\r\n- https://docs.graylog.org/en/4.0/pages/extractors.html\r\n- https://docs.graylog.org/en/4.0/pages/alerts.html\r\n- https://sujets-libres.fr/index.php?article263/graylog-a-l-usage-retour-d-utilisation\r\n- https://logz.io/blog/logstash-grok/\r\n- https://docs.graylog.org/docs/streams\r\n- https://www.vdalabs.com/no-more-secrets-logging-made-easy-through-graylog-part-7/\r\n- https://docs.graylog.org/docs/decorators\r\n- https://docs.graylog.org/docs/lookuptables\r\n- https://community.graylog.org/t/hide-overall-count-from-line-chart/13843\r\n- https://docs.graylog.org/docs/processing-pipelines\r\n- https://docs.graylog.org/docs/pipelines\r\n- https://docs.graylog.org/docs/rules\r\n- https://docs.graylog.org/docs/functions-index\r\n- https://docs.graylog.org/docs/functions#expand-syslog-priority\r\n- https://community.graylog.org/t/stream-pipeline-and-input-extractor-clarification/5655\r\n- https://community.graylog.org/t/pipeline-rule-to-set-facility-and-log-level-categories/21100/2\r\n- https://serverfault.com/questions/822886/graylog-fields-from-pipeline-rule-not-showing-up-in-search-data\r\n- https://docs.graylog.org/docs/extractors\r\n- https://old.reddit.com/r/graylog/\r\n\r\n### Some title\r\n\r\nexample text **example bold text**",
+        "description": "- https://github.com/prometheus/node_exporter\r\n- https://prometheus.io/download/#node_exporter\r\n\r\n### Some title\r\n\r\nexample text **example bold text**",
         "id": 4727,
         "private": false,
         "shorturl": "dvrYJA",
@@ -155,9 +155,9 @@
             "logs",
             "monitoring"
         ],
-        "title": "Welcome to the Graylog documentation \u2014 Graylog 4.0.0 documentation",
+        "title": "Monitoring Linux host metrics with the Node Exporter | Prometheus",
         "updated": "2023-01-22T02:38:27+01:00",
-        "url": "https://docs.graylog.org/en/4.0/index.html"
+        "url": "https://prometheus.io/docs/guides/node-exporter/"
     },
     {
         "hecat_comment": "test for download_media module",
