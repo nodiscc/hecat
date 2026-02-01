@@ -56,6 +56,7 @@ Output directory structure:
 └── tests/video/Philipp_Hagemeister - youtube-dl_test_video_a - youtube-BaW_jenozKc.en.vtt
 """
 
+import time
 import logging
 import ruamel.yaml
 import yt_dlp
@@ -161,37 +162,59 @@ def download_single_item(item, items, ydl_opts, filename_key, error_key, step, a
     """
     logging.info('downloading %s (id %s)', item['url'], item['id'])
 
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+    max_retries = 2
+    retry_delay = 5
+
+    for attempt in range(max_retries + 1):
         try:
-            info = ydl.extract_info(item['url'], download=True)
-            if info is not None:
-                # TODO does not get the real, final filename after audio extraction
-                # https://github.com/ytdl-org/youtube-dl/issues/5710
-                # https://github.com/ytdl-org/youtube-dl/issues/7137
-                outpath = ydl.prepare_filename(info)
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(item['url'], download=True)
+                if info is not None:
+                    # TODO does not get the real, final filename after audio extraction
+                    # https://github.com/ytdl-org/youtube-dl/issues/5710
+                    # https://github.com/ytdl-org/youtube-dl/issues/7137
+                    outpath = ydl.prepare_filename(info)
+                    # Update item directly (it's a reference to the dict in items list)
+                    item[filename_key] = outpath
+                    item.pop(error_key, None)
+                    write_data_file(step, items)
+                    return True, None
+                else:
+                    error_message = "No info returned from yt-dlp"
+                    logging.error('%s (id %s): %s', item['url'], item['id'], error_message)
+                    if abort_on_error:
+                        raise Exception(error_message)
+                    item[error_key] = error_message
+                    write_data_file(step, items)
+                    return False, error_message # Don't retry, just return
 
-                # Update item directly (it's a reference to the dict in items list)
-                item[filename_key] = outpath
-                item.pop(error_key, None)
-
-                write_data_file(step, items)
-                return True, None
-        except (yt_dlp.utils.DownloadError, AttributeError) as e:
+        except yt_dlp.utils.DownloadError as e:
             error_message = str(e)
-            logging.error('%s (id %s): %s', item['url'], item['id'], error_message)
+            is_403 = 'HTTP Error 403' in error_message
+            if is_403 and attempt < max_retries:
+                logging.warning('%s (id %s): 403 error, retrying %d/%d in %ds: %s',
+                                item['url'], item['id'], attempt + 1, max_retries, retry_delay, error_message)
+                time.sleep(retry_delay)
+                continue
 
+            # Last attempt or non-403 error
+            logging.error('%s (id %s): %s', item['url'], item['id'], error_message)
             if abort_on_error:
                 raise
-
             item[error_key] = error_message
             write_data_file(step, items)
             return False, error_message
 
-    error_message = "No info returned from yt-dlp"
-    if abort_on_error:
-        raise Exception(error_message)
+        except AttributeError as e:
+            error_message = str(e)
+            logging.error('%s (id %s): %s', item['url'], item['id'], error_message)
+            if abort_on_error:
+                raise
+            item[error_key] = error_message
+            write_data_file(step, items)
+            return False, error_message
 
-    return False, error_message
+    return False, "Max retries exceeded"
 
 
 def should_skip_item(item, module_options, filename_key, error_key):
