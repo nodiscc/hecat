@@ -210,7 +210,7 @@ def set_default_options(module_options):
     module_options.setdefault('clean_removed', False)
     module_options.setdefault('skip_failed', False)
     module_options.setdefault('only_tags', [])
-    module_options.setdefault('wget_errors_are_fatal', True)
+    module_options.setdefault('wget_errors_are_fatal', False)
 
 
 def get_local_archive_dir(output_directory, item):
