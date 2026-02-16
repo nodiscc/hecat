@@ -21,7 +21,7 @@ Import data from various input formats:
 
 Perform processing tasks on YAML data:
 
-- [processors/github_metadata](hecat/processors/github_metadata.py): enrich software project metadata from GitHub API (stars, last commit date...)
+- [processors/software_metadata](hecat/processors/software_metadata.py): enrich software project metadata from GitHub and GitLab APIs (stars, last commit date...)
 - [processors/awesome_lint](hecat/processors/awesome_lint.py): check data against [awesome-selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted) consistency/completeness guidelines
 - [processors/download_media](hecat/processors/download_media.py): download video/audio files using [yt-dlp](https://github.com/yt-dlp/yt-dlp) for bookmarks imported from Shaarli
 - [processors/url_check](hecat/processors/url_check.py): check data for dead links
@@ -234,12 +234,16 @@ Update metadata before rebuilding HTML/markdown output:
 ```yaml
 # .hecat.update_metadata.yml
 steps:
-  - name: update github projects metadata
-    module: processors/github_metadata
+  - name: update projects metadata
+    module: processors/software_metadata
     module_options:
       source_directory: awesome-selfhosted-data # directory containing YAML data and software subdirectory
-      gh_metadata_only_missing: True # (default False) only gather metadata for software entries in which one of stargazers_count,updated_at, archived is missing
-      sleep_time: 7.3 # (default 0) sleep for this amount of time before each request to Github API
+      metadata_only_missing: True # (default False) only gather metadata for software entries in which one of stargazers_count,updated_at, archived, current_release, commit_history is missing
+      sleep_time: 5 # (default 60) sleep for this amount of time before each request to API
+      batch_size_github: 30 # (default 30) number of repositories to include in each batch request to GitHub API
+      batch_size_gitlab: 10 # (default 10) number of repositories to include in each batch request to GitLab API
+      commit_history_clean_months: 12 # (default 12) number of months of commit history to keep after cleanup (GitHub only)
+      commit_history_fetch_months: 3 # (default 3) number of months to fetch from GitHub API (GitHub only)
 ```
 
 <details><summary>Example automation using Github actions:</summary>
@@ -465,7 +469,7 @@ clone_awesome_selfhosted                clone awesome-selfhosted/awesome-selfhos
 test_import_awesome_selfhosted          test import from awesome-sefhosted
 test_process_awesome_selfhosted         test all processing steps on awesome-selfhosted-data
 test_url_check      test URL checker on awesome-sefhosted-data
-test_update_github_metadata             test github metadata updater/processor on awesome-selfhosted-data
+test_update_software_metadata             test software metadata updater/processor on awesome-selfhosted-data
 test_awesome_lint   test linter/compliance checker on awesome-sefhosted-data
 test_export_awesome_selfhosted_md       test export to singlepage markdown from awesome-selfhosted-data
 test_export_awesome_selfhosted_html     test export to singlepage HTML from awesome-selfhosted-data

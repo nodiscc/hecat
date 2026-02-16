@@ -54,7 +54,7 @@ test_import_awesome_selfhosted: install
 	hecat --config tests/.hecat.import_awesome_selfhosted_nonfree.yml
 
 .PHONY: test_process_awesome_selfhosted # test all processing steps on awesome-selfhosted-data
-test_process_awesome_selfhosted: install test_url_check test_update_github_metadata test_awesome_lint
+test_process_awesome_selfhosted: install test_url_check test_update_software_metadata test_awesome_lint
 	cd tests/awesome-selfhosted-data && git --no-pager diff --color=always
 
 .PHONY: test_url_check # test URL checker on awesome-sefhosted-data
@@ -62,10 +62,10 @@ test_url_check: install
 	source .venv/bin/activate && \
 	hecat --config tests/.hecat.url_check.yml
 
-.PHONY: test_update_github_metadata # test github metadata updater/processor on awesome-selfhosted-data
-test_update_github_metadata: install
+.PHONY: test_update_software_metadata # test software metadata updater/processor on awesome-selfhosted-data
+test_update_software_metadata: install
 	source .venv/bin/activate && \
-	hecat --log-level DEBUG --config tests/.hecat.github_metadata.yml
+	hecat --log-level DEBUG --config tests/.hecat.software_metadata.yml
 
 .PHONY: test_awesome_lint # test linter/compliance checker on awesome-sefhosted-data
 test_awesome_lint: install
