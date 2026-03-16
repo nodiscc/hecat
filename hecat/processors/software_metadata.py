@@ -12,8 +12,8 @@ steps:
       metadata_only_missing: False                      # (default False) only gather metadata for software entries in which one of stargazers_count,updated_at, archived, current_release, commit_history is missing
       commit_history_fetch_months: 6                    # (default 3) number of months to fetch commit history from GitHub API (GitHub only)
       commit_history_clean_months: 24                   # (default 12) number of months of commit history to keep after cleanup (GitHub only)
-      sleep_time: 3.7                                   # (default 60) sleep for this amount of time before each request to API
-      batch_size_github: 10                             # (default 30) number of repositories to include in each batch request to GitHub API
+      sleep_time: 3.7                                   # (default 5) sleep for this amount of time before each request to API
+      batch_size_github: 10                             # (default 25) number of repositories to include in each batch request to GitHub API
       batch_size_gitlab: 5                              # (default 10) number of repositories to include in each batch request to GitLab API
       max_retries: 3                                    # (default 3) maximum number of retries for API errors (502, 503, 504, 429) and connection errors (ChunkedEncodingError, ConnectionError, Timeout)
 
@@ -362,7 +362,7 @@ def add_github_metadata(step, github_projects, errors):
     token = os.environ.get('GITHUB_TOKEN')
     headers = {"Authorization": f"Bearer {token}"}
 
-    if not token:
+    if not token or token == '':
         logging.warning('GITHUB_TOKEN environment variable is not set, github projects exist but no metadata will be added/updated')
         return
 
@@ -532,7 +532,7 @@ def add_gitlab_metadata(step, gitlab_projects, errors):
     token = os.environ.get('GITLAB_TOKEN')
     headers = {"Authorization": f"Bearer {token}"}
 
-    if not token:
+    if not token or token == '':
         logging.warning('GITLAB_TOKEN environment variable is not set, gitlab projects exist but no metadata will be added/updated')
         return
 

@@ -239,8 +239,8 @@ steps:
     module_options:
       source_directory: awesome-selfhosted-data # directory containing YAML data and software subdirectory
       metadata_only_missing: True # (default False) only gather metadata for software entries in which one of stargazers_count,updated_at, archived, current_release, commit_history is missing
-      sleep_time: 5 # (default 60) sleep for this amount of time before each request to API
-      batch_size_github: 30 # (default 30) number of repositories to include in each batch request to GitHub API
+      sleep_time: 5 # (default 5) sleep for this amount of time before each request to API
+      batch_size_github: 25 # (default 25) number of repositories to include in each batch request to GitHub API
       batch_size_gitlab: 10 # (default 10) number of repositories to include in each batch request to GitLab API
       commit_history_clean_months: 12 # (default 12) number of months of commit history to keep after cleanup (GitHub only)
       commit_history_fetch_months: 3 # (default 3) number of months to fetch from GitHub API (GitHub only)
