@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 **Changed:**
 - processors/archive_webpages: improve performance, do not perform unnecessary searches/comparisons
 - processors/archive_webpages: refactoring, separation of concerns, readability
+- processors/download_media: retry download up to 3 times in case of 403 error
 
 **Fixed:**
 - processors/archive_webpages: fix clean_excluded: True not really deleting webpage archives for items whose URLs/tags match exclude_regex/exclude tags

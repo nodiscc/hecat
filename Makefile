@@ -38,7 +38,7 @@ test_long: test_process_awesome_selfhosted
 .PHONY: test_pylint # run linter (non blocking)
 test_pylint: install
 	.venv/bin/pip3 install pylint pyyaml
-	.venv/bin/pylint --fail-on E --fail-under=9.45 --disable=too-many-locals,line-too-long,consider-using-f-string hecat
+	.venv/bin/pylint --fail-on E --fail-under=9.45 --disable=too-many-locals,line-too-long,consider-using-f-string,no-else-return hecat
 
 .PHONY: clone_awesome_selfhosted # clone awesome-selfhosted/awesome-selfhosted-data
 clone_awesome_selfhosted:
