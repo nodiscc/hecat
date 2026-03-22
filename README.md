@@ -29,7 +29,7 @@ Perform processing tasks on YAML data:
 
 [![](https://gitlab.com/nodiscc/toolbox/-/raw/master/DOC/SCREENSHOTS/Heg3Esg.png)](hecat/processors/url_check.py)
 [![](https://gitlab.com/nodiscc/toolbox/-/raw/master/DOC/SCREENSHOTS/RtiDE91.png)](hecat/processors/download_media.py)
-[![](https://gitlab.com/nodiscc/toolbox/-/raw/master/DOC/SCREENSHOTS/hecat-processor-github-metadata.png)](hecat/processors/github_metadata.py)
+[![](https://gitlab.com/nodiscc/toolbox/-/raw/master/DOC/SCREENSHOTS/hecat-processor-github-metadata.png)](hecat/processors/software_metadata.py)
 
 #### Exporters
 
@@ -303,7 +303,7 @@ steps:
         - awesome-selfhosted-data/licenses.yml
       errors_are_fatal: True
       exclude_regex:
-        - '^https://github.com/[\w\.\-]+/[\w\.\-]+$' # don't check URLs that will be processed by the github_metadata module
+        - '^https://github.com/[\w\.\-]+/[\w\.\-]+$' # don't check URLs that will be processed by the software_metadata module
         - '^https://retrospring.net/$' # DDoS protection page, always returns 403
         - '^https://www.taiga.io/$' # always returns 403 Request forbidden by administrative rules
         - '^https://docs.paperless-ngx.com/$' # DDoS protection page, always returns 403
