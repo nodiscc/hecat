@@ -65,7 +65,7 @@ test_url_check: install
 .PHONY: test_update_software_metadata # test software metadata updater/processor on awesome-selfhosted-data
 test_update_software_metadata: install
 	source .venv/bin/activate && \
-	hecat --log-level DEBUG --config tests/.hecat.software_metadata.yml
+	hecat --log-level DEBUG --config tests/.hecat.update_metadata.yml
 
 .PHONY: test_awesome_lint # test linter/compliance checker on awesome-sefhosted-data
 test_awesome_lint: install
