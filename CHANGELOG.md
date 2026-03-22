@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 
-#### [v1.6.0](https://github.com/nodiscc/hecat/releases/tag/1.6.0) - UNRELEASED
+#### [v1.6.0](https://github.com/nodiscc/hecat/releases/tag/1.6.0) - 2026-03-22
 
 **Added:**
 - processors/software_metadata: add support for Gitlab metadata
