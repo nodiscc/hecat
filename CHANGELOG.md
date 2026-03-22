@@ -7,16 +7,21 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 #### [v1.6.0](https://github.com/nodiscc/hecat/releases/tag/1.6.0) - UNRELEASED
 
 **Added:**
+- processors/software_metadata: add support for Gitlab metadata
 - processors/archive_webpages: add `wget_errors_are_fatal: False` module option
 - processors/download_media: add `abort_on_first_error: False` (stop on download failures if True)
 - processors/archive_webpages: log reasons for skipping items and removing local archive directories
 
 **Changed:**
+- **BREAKING:** rename `processors/github_metadata` to `processors/software_metadata`
+- **BREAKING:** rename `gh_metadata_only_missing` module option to `metadata_only_missing`
 - processors/archive_webpages: improve performance, do not perform unnecessary searches/comparisons
 - processors/archive_webpages: refactoring, separation of concerns, readability
 - processors/download_media: retry download up to 3 times in case of 403 error
 
 **Fixed:**
+- processors/software_metadata: fixes invalid GitHub URLs/deleted repositories not being reported
+- processors/software_metadata: fix issue where GitHub repos that were forks did not get updated
 - processors/archive_webpages: fix clean_excluded: True not really deleting webpage archives for items whose URLs/tags match exclude_regex/exclude tags
 - processors/archive_webpages: fix undefined variable in `local webpage archive found with id N, but not in data` log message
 - processors/archive_webpages: actually write changes/removal of `archive_path` key to the data file
