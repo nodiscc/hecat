@@ -18,6 +18,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - processors/archive_webpages: improve performance, do not perform unnecessary searches/comparisons
 - processors/archive_webpages: refactoring, separation of concerns, readability
 - processors/download_media: retry download up to 3 times in case of 403 error
+- processors/download_media: limit video downloads to 1080p resolution
 
 **Fixed:**
 - processors/software_metadata: fixes invalid GitHub URLs/deleted repositories not being reported

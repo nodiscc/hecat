@@ -91,6 +91,7 @@ BASE_YDL_OPTIONS = {
 # Video-specific configuration
 VIDEO_YDL_OPTIONS = {
     'download_archive': VIDEO_ARCHIVE_FILENAME,
+    'format': 'bv[height<=1080]+ba/b[height<=1080]',
 }
 
 # Audio-specific configuration

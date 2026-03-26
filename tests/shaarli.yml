@@ -1,0 +1,134 @@
+- hecat_comment: test webpage archiving module
+  created: '2023-07-26T01:50:35+02:00'
+  description: ''
+  id: 8364
+  private: false
+  shorturl: vlbw0A
+  tags:
+  - forums
+  - rss
+  - games
+  - dev
+  - hecat
+  title: Dept. Q (TV Series 2025- ) — The Movie Database (TMDB)
+  updated: '2023-07-26T15:56:36+02:00'
+  url: https://www.themoviedb.org/tv/245703-dept-q
+- hecat_comment: test webpage archiving module
+  created: '2023-07-24T12:07:00+02:00'
+  description: Sample description
+  id: 8351
+  private: false
+  shorturl: Y6NgtQ
+  tags:
+  - doc
+  - admin
+  - hecat
+  - dev
+  title: Template Designer Documentation — Jinja Documentation (3.2.x)
+  updated: '2023-07-24T12:07:00+02:00'
+  url: https://jinja.palletsprojects.com/en/latest/templates/
+- hecat_comment: test webpage archiving module
+  created: '2023-06-30T19:36:24+02:00'
+  description: '> The Nibelheim Incident is a pivotal event in the Final Fantasy VII series'
+  id: 8192
+  private: false
+  shorturl: h97l7Q
+  tags:
+  - doc
+  - piano
+  - hecat
+  title: Nibelheim Incident | Final Fantasy Wiki | Fandom
+  updated: '2023-07-01T00:38:03+02:00'
+  url: https://finalfantasy.fandom.com/wiki/Nibelheim_Incident
+- hecat_comment: test for nodl tag, should not be downloaded
+  created: '2022-07-27T22:56:06+02:00'
+  description: ''
+  id: 6624
+  private: false
+  shorturl: zKVXxA
+  tags:
+  - video
+  - vj
+  - math
+  - nodl
+  title: The Burning Ship - A Fractal Zoom (5e598) (4k 60fps) - YouTube
+  updated: '2022-07-29T14:15:39+02:00'
+  url: https://www.youtube.com/watch?v=2S3lc2G3rWs
+- hecat_comment: test duplicate/updated entry
+  created: '2022-07-27T22:16:37+02:00'
+  description: 'A test description - updated. This is the same item as id: 6623 in shaarli.json, but the description and private flag have been updated'
+  id: 6623
+  private: true
+  shorturl: U-sj1Z
+  tags:
+  - lecture
+  - space
+  - readlater
+  title: SMACS J0723.3–7327 - Wikipedia - updated/duplicate
+  updated: '2022-07-27T22:18:55+02:01'
+  url: https://en.wikipedia.org/wiki/SMACS_J0723.3%E2%80%937327
+  some_key: an example key, which should not be deleted by importing the duplicate/updated item in shaarli-duplicate.json
+- hecat_comment: test for download_webpage module/remove_excluded
+  created: '2022-07-27T22:16:37+02:00'
+  description: This item should not have any archive_path attribute after running all steps in .hecat.archive_webpages.yml, and tests/webpages/public/6625 should not exist
+  id: 6625
+  private: false
+  shorturl: U-sj1B
+  tags:
+  - doc
+  - space
+  title: Amas de galaxies — Wikipédia
+  updated: '2022-07-27T22:18:24+02:00'
+  url: https://fr.wikipedia.org/wiki/Amas_de_galaxies
+- hecat_comment: test for download_media module
+  created: '2022-07-26T15:24:45+02:00'
+  description: ''
+  id: 6609
+  private: false
+  shorturl: wInSrw
+  tags:
+  - video
+  - games
+  - soundtrack
+  - album
+  - downtempo
+  title: THE POLAR NIGHT | 9 month timelapse at the South Pole | 4K60 HDR
+  updated: '2022-07-26T15:26:33+02:00'
+  url: https://www.youtube.com/watch?v=IaXDYwdPGDo
+  video_filename: tests/video/Timestorm_Films - THE_POLAR_NIGHT_9_month_timelapse_at_the_South_Pole_4K60_HDR - youtube-IaXDYwdPGDo.webm
+- created: '2021-04-27T21:07:20+02:00'
+  description: "- https://github.com/prometheus/node_exporter\r\n- https://prometheus.io/download/#node_exporter\r\n\r\n### Some title\r\n\r\nexample text **example bold text**"
+  id: 4727
+  private: false
+  shorturl: dvrYJA
+  tags:
+  - doc
+  - admin
+  - logs
+  - monitoring
+  title: Monitoring Linux host metrics with the Node Exporter | Prometheus
+  updated: '2023-01-22T02:38:27+01:00'
+  url: https://prometheus.io/docs/guides/node-exporter/
+- created: '2020-07-23T19:54:15+02:00'
+  description: "```\r\n   rescue:\r\n     - debug:\r\n         msg: 'I caught an error, can do stuff here to fix it, :-)'\r\n   always:\r\n     - debug:\r\n         msg: \"This always executes, :-)\"\r\n```"
+  id: 232
+  private: false
+  shorturl: oJmZFg
+  tags:
+  - doc
+  - admin
+  - debian
+  title: 1.5. Getting Debian
+  updated: '2023-01-25T15:02:16+01:00'
+  url: https://www.debian.org/releases/stable/amd64/ch01s05.en.html
+- created: '2017-07-13T03:05:20+02:00'
+  description: '> That gibberish he talked was Cityspeak, gutter talk, a mishmash of Japanese, Spanish, German, what have you. I didn’t really need a translator. I knew the lingo, every good cop did. But I wasn’t going to make it easier for him.'
+  id: 2083
+  private: false
+  shorturl: Bl8mkA
+  tags:
+  - games
+  - cyberpunk
+  title: 'Cityspeak | Off-world: The Blade Runner Wiki | FANDOM powered by Wikia'
+  updated: '2022-11-11T15:13:56+01:00'
+  url: http://bladerunner.wikia.com/wiki/Cityspeak
