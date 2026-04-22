@@ -1,7 +1,7 @@
 """export data to single markdown document suitable for "awesome" lists
 - https://github.com/awesome-selfhosted/awesome-selfhosted
 - https://github.com/sindresorhus/awesome
-- https://gitlab.com/nodiscc/toolbox/-/raw/master/DOC/SCREENSHOTS/rJyCEFw.png
+- https://github.com/nodiscc/toolbox/raw/master/DOC/SCREENSHOTS/rJyCEFw.png
 
 --------------------
 
@@ -90,7 +90,7 @@ name: "My awesome software"
 # URL of the software project's homepage
 website_url: "https://my.awesome.softwar.e"
 # URL where the full source code of the program can be downloaded
-source_code_url: "https://gitlab.com/awesome/software"
+source_code_url: "https://github.com/awesome/software"
 # description of what the software does, shorter than 250 characters, sentence case
 description: "Description of my awesome software."
 # list of license identifiers (listed in licenses_file)
@@ -161,7 +161,7 @@ external_links:
 # (optional) URLs of other collaborative lists which should be used instead
 redirect:
   - https://another.awesome.li.st
-  - https://gitlab.com/user/awesome-list
+  - https://github.com/user/awesome-list
 """
 
 import sys

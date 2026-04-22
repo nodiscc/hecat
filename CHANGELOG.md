@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+#### [v1.7.0](https://github.com/nodiscc/hecat/releases/tag/1.7.0) - UNRELEASED
+
+> [!IMPORTANT]
+> The mirror at https://gitlab.com/nodiscc/hecat will no longer be maintained after this release.  
+> Please use https://github.com/nodiscc/xsrv instead
+
+**Changed:**
+- **BREAKING:** archive gitlab.com mirror
+
+---------------------
 
 #### [v1.6.0](https://github.com/nodiscc/hecat/releases/tag/1.6.0) - 2026-03-22
 

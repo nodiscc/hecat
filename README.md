@@ -14,7 +14,7 @@ Import data from various input formats:
 - [importers/markdown_awesome](hecat/importers/markdown_awesome.py): import data from the [awesome-selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted) markdown format
 - [importers/shaarli_api](hecat/importers//shaarli_api.py): import data from a [Shaarli](https://github.com/shaarli/Shaarli) instance using the [API](https://shaarli.github.io/api-documentation/)
 
-[![](https://gitlab.com/nodiscc/toolbox/-/raw/master/DOC/SCREENSHOTS/tMAxhLw.png)](hecat/importers/markdown_awesome.py)
+[![](https://github.com/nodiscc/toolbox/raw/master/DOC/SCREENSHOTS/tMAxhLw.png)](hecat/importers/markdown_awesome.py)
 
 
 ### Processors
@@ -27,9 +27,9 @@ Perform processing tasks on YAML data:
 - [processors/url_check](hecat/processors/url_check.py): check data for dead links
 - [processors/archive_webpages](hecat/processors/archive_webpages.py): archive webpages locally
 
-[![](https://gitlab.com/nodiscc/toolbox/-/raw/master/DOC/SCREENSHOTS/Heg3Esg.png)](hecat/processors/url_check.py)
-[![](https://gitlab.com/nodiscc/toolbox/-/raw/master/DOC/SCREENSHOTS/RtiDE91.png)](hecat/processors/download_media.py)
-[![](https://gitlab.com/nodiscc/toolbox/-/raw/master/DOC/SCREENSHOTS/hecat-processor-github-metadata.png)](hecat/processors/software_metadata.py)
+[![](https://github.com/nodiscc/toolbox/raw/master/DOC/SCREENSHOTS/Heg3Esg.png)](hecat/processors/url_check.py)
+[![](https://github.com/nodiscc/toolbox/raw/master/DOC/SCREENSHOTS/RtiDE91.png)](hecat/processors/download_media.py)
+[![](https://github.com/nodiscc/toolbox/raw/master/DOC/SCREENSHOTS/hecat-processor-github-metadata.png)](hecat/processors/software_metadata.py)
 
 #### Exporters
 
@@ -38,9 +38,9 @@ Export data to other formats:
 - [exporters/markdown_multipage](hecat/exporters/markdown_multipage.py): render data as a multipage markdown site which can be used to generate a HTML site with Sphinx
 - [exporters/html_table](hecat/exporters/html_table.py): render data as single-page HTML table
 
-[![](https://gitlab.com/nodiscc/toolbox/-/raw/master/DOC/SCREENSHOTS/NvCOeiK.png)](hecat/exporters/markdown_singlepage.py)
-[![](https://gitlab.com/nodiscc/toolbox/-/raw/master/DOC/SCREENSHOTS/FFMPdaw.png)](hecat/exporters/html_table.py)
-[![](https://gitlab.com/nodiscc/toolbox/-/raw/master/DOC/SCREENSHOTS/hecat-exporter-markdown-multipage.png)](hecat/exporters/markdown_multipage.py)
+[![](https://github.com/nodiscc/toolbox/raw/master/DOC/SCREENSHOTS/NvCOeiK.png)](hecat/exporters/markdown_singlepage.py)
+[![](https://github.com/nodiscc/toolbox/raw/master/DOC/SCREENSHOTS/FFMPdaw.png)](hecat/exporters/html_table.py)
+[![](https://github.com/nodiscc/toolbox/raw/master/DOC/SCREENSHOTS/hecat-exporter-markdown-multipage.png)](hecat/exporters/markdown_multipage.py)
 
 
 ## Installation
@@ -53,14 +53,14 @@ python3 -m venv ~/.venv
 # activate the virtualenv
 source ~/.venv/bin/activate
 # install the program
-pip3 install git+https://gitlab.com/nodiscc/hecat.git
+pip3 install git+https://github.com/nodiscc/hecat.git
 ```
 
 To install from a local copy instead:
 
 ```bash
 # grab a copy
-git clone https://gitlab.com/nodiscc/hecat.git
+git clone https://github.com/nodiscc/hecat.git
 # install the python package
 cd hecat && python3 -m pip install .
 ```
@@ -68,8 +68,8 @@ cd hecat && python3 -m pip install .
 To install a specific [release](https://github.com/nodiscc/hecat/releases), adapt the `git clone` or `pip3 install` command:
 
 ```bash
-pip3 install git+https://gitlab.com/nodiscc/hecat.git@1.0.2
-git clone -b 1.0.2 https://gitlab.com/nodiscc/hecat.git
+pip3 install git+https://github.com/nodiscc/hecat.git@1.0.2
+git clone -b 1.0.2 https://github.com/nodiscc/hecat.git
 ```
 
 ## Usage
@@ -442,12 +442,12 @@ steps:
 
 ## Support
 
-Please submit any questions to <https://gitlab.com/nodiscc/hecat/-/issues> or <https://github.com/nodiscc/hecat/issues>
+Please submit any questions to <https://github.com/nodiscc/hecat/issues>
 
 
 ## Contributing
 
-Bug reports, suggestions, code cleanup, documentation, tests, improvements, support for other input/output formats are welcome at <https://gitlab.com/nodiscc/hecat/-/merge_requests> or <https://github.com/nodiscc/hecat/pulls>
+Bug reports, suggestions, code cleanup, documentation, tests, improvements, support for other input/output formats are welcome at <https://github.com/nodiscc/hecat/pulls>
 
 
 ## Testing

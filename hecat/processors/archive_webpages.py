@@ -6,7 +6,7 @@ The exporters/html_table module will display links to local copies of webpages i
 
 Note that yo may want to setup a system-wide ad-blocking mechanism to prevent wget from downloading
 ads and annoyances, and save bandwidth and disk space in the process. See
-https://gitlab.com/nodiscc/toolbox/-/tree/master/ARCHIVE/ANSIBLE-COLLECTION/roles/adblock_hosts or
+https://github.com/nodiscc/toolbox/tree/master/ARCHIVE/ANSIBLE-COLLECTION/roles/adblock_hosts or
 set it up manually. Example using NetworkManager in dns=dnsmasq mode:
 $ sudo mkdir /var/lib/dnsmasq
 $ sudo wget -O /var/lib/dnsmasq/unified-hosts.txt https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts

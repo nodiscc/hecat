@@ -15,7 +15,7 @@ setup(
     maintainer='nodiscc',
     maintainer_email='nodiscc@gmail.com',
     license='GPL-3.0',
-    url='https://gitlab.com/nodiscc/hecat',
+    url='https://github.com/nodiscc/hecat',
     keywords='yaml,generator,awesome,list,software,catalog,archiving,shaarli,downloader,yt-dlp,markdown,html',
     packages=find_packages(exclude=['tests.*', 'tests']),
     entry_points={
