@@ -31,7 +31,7 @@ install_dev_dependencies: venv
 
 .PHONY: test_short # run tests except those that consume github API requests/long URL checks
 test_short: test_pylint clean test_import_shaarli test_archive_webpages test_download_video test_download_audio test_export_html_table \
-    clone_awesome_selfhosted test_export_awesome_selfhosted_md test_awesome_lint \
+    clone_awesome_selfhosted test_download_icons test_export_awesome_selfhosted_md test_awesome_lint \
     test_export_awesome_selfhosted_html
 
 .PHONY: test_long # run long tests
@@ -55,7 +55,7 @@ test_import_awesome_selfhosted: install
 	.venv/bin/hecat --config tests/.hecat.import_awesome_selfhosted_nonfree.yml
 
 .PHONY: test_process_awesome_selfhosted # test all processing steps on awesome-selfhosted-data
-test_process_awesome_selfhosted: install test_url_check test_update_software_metadata test_awesome_lint
+test_process_awesome_selfhosted: install test_url_check test_update_software_metadata test_download_icons test_awesome_lint
 	cd tests/awesome-selfhosted-data && git --no-pager diff --color=always
 
 .PHONY: test_url_check # test URL checker on awesome-sefhosted-data
@@ -69,6 +69,13 @@ test_update_software_metadata: install
 .PHONY: test_awesome_lint # test linter/compliance checker on awesome-sefhosted-data
 test_awesome_lint: install
 	.venv/bin/hecat --config tests/.hecat.awesome_lint.yml
+
+.PHONY: test_download_icons # test icon downloader processor on awesome-selfhosted-data
+test_download_icons: install
+	echo 'icon_url: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/webp/jellyfin.webp' >> tests/awesome-selfhosted-data/software/jellyfin.yml
+	source .venv/bin/activate && \
+	hecat --config tests/.hecat.download_icons.yml
+	identify tests/awesome-selfhosted-data/icons/jellyfin.webp
 
 .PHONY: test_export_awesome_selfhosted_md # test export to singlepage markdown from awesome-selfhosted-data
 test_export_awesome_selfhosted_md: install

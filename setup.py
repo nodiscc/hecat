@@ -28,6 +28,7 @@ setup(
         'python-dateutil',
         'requests',
         'yt_dlp==2026.8.19',
+        'Pillow==11.1.0',
         'jinja2',
         'Markdown',
         'pymdown-extensions',

@@ -22,6 +22,7 @@ Import data from various input formats:
 Perform processing tasks on YAML data:
 
 - [processors/software_metadata](hecat/processors/software_metadata.py): enrich software project metadata from GitHub and GitLab APIs (stars, last commit date...)
+- [processors/download_icons](hecat/processors/download_icons.py): download icons from software `icon_url` entries and convert them to webp
 - [processors/awesome_lint](hecat/processors/awesome_lint.py): check data against [awesome-selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted) consistency/completeness guidelines
 - [processors/download_media](hecat/processors/download_media.py): download video/audio files using [yt-dlp](https://github.com/yt-dlp/yt-dlp) for bookmarks imported from Shaarli
 - [processors/url_check](hecat/processors/url_check.py): check data for dead links
@@ -470,6 +471,7 @@ test_import_awesome_selfhosted          test import from awesome-sefhosted
 test_process_awesome_selfhosted         test all processing steps on awesome-selfhosted-data
 test_url_check      test URL checker on awesome-sefhosted-data
 test_update_software_metadata             test software metadata updater/processor on awesome-selfhosted-data
+test_download_icons                       test downloading icons from software on awesome-selfhosted-data
 test_awesome_lint   test linter/compliance checker on awesome-sefhosted-data
 test_export_awesome_selfhosted_md       test export to singlepage markdown from awesome-selfhosted-data
 test_export_awesome_selfhosted_html     test export to singlepage HTML from awesome-selfhosted-data
