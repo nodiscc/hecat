@@ -283,11 +283,11 @@ def convert_image_to_webp(temp_path, destination_path, output_size, allowed_imag
             resized.save(tmp_destination, **save_kwargs)
             os.replace(tmp_destination, destination_path)
     except UnidentifiedImageError as exc:
-        remove_temp_file(tmp_destination)
         return f'downloaded file is not a valid image: {exc}'
     except ValueError as exc:
-        remove_temp_file(tmp_destination)
         return f'failed converting or saving icon: {exc}'
+    finally:
+        remove_temp_file(tmp_destination)
     return None
 
 def remove_temp_file(temp_path):
