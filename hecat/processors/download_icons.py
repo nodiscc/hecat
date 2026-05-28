@@ -18,6 +18,16 @@ steps:
       retry_total: 2                                            # (default 2) max retries for transient failures (5xx, 429, connection errors)
       retry_backoff_factor: 1                                   # (default 1) urllib3 backoff factor between retries
       retry_status_forcelist: [429, 500, 502, 503, 504]         # (default same) HTTP statuses that should trigger a retry
+
+
+source_directory: path to directory where data files reside. Directory structure:
+├── software
+│   ├── mysoftware.yml # .yml files containing software data
+│   ├── someothersoftware.yml
+│   └── ...
+├── icons
+│   ├── mysoftware.webp # .webp icons
+└── ...
 """
 
 import os
