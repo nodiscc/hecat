@@ -20,6 +20,7 @@ steps:
       only_audio: False # (default False) download the 'bestaudio' format instead of the default 'best'
       use_download_archive: True # (default True) use a yt-dlp archive file to record downloaded items, skip them if already downloaded
       abort_on_first_error: False # (default False) abort immediately if a download error occurs (before writing to the data file)
+      max_resolution: 720 # (default 1080) maximum video resolution in pixels (height)
 
 # $ cat tests/.hecat.download_audio.yml
 steps:
@@ -91,8 +92,7 @@ BASE_YDL_OPTIONS = {
 # Video-specific configuration
 VIDEO_YDL_OPTIONS = {
     'download_archive': VIDEO_ARCHIVE_FILENAME,
-    'format': 'bv[height<=1080]+ba/b[height<=1080]',
-}
+ }
 
 # Audio-specific configuration
 AUDIO_YDL_OPTIONS = {
@@ -136,6 +136,11 @@ def build_ydl_options(module_options, is_audio=False):
     # Enable playlists if requested
     if module_options.get('download_playlists', False):
         ydl_opts['noplaylist'] = False
+
+    # Set video format based on max_resolution (only for video, not audio)
+    if not is_audio:
+        max_res = module_options.get('max_resolution', 1080)
+        ydl_opts['format'] = f"bv[height<={max_res}]+ba/b[height<={max_res}]"
 
     return ydl_opts
 

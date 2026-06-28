@@ -10,3 +10,4 @@ steps:
       skip_when_filename_present: True # optional, default False
       retry_items_with_error: False # optional, default True
       only_audio: False # optional, default False
+      max_resolution: 720 # optional, default 1080

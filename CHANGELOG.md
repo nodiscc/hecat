@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 **Added:**
 - processors/archive_webpages: add `wget_quiet: False/True` option to silence wget output
+- processors/download_media: add `max_resolution` option to cap video download resolution (default 1080)
 
 **Changed:**
 - **BREAKING:** archive gitlab.com mirror
