@@ -16,6 +16,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 **Changed:**
 - **BREAKING:** archive gitlab.com mirror
 
+**Fixed:**
+- processors/url_check: handle `InvalidURL` exceptions
 
 
 ---------------------
