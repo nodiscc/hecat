@@ -32,6 +32,7 @@ steps:
       clean_excluded: True # (default False) remove existing archived pages matching exclude_regex
       skip_failed: False # (default False) don't attempt to archive items for which the previous archival attempt failed (archive_error: True)
       wget_errors_are_fatal: True # (default False) exit immediately if a wget download error occurs
+      wget_quiet: True # (default False) silence wget output, only log errors
 
 # $ hecat --config tests/.hecat.archive_webpages.yml
 
@@ -100,6 +101,10 @@ def wget(step, item, wget_output_directory):
     if not wget_bin:
         raise FileNotFoundError("wget not found in PATH")
 
+    wget_quiet = step['module_options'].get('wget_quiet', False)
+    stdout_dest = subprocess.PIPE if wget_quiet else sys.stdout
+    stderr_dest = subprocess.PIPE if wget_quiet else sys.stderr
+
     wget_process = subprocess.Popen([wget_bin,
                                      '--continue',
                                      '--span-hosts',
@@ -114,10 +119,13 @@ def wget(step, item, wget_output_directory):
                                      f'--user-agent={USER_AGENT}',
                                      item['url']],
                                    cwd=wget_output_directory,
-                                   stdout=sys.stdout,
-                                   stderr=sys.stderr,
+                                   stdout=stdout_dest,
+                                   stderr=stderr_dest,
                                    universal_newlines=True)
-    wget_process.communicate()
+    stdout, stderr = wget_process.communicate()
+
+    if wget_quiet and wget_process.returncode != 0 and stderr:
+        logging.warning('wget error output for %s: %s', item['url'], stderr.strip())
     archive_relative_path = wget_output_path(item, wget_output_directory)
     if archive_relative_path is not None:
         local_archive_path = quote(str(item['id']) + '/' + archive_relative_path)
@@ -211,6 +219,7 @@ def set_default_options(module_options):
     module_options.setdefault('skip_failed', False)
     module_options.setdefault('only_tags', [])
     module_options.setdefault('wget_errors_are_fatal', False)
+    module_options.setdefault('wget_quiet', False)
 
 
 def get_local_archive_dir(output_directory, item):

@@ -8,6 +8,7 @@ steps:
       output_directory: tests/webpages
       skip_already_archived: False
       clean_removed: True
+      wget_quiet: True
   - name: archive webpages again, clean excluded URLs
     module: processors/archive_webpages
     module_options:
@@ -19,3 +20,4 @@ steps:
       exclude_regex:
         - '^https://fr\.wikipedia.org/wiki/.*$'
       clean_excluded: True
+      wget_quiet: True

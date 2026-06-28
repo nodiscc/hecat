@@ -9,8 +9,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 > The mirror at https://gitlab.com/nodiscc/hecat will no longer be maintained after this release.  
 > Please use https://github.com/nodiscc/xsrv instead
 
+**Added:**
+- processors/archive_webpages: add `wget_quiet: False/True` option to silence wget output
+
 **Changed:**
 - **BREAKING:** archive gitlab.com mirror
+
+
 
 ---------------------
 
