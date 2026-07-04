@@ -278,7 +278,7 @@ def awesome_lint(step):
         for filename in files:
             single_yaml_data = load_yaml_data(os.path.join(root, filename))
             check_filename_is_kebab_case_software_name(filename, single_yaml_data, errors)
-            if filename.casefold().endswith('.yml'):
+            if filename.endswith('.yml'):
                 expected_icon_stems.add(os.path.splitext(filename)[0])
     icons_directory = os.path.join(step['module_options']['source_directory'], 'icons')
     if not os.path.isdir(icons_directory):
