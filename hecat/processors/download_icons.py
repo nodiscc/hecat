@@ -10,7 +10,7 @@ steps:
       output_directory: tests/awesome-selfhosted-data/icons     # (default <source_directory>/icons) output directory for .webp icons
       skip_when_icon_present: True                              # (default True) skip entries whose .webp already exists
       output_size: 128                                          # (default 128) target square size in pixels
-      max_download_bytes: 5242880                               # (default 5 MiB) hard cap on bytes downloaded per icon
+      max_download_bytes: 2097152                               # (default 2 MiB) hard cap on bytes downloaded per icon
       max_image_pixels: 4194304                                 # (default 4 Mpx) reject sources whose width*height exceeds this; prevents decompression bombs
       request_timeout: 15                                       # (default 15) per-request timeout in seconds
       webp_quality: 85                                          # (default 85) lossy WEBP quality 0-100; only used for opaque non-icon-art sources
@@ -219,7 +219,7 @@ def convert_image_to_webp(temp_path, destination_path, output_size, allowed_imag
     """verify image type, resize within output_size while keeping aspect ratio, pad to a square output_size x output_size canvas, and save as WEBP atomically.
 
     Encoder choice is per-source-format: lossless WEBP for sources with alpha or in {PNG, ICO, GIF, BMP}; lossy WEBP for photographic sources (JPEG, opaque WEBP).
-    For multi-frame ICO files, the largest available frame is used. Truncated source images are rejected (Pillow default behavior)
+    Truncated source images are rejected (Pillow default behavior)
     """
     tmp_destination = destination_path + '.tmp'
     try:
@@ -235,14 +235,6 @@ def convert_image_to_webp(temp_path, destination_path, output_size, allowed_imag
                 expected_mimes = allowed_image_types.get(detected_format, set())
                 if server_mime not in expected_mimes:
                     return f'MIME mismatch: server said {server_mime}, file decoded as {detected_format}'
-
-            # for multi-resolution ICOs, switch to the largest available frame
-            if detected_format == 'ICO' and getattr(image, 'ico', None) is not None:
-                sizes = image.ico.sizes()
-                if sizes:
-                    best = max(sizes)
-                    logging.debug('ICO frames available: %s; selected largest: %s', sorted(sizes), best)
-                    image.size = best
 
             # decompression-bomb guard
             width, height = image.size
@@ -336,6 +328,9 @@ def download_icons(step):
     """download and normalize software icons from icon_url fields"""
     errors = []
     source_directory = get_module_option(step, 'source_directory', None)
+    if not source_directory:
+        logging.error('module option source_directory is required')
+        sys.exit(1)
     output_directory = get_module_option(step, 'output_directory', f'{source_directory}/icons')
     allowed_mime_types = {mime.casefold() for mimes in ALLOWED_IMAGE_TYPES.values() for mime in mimes}
     allowed_image_formats = set(ALLOWED_IMAGE_TYPES)
