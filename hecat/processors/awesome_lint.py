@@ -136,6 +136,21 @@ def check_tag_has_at_least_items(tag, software_list, tags_with_redirect, errors,
             message = "{} items tagged {}, each tag must have at least {} items attached".format(tag_items_count, tag['name'], min_items)
             log_exception(message, errors)
 
+def check_related_tags_bidirectional(tags_list, errors):
+    """check that if tag A lists tag B in related_tags, tag B also lists tag A"""
+    logging.info('Checking consistency of related_tags')
+    for tag in tags_list:
+        if 'related_tags' not in tag:
+            continue
+        for related_tag_name in tag['related_tags']:
+            related_tag = next((t for t in tags_list if t['name'] == related_tag_name), None)
+            if related_tag is None:
+                continue
+            if 'related_tags' not in related_tag:
+                message = "{}: related tag {} does not list {} in its related_tags".format(tag['name'], related_tag_name, tag['name'])
+                log_exception(message, errors, severity=logging.error)
+
+
 def check_redirect_sections_empty(step, software, tags_with_redirect, errors):
     """check that any tag in the tags list does not match a tag with redirect set"""
     for tag in software['tags']:
@@ -232,6 +247,7 @@ def awesome_lint(step):
         check_attribute_in_list(tag, 'related_tags', 'name', tags_list, errors)
         check_required_fields(tag, errors, required_fields=TAGS_REQUIRED_FIELDS, severity=logging.warning)
         check_tag_has_at_least_items(tag, software_list, tags_with_redirect, errors, min_items=3)
+    check_related_tags_bidirectional(tags_list, errors)
     for platform in platforms_list:
         check_required_fields(platform, errors, required_fields=step['module_options']['platforms_required_fields'])
     for software in software_list:
