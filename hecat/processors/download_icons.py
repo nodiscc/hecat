@@ -55,13 +55,13 @@ DEFAULT_RETRY_STATUS_FORCELIST = (429, 500, 502, 503, 504)
 
 # Allowed input types
 ALLOWED_IMAGE_TYPES = {
-    'PNG':  {'image/png'},
+    'PNG': {'image/png'},
     'JPEG': {'image/jpeg'},
     'WEBP': {'image/webp'},
-    'GIF':  {'image/gif'},
-    'BMP':  {'image/bmp'},
+    'GIF': {'image/gif'},
+    'BMP': {'image/bmp'},
     'TIFF': {'image/tiff'},
-    'ICO':  {'image/x-icon', 'image/vnd.microsoft.icon'},
+    'ICO': {'image/x-icon', 'image/vnd.microsoft.icon'},
 }
 
 # Configuration helpers
