@@ -287,7 +287,7 @@ def remove_temp_file(temp_path):
     if temp_path and os.path.exists(temp_path):
         try:
             os.remove(temp_path)
-        except (FileNotFoundError, PermissionError) as exc:
+        except PermissionError as exc:
             logging.warning('failed to remove temporary file %s: %s', temp_path, exc)
 
 # Per-entry processing
