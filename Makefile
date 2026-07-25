@@ -29,7 +29,7 @@ test: test_short test_long
 
 .PHONY: test_short # run tests except those that consume github API requests/long URL checks
 test_short: clean test_import_shaarli test_archive_webpages test_download_video test_download_audio test_export_html_table \
-    clone_awesome_selfhosted test_export_awesome_selfhosted_md test_awesome_lint \
+    clone_awesome_selfhosted test_download_icons test_export_awesome_selfhosted_md test_awesome_lint \
     test_export_awesome_selfhosted_html
 
 .PHONY: test_short # run long tests
