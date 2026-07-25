@@ -74,8 +74,10 @@ test_awesome_lint: install
 
 .PHONY: test_download_icons # test icon downloader processor on awesome-selfhosted-data
 test_download_icons: install
+	echo 'icon_url: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/webp/jellyfin.webp' >> tests/awesome-selfhosted-data/software/jellyfin.yml
 	source .venv/bin/activate && \
 	hecat --config tests/.hecat.download_icons.yml
+	identify tests/awesome-selfhosted-data/icons/jellyfin.webp
 
 .PHONY: test_export_awesome_selfhosted_md # test export to singlepage markdown from awesome-selfhosted-data
 test_export_awesome_selfhosted_md: install
