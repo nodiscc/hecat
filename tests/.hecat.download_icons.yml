@@ -1,0 +1,8 @@
+steps:
+  - name: download icons
+    module: processors/download_icons
+    module_options:
+      source_directory: tests/awesome-selfhosted-data
+      output_directory: tests/awesome-selfhosted-data/icons
+      output_size: 128
+      skip_when_icon_present: True

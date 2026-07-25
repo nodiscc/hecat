@@ -217,6 +217,16 @@ def check_filename_is_kebab_case_software_name(filename, single_yaml_data, error
         message = '{}: file should be named {}'.format(filename, to_kebab_case(single_yaml_data['name'] + '.yml'))
         log_exception(message, errors, severity=logging.error)
 
+
+def check_icon_has_matching_software(icon, expected_icon_stems, errors):
+    """check that the .webp icon file has a matching software YAML file"""
+    stem, extension = os.path.splitext(icon)
+    if extension.casefold() != '.webp':
+        return
+    if stem not in expected_icon_stems:
+        message = '{}: is a dangling icon file, it has no matching software YAML'.format(icon)
+        log_exception(message, errors, severity=logging.error)
+
 def awesome_lint(step):
     """check all software entries against formatting guidelines"""
     logging.info('checking software entries/tags against formatting guidelines.')
@@ -263,10 +273,20 @@ def awesome_lint(step):
         check_boolean_attributes(software, errors)
     for license in licenses_list:
         check_required_fields(license, errors, required_fields=LICENSES_REQUIRED_FIELDS)
+    expected_icon_stems = set()
     for (root, dirs, files) in os.walk(step['module_options']['source_directory'] + '/software'):
         for filename in files:
             single_yaml_data = load_yaml_data(os.path.join(root, filename))
             check_filename_is_kebab_case_software_name(filename, single_yaml_data, errors)
+            if filename.endswith('.yml'):
+                expected_icon_stems.add(os.path.splitext(filename)[0])
+    icons_directory = os.path.join(step['module_options']['source_directory'], 'icons')
+    if not os.path.isdir(icons_directory):
+        logging.debug('icon directory %s does not exist, skipping dangling icon check', icons_directory)
+    else:
+        icon_list = sorted(os.listdir(icons_directory))
+        for icon in icon_list:
+            check_icon_has_matching_software(icon, expected_icon_stems, errors)
     if errors:
         logging.error("There were errors during processing")
         sys.exit(1)
