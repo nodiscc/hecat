@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 **Changed:**
 - **BREAKING:** archive gitlab.com mirror
+- setup.py: pin yt-dlp to specific (latest) version v2026.08.19
 
 **Fixed:**
 - processors/url_check: handle `InvalidURL` exceptions
