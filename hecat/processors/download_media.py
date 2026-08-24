@@ -194,7 +194,7 @@ def download_single_item(item, items, ydl_opts, filename_key, error_key, step, a
                     write_data_file(step, items)
                     return False, error_message # Don't retry, just return
 
-        except yt_dlp.utils.DownloadError as e:
+        except yt_dlp.utils.YoutubeDLError as e:
             error_message = str(e)
             is_403 = 'HTTP Error 403' in error_message
             if is_403 and attempt < max_retries:

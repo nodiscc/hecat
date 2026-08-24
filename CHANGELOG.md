@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 **Fixed:**
 - processors/url_check: handle `InvalidURL` exceptions
+- procesors/download_media: catch all yt-dlp error types
 
 
 ---------------------
