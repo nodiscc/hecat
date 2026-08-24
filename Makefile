@@ -25,6 +25,10 @@ install: venv
 .PHONY: test # run all tests
 test: test_short test_long
 
+.PHONY: install_dev_dependencies # install requirements for development, only required by check_version target
+install_dev_dependencies: venv
+	.venv/bin/pip3 install .[dev]
+
 .PHONY: test_short # run tests except those that consume github API requests/long URL checks
 test_short: test_pylint clean test_import_shaarli test_archive_webpages test_download_video test_download_audio test_export_html_table \
     clone_awesome_selfhosted test_export_awesome_selfhosted_md test_awesome_lint \
@@ -121,3 +125,7 @@ scan_trivy:
 	wget --quiet --continue -O trivy_$(TRIVY_VERSION)_Linux-64bit.tar.gz https://github.com/aquasecurity/trivy/releases/download/v$(TRIVY_VERSION)/trivy_$(TRIVY_VERSION)_Linux-64bit.tar.gz
 	tar -z -x trivy -f trivy_$(TRIVY_VERSION)_Linux-64bit.tar.gz
 	./trivy --exit-code $(TRIVY_EXIT_CODE) fs tests/requirements.txt
+
+.PHONY: version_check # check for updates in python dependencies
+version_check: venv install_dev_dependencies
+	./tests/check-version.sh

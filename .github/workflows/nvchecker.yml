@@ -1,0 +1,13 @@
+name: nvchecker
+on:
+  schedule:
+    - cron: '7 18 * * *'
+
+jobs:
+  version_check:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout repo
+      uses: actions/checkout@v2
+    - name: run version check
+      run: make version_check

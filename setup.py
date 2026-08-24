@@ -27,7 +27,7 @@ setup(
         'ruamel.yaml==0.17.21',
         'python-dateutil',
         'requests',
-        'yt_dlp==2026.08.19',
+        'yt_dlp==2026.8.19',
         'jinja2',
         'Markdown',
         'pymdown-extensions',
@@ -36,6 +36,11 @@ setup(
         'myst-parser',
         'sphinx-design'
     ],
+    extras_require={
+        'dev': [
+            'nvchecker==2.22',
+        ],
+    },
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Console',
