@@ -3,13 +3,15 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-#### [v1.7.0](https://github.com/nodiscc/hecat/releases/tag/1.7.0) - UNRELEASED
+#### [v1.7.0](https://github.com/nodiscc/hecat/releases/tag/1.7.0) - 2026-10-10
 
 > [!IMPORTANT]
 > The mirror at https://gitlab.com/nodiscc/hecat will no longer be maintained after this release.  
 > Please use https://github.com/nodiscc/xsrv instead
 
 **Added:**
+- add `download_icons` processor (download icons from software `icon_url` entries and convert to webp)
+- processors/awesom_lint: add dangling icon check (warn when .webp has no matching software YAML)
 - processors/archive_webpages: add `wget_quiet: False/True` option to silence wget output
 - processors/awesome_lint: add bidirectional related_tags check (if tag A lists tag B, tag B must list tag A)
 - processors/download_media: add `max_resolution` option to cap video download resolution (default 1080)

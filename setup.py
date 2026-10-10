@@ -8,7 +8,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='hecat',
-    version='0.0.1',
+    version='1.7.0',
     description='generic automation tool around data stored as plaintext YAML files',
     long_description='generic automation tool around data stored as plaintext YAML files',
     author='nodiscc',
