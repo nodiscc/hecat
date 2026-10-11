@@ -70,6 +70,7 @@ The source YAML directory structure, and formatting for software/platforms data 
 
 import os
 import sys
+import shutil
 import logging
 from datetime import datetime, timedelta
 import urllib
@@ -170,6 +171,14 @@ MARKDOWN_CSS="""
     .sidebar-brand-text {
         font-size: 1.4rem;
     }
+    .toc-tree img {
+        display: none;
+    }
+    .software-icon {
+        width: 24px;
+        height: 24px;
+        vertical-align: -2px;
+    }
 """
 
 MARKDOWN_INDEX_CONTENT_HEADER="""
@@ -183,7 +192,7 @@ This page lists all projects. Use links in the sidebar or click on {octicon}`tag
 SOFTWARE_JINJA_MARKDOWN="""
 --------------------
 
-### {{ software['name'] }}
+### <img class="software-icon" src="{{ icons_url }}{% if software['name'] | replace(' ', '-') | lower in icon_files %}{{ software['name'] | replace(' ', '-') | lower }}{% else %}default{% endif %}.webp" alt="icon" loading="lazy"> {{ software['name'] }}
 
 {{ software['description'] }}
 
@@ -253,8 +262,17 @@ This page lists all projects using this programming language or deployment platf
 
 """
 
-def render_markdown_software(software, tags_relative_url='tags/', platforms_relative_url='platforms/', licenses_relative_url='#list-of-licenses'):
-    """render a software project info as a markdown list item"""
+def render_markdown_software(software, tags_relative_url='tags/', platforms_relative_url='platforms/', licenses_relative_url='#list-of-licenses', icons_url='_static/icons/', icon_files=None):
+    """Render a software project info as a markdown list item.
+
+    :param dict software: software entry dict
+    :param str tags_relative_url: relative path to the tags directory
+    :param str platforms_relative_url: relative path to the platforms directory
+    :param str licenses_relative_url: relative path to the licenses section
+    :param str icons_url: relative path to the icons directory
+    :param set icon_files: set of available icon stems (lowercase, without .webp)
+    :return: markdown string for the software entry
+    """
     tags_dicts_list = []
     platforms_dicts_list = []
     for tag in software['tags']:
@@ -269,20 +287,25 @@ def render_markdown_software(software, tags_relative_url='tags/', platforms_rela
         elif last_update_time < datetime.now() - timedelta(days=186):
             date_css_class = 'orangebox'
     software_template = Template(SOFTWARE_JINJA_MARKDOWN)
+    if icon_files is None:
+        icon_files = set()
     markdown_software = software_template.render(software=software,
                                                  tags=tags_dicts_list,
                                                  platforms=platforms_dicts_list,
                                                  date_css_class=date_css_class,
-                                                 licenses_relative_url=licenses_relative_url)
+                                                 licenses_relative_url=licenses_relative_url,
+                                                 icons_url=icons_url,
+                                                 icon_files=icon_files)
     return markdown_software
 
-def render_item_page(step, item_type, item, software_list):
+def render_item_page(step, item_type, item, software_list, icon_files=None):
     """
     render a page for a tag of platform.
     :param dict step: step configuration
     :param str item_type: type of page to render (tag or platform)
     :param dict item: the item to render a page for (tag or platform object)
     :param list software_list: the full list of software (list of dicts)
+    :param set icon_files: set of available icon stems (lowercase, without .webp)
     """
     logging.debug('rendering page for %s %s', item_type, item['name'])
     if item_type == 'tag':
@@ -314,7 +337,9 @@ def render_item_page(step, item_type, item, software_list):
             markdown_software_list = markdown_software_list + render_markdown_software(software,
                                                                                        tags_relative_url=tags_relative_url,
                                                                                        platforms_relative_url=platforms_relative_url,
-                                                                                       licenses_relative_url='../index.html#list-of-licenses')
+                                                                                       licenses_relative_url='../index.html#list-of-licenses',
+                                                                                       icons_url='../../_static/icons/',
+                                                                                       icon_files=icon_files)
     if markdown_software_list:
         markdown_page = '{}{}{}{}'.format(markdown_fieldlist, markdown_page_header, content_header, markdown_software_list)
     else:
@@ -355,12 +380,35 @@ def render_markdown_multipage(step):
     with open(step['module_options']['source_directory'] + '/markdown/footer.md', 'r', encoding="utf-8") as footer_file:
         markdown_footer = footer_file.read()
     markdown_toctree = render_markdown_toctree(tags)
+    # Copy icons from source to output
+    icons_src_dir = step['module_options']['source_directory'] + '/icons'
+    icons_dst_dir = step['module_options']['output_directory'] + '/_static/icons'
+    os.makedirs(icons_dst_dir, exist_ok=True)
+    # Copy default icon
+    default_icon_src = os.path.dirname(os.path.abspath(__file__)) + '/default.webp'
+    shutil.copy2(default_icon_src, icons_dst_dir + '/default.webp')
+    # Copy software icons
+    icon_files = set()
+    if os.path.isdir(icons_src_dir):
+        for icon_file in os.listdir(icons_src_dir):
+            if icon_file.endswith('.webp'):
+                stem = os.path.splitext(icon_file)[0]
+                icon_files.add(stem)
+                dst = icons_dst_dir + '/' + icon_file
+                if os.path.isfile(dst):
+                    logging.debug('skipping existing icon %s', dst)
+                    continue
+                shutil.copy2(os.path.join(icons_src_dir, icon_file), dst)
+    else:
+        logging.debug('no icons directory found at %s', icons_src_dir)
     markdown_software_list = ''
     for software in software_list:
         if any(license in software['licenses'] for license in step['module_options']['exclude_licenses']):
             logging.debug("%s has a license listed in exclude_licenses, skipping", software['name'])
         else:
-            markdown_software_list = markdown_software_list + render_markdown_software(software)
+            markdown_software_list = markdown_software_list + render_markdown_software(software,
+                                                                                       icons_url='../_static/icons/',
+                                                                                       icon_files=icon_files)
     markdown_licenses = render_markdown_licenses(step, licenses)
     markdown = '{}{}{}{}{}{}{}'.format(markdown_fieldlist,
                                         markdown_header,
@@ -380,10 +428,10 @@ def render_markdown_multipage(step):
         outfile.write(markdown)
     logging.info('rendering tags pages')
     for tag in tags:
-        render_item_page(step, 'tag', tag, software_list)
+        render_item_page(step, 'tag', tag, software_list, icon_files)
     logging.info('rendering platforms pages')
     for platform in platforms:
-        render_item_page(step, 'platform', platform, software_list)
+        render_item_page(step, 'platform', platform, software_list, icon_files)
     try:
         os.mkdir(step['module_options']['output_directory'] + '/_static')
     except FileExistsError:

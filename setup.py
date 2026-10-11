@@ -18,6 +18,7 @@ setup(
     url='https://github.com/nodiscc/hecat',
     keywords='yaml,generator,awesome,list,software,catalog,archiving,shaarli,downloader,yt-dlp,markdown,html',
     packages=find_packages(exclude=['tests.*', 'tests']),
+    package_data={'hecat.exporters': ['default.webp']},
     entry_points={
         'console_scripts': [
             'hecat = hecat.main:main',
