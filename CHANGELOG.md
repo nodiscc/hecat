@@ -7,7 +7,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 > [!IMPORTANT]
 > The mirror at https://gitlab.com/nodiscc/hecat will no longer be maintained after this release.  
-> Please use https://github.com/nodiscc/xsrv instead
+> Please use https://github.com/nodiscc/hecat instead
 
 **Added:**
 - add `download_icons` processor (download icons from software `icon_url` entries and convert to webp)
