@@ -416,13 +416,9 @@ def _process_github_batch( batch, batch_num, total_batches, github_projects, ste
             url
             stargazerCount
             isArchived
-            releases(first: 1) {{
-                edges {{
-                    node {{
-                        tagName
-                        publishedAt
-                    }}
-                }}
+            latestRelease {{
+                tagName
+                publishedAt
             }}
             defaultBranchRef {{
                 target {{
@@ -493,9 +489,8 @@ def _process_github_batch( batch, batch_num, total_batches, github_projects, ste
         software["archived"] = repo["isArchived"]
 
         # Add current_release if available
-        releases = repo["releases"]["edges"]
-        if releases:
-            release = releases[0]["node"]
+        release = repo["latestRelease"]
+        if release:
             software["current_release"] = {
                 "tag": release["tagName"],
                 "published_at": _parse_iso_date(release["publishedAt"])
