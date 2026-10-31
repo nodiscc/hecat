@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+#### [v1.8.0](https://github.com/nodiscc/hecat/releases/tag/1.8.0) - UNRELEASED
+
+**Added:**
+* exporters/markdown_multipage: render software icons in multi-page export
+
+**Changed:**
+* deps: update yt-dlp to latest version
+* tests: remove dummy icon_url addition
+* doc: document icon_url field in software YAML format example
+
+**Fixed:**
+* doc: fix link to github mirror
+
+---------------------
+
 #### [v1.7.0](https://github.com/nodiscc/hecat/releases/tag/1.7.0) - 2026-10-10
 
 > [!IMPORTANT]
