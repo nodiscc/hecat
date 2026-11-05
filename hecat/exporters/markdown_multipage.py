@@ -75,8 +75,11 @@ import logging
 from datetime import datetime, timedelta
 import urllib
 import ruamel.yaml
-from jinja2 import Template
+from jinja2 import Environment, Template
 from ..utils import load_yaml_data, to_kebab_case, render_markdown_licenses
+
+_jinja_env = Environment()
+_jinja_env.filters['to_kebab'] = to_kebab_case
 
 yaml = ruamel.yaml.YAML(typ='safe')
 yaml.indent(sequence=4, offset=2)
@@ -192,7 +195,7 @@ This page lists all projects. Use links in the sidebar or click on {octicon}`tag
 SOFTWARE_JINJA_MARKDOWN="""
 --------------------
 
-### <img class="software-icon" src="{{ icons_url }}{% if software['name'] | replace(' ', '-') | lower in icon_files %}{{ software['name'] | replace(' ', '-') | lower }}{% else %}default{% endif %}.webp" alt="icon" loading="lazy"> {{ software['name'] }}
+### <img class="software-icon" src="{{ icons_url }}{% if software['name'] | to_kebab in icon_files %}{{ software['name'] | to_kebab }}{% else %}default{% endif %}.webp" alt="icon" loading="lazy"> {{ software['name'] }}
 
 {{ software['description'] }}
 
@@ -286,7 +289,7 @@ def render_markdown_software(software, tags_relative_url='tags/', platforms_rela
             date_css_class = 'redbox'
         elif last_update_time < datetime.now() - timedelta(days=186):
             date_css_class = 'orangebox'
-    software_template = Template(SOFTWARE_JINJA_MARKDOWN)
+    software_template = _jinja_env.from_string(SOFTWARE_JINJA_MARKDOWN)
     if icon_files is None:
         icon_files = set()
     markdown_software = software_template.render(software=software,
