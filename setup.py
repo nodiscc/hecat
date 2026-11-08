@@ -1,4 +1,4 @@
-_1.7#!/usr/bin/env python3
+#!/usr/bin/env python3
 """Setup script for hecat"""
 import codecs
 import os
