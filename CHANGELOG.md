@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-#### [v1.8.0](https://github.com/nodiscc/hecat/releases/tag/1.8.0) - UNRELEASED
+#### [v1.8.0](https://github.com/nodiscc/hecat/releases/tag/1.8.0) - 2026-11-08
 
 **Added:**
 * exporters/markdown_multipage: render software icons in multi-page export

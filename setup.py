@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+_1.7#!/usr/bin/env python3
 """Setup script for hecat"""
 import codecs
 import os
@@ -8,7 +8,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='hecat',
-    version='1.7.0',
+    version='1.8.0',
     description='generic automation tool around data stored as plaintext YAML files',
     long_description='generic automation tool around data stored as plaintext YAML files',
     author='nodiscc',
