@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+#### [v1.8.1](https://github.com/nodiscc/hecat/releases/tag/1.8.1) - 2026-11-16
+
+**Changed:**
+* deps: bump Pillow to latest version
+
+**Fixed:**
+* software_metadata: use latestRelease for GitHub current_release
+
+---------------------
+
 #### [v1.8.0](https://github.com/nodiscc/hecat/releases/tag/1.8.0) - 2026-11-08
 
 **Added:**
