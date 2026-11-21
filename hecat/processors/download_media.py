@@ -176,9 +176,6 @@ def download_single_item(item, items, ydl_opts, filename_key, error_key, step, a
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(item['url'], download=True)
                 if info is not None:
-                    # TODO does not get the real, final filename after audio extraction
-                    # https://github.com/ytdl-org/youtube-dl/issues/5710
-                    # https://github.com/ytdl-org/youtube-dl/issues/7137
                     outpath = ydl.prepare_filename(info)
                     # Update item directly (it's a reference to the dict in items list)
                     item[filename_key] = outpath
@@ -189,7 +186,7 @@ def download_single_item(item, items, ydl_opts, filename_key, error_key, step, a
                     error_message = "No info returned from yt-dlp"
                     logging.error('%s (id %s): %s', item['url'], item['id'], error_message)
                     if abort_on_error:
-                        raise Exception(error_message)
+                        raise RuntimeError(error_message)
                     item[error_key] = error_message
                     write_data_file(step, items)
                     return False, error_message # Don't retry, just return
