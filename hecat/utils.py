@@ -1,8 +1,9 @@
 """hecat - common utilities"""
-import sys
-import os
-import ruamel.yaml
 import logging
+import os
+import sys
+
+import ruamel.yaml
 
 def list_files(directory):
     """list files in a directory, return an alphabetically sorted list"""

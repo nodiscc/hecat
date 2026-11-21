@@ -45,7 +45,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import requests
 import ruamel.yaml
-from requests.exceptions import ChunkedEncodingError, ConnectionError, Timeout, RequestException
+from requests.exceptions import ChunkedEncodingError, ConnectionError as RequestsConnectionError, Timeout, RequestException
 from json import JSONDecodeError
 from ..utils import load_yaml_data, to_kebab_case
 
@@ -58,7 +58,7 @@ DEFAULT_COMMIT_HISTORY_FETCH_MONTHS = 3
 DEFAULT_COMMIT_HISTORY_CLEAN_MONTHS = 12
 
 RETRYABLE_STATUS_CODES = (502, 503, 504, 429)
-RETRYABLE_EXCEPTIONS = (ChunkedEncodingError, ConnectionError, Timeout)
+RETRYABLE_EXCEPTIONS = (ChunkedEncodingError, RequestsConnectionError, Timeout)
 
 GITHUB_GRAPHQL_API = "https://api.github.com/graphql"
 GITLAB_GRAPHQL_API = "https://gitlab.com/api/graphql"
