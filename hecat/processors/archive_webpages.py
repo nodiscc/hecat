@@ -25,7 +25,7 @@ steps:
       only_tags: ['doc'] # only download items tagged with any of these tags
       exclude_tags: ['nodl'] # (default []), don't download items tagged with any of these tags
       exclude_regex: # (default []) don't archive URLs matching these regular expressions
-        - '^https://[a-z]\.wikipedia.org/wiki/.*$' # don't archive wikipedia pages, supposing you have a local copy of wikipedia dumps from https://dumps.wikimedia.org/
+        - '^https://[a-z]\\.wikipedia.org/wiki/.*$' # don't archive wikipedia pages, supposing you have a local copy of wikipedia dumps from https://dumps.wikimedia.org/
       output_directory: 'tests/webpages' # path to the output directory for archived pages
       skip_already_archived: True # (default True) skip processing when item already has a 'archive_path': key
       clean_removed: True # (default False) remove existing archived pages which do not match any id in the data file
@@ -122,7 +122,7 @@ def wget(step, item, wget_output_directory):
                                    stdout=stdout_dest,
                                    stderr=stderr_dest,
                                    universal_newlines=True)
-    stdout, stderr = wget_process.communicate()
+    _, stderr = wget_process.communicate()
 
     if wget_quiet and wget_process.returncode != 0 and stderr:
         logging.warning('wget error output for %s: %s', item['url'], stderr.strip())
@@ -245,7 +245,7 @@ def handle_excluded_item(item, local_archive_dir, excluded_by_tags, excluded_by_
         if os.path.isdir(local_archive_dir):
             if excluded_by_tags:
                 logging.info('removing local archive directory %s for URL %s (one or more tags match exclude_tags)', local_archive_dir, item['url'])
-            else:
+            elif excluded_by_regex:
                 logging.info('removing local archive directory %s for URL %s (URL matches exclude_regex)', local_archive_dir, item['url'])
             shutil.rmtree(local_archive_dir)
         item.pop('archive_path', None)
@@ -289,7 +289,6 @@ def cleanup_removed_archives(output_directory, items, clean_removed):
             if not any(id == int(directory) for id in ids_in_data):
                 archive_path = f"{dirs_list[0]}/{directory}"
                 if clean_removed:
-                    # TODO if an item was changed from private to public or the other way around, the local archive will be deleted, but it will not be archived again since archive_path is already set
                     logging.info('local webpage archive found with id %s, but not in data. Deleting %s', directory, archive_path)
                     shutil.rmtree(archive_path)
                 else:

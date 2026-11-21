@@ -52,10 +52,14 @@ SOFTWARE_REQUIRED_LISTS = ['licenses', 'tags']
 TAGS_REQUIRED_FIELDS = ['description']
 LICENSES_REQUIRED_FIELDS= ['identifier', 'name', 'url']
 
-def check_required_fields(item, errors, required_fields=[], required_lists=[], severity=logging.error):
+def check_required_fields(item, errors, required_fields=None, required_lists=None, severity=logging.error):
     """check that keys (required_fields) are defined and do not have length zero
        check that each item in required_lists is defined and does not have length zero
     """
+    if required_fields is None:
+        required_fields = []
+    if required_lists is None:
+        required_lists = []
     for key in required_fields:
         try:
             assert len(item[key]) > 0
@@ -81,7 +85,7 @@ def check_required_fields(item, errors, required_fields=[], required_lists=[], s
 def log_exception(message, errors, severity=logging.error):
     """log a warning or error message, append the error to the global error list if severity=logging.error"""
     severity(message)
-    if severity == logging.error:
+    if severity is logging.error:
         errors.append(message)
 
 
@@ -117,7 +121,7 @@ def check_attribute_in_list(item, attribute_name, key, attributes_list, errors):
             try:
                 assert any(item2[key] == attr for item2 in attributes_list)
             except AssertionError:
-                message = "{}: {} {} is not listed in the main {} list".format(item['name'], attribute_name, attr, attribute_name)
+                message = "{name}: {attr_name} {attr} is not listed in the main {attr_name} list".format(name=item['name'], attr_name=attribute_name, attr=attr)
                 log_exception(message, errors)
 
 def check_tag_has_at_least_items(tag, software_list, tags_with_redirect, errors, min_items=3):
@@ -207,7 +211,7 @@ def check_last_updated(software, step, errors):
 def check_boolean_attributes(software, errors):
     """check if the depends_3rdparty attribute is a boolean"""
     if 'depends_3rdparty' in software:
-        if not type(software['depends_3rdparty']) == bool:
+        if not isinstance(software['depends_3rdparty'], bool):
             message = '{}: depends_3rdparty must be a valid boolean value (true/false/True/False), got "{}"'.format(software['name'], software['depends_3rdparty'])
             log_exception(message, errors, severity=logging.error)
 
@@ -271,10 +275,10 @@ def awesome_lint(step):
         check_not_archived(software, errors)
         check_last_updated(software, step, errors)
         check_boolean_attributes(software, errors)
-    for license in licenses_list:
-        check_required_fields(license, errors, required_fields=LICENSES_REQUIRED_FIELDS)
+    for lic in licenses_list:
+        check_required_fields(lic, errors, required_fields=LICENSES_REQUIRED_FIELDS)
     expected_icon_stems = set()
-    for (root, dirs, files) in os.walk(step['module_options']['source_directory'] + '/software'):
+    for (root, _, files) in os.walk(step['module_options']['source_directory'] + '/software'):
         for filename in files:
             single_yaml_data = load_yaml_data(os.path.join(root, filename))
             check_filename_is_kebab_case_software_name(filename, single_yaml_data, errors)
