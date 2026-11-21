@@ -305,6 +305,7 @@ def download_media(step):
             downloaded_count += 1
         else:
             error_count += 1
+            logging.warning('download failed for %s (id %s): %s', item['url'], item['id'], error)
 
     logging.info('processing complete. Downloaded: %s - Skipped: %s - Errors %s',
                  downloaded_count, skipped_count, error_count)
