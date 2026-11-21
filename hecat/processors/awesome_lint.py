@@ -21,6 +21,14 @@ steps:
         - https://github.com/knrdl/bicimon # simple/no maintenance required
         - https://github.com/Kshitij-Banerjee/Cubiks-2048 # simple/no maintenance required
       platforms_required_fields: ['description'] # (optional, default ['description']) attributes that must be defined for all platforms
+      description_rules: # (optional, default []) list of regular expressions, log the given reason when a software description matches the regex
+        - regex: '(?i)^(?:a|an|the) '
+          reason: 'Description must not start with "The", "A", ...'
+        - regex: '(?i)^[^ ]+(?: [^ ]+){0,3} is (?:a|an|the) '
+          reason: 'Description must not be of the form "$PROJECT is a ..."'
+          severity: warning # (optional, error/warning/info, default error) only error fails the check
+        - regex: '(?i:[(]alternative to )(?:[^,)]*?(?:,|(?<!,) and )){3,}'
+          reason: 'List at most 3 products in (alternative to ...)'
 
 
 source_directory: path to directory where data can be found. Directory structure:
@@ -51,6 +59,7 @@ SOFTWARE_REQUIRED_FIELDS = ['description', 'website_url', 'source_code_url', 'li
 SOFTWARE_REQUIRED_LISTS = ['licenses', 'tags']
 TAGS_REQUIRED_FIELDS = ['description']
 LICENSES_REQUIRED_FIELDS= ['identifier', 'name', 'url']
+DESCRIPTION_RULES_SEVERITIES = {'error': logging.error, 'warning': logging.warning, 'info': logging.info}
 
 def check_required_fields(item, errors, required_fields=[], required_lists=[], severity=logging.error):
     """check that keys (required_fields) are defined and do not have length zero
@@ -103,6 +112,13 @@ def check_description_syntax(software, errors):
     except AssertionError:
         message = ("{}: description does not end with a dot").format(software['name'])
         log_exception(message, errors)
+
+def check_description_rules(software, description_rules, errors):
+    """check that the description does not match any of the configured description_rules regular expressions"""
+    for regex, reason, severity in description_rules:
+        if regex.search(software['description']):
+            message = "{}: {}".format(software['name'], reason)
+            log_exception(message, errors, severity)
 
 def check_attribute_in_list(item, attribute_name, key, attributes_list, errors):
     """check that all licenses/tags/platforms/related_tags for a software/tag item are listed in the main licenses/tags/platforms list.
@@ -243,6 +259,9 @@ def awesome_lint(step):
         step['module_options']['last_updated_skip'] = []
     if 'platforms_required_fields' not in step['module_options']:
         step['module_options']['platforms_required_fields'] = ['description']
+    if 'description_rules' not in step['module_options']:
+        step['module_options']['description_rules'] = []
+    description_rules = [(re.compile(rule['regex']), rule['reason'], DESCRIPTION_RULES_SEVERITIES[rule.get('severity', 'error')]) for rule in step['module_options']['description_rules']]
     licenses_list = []
     for filename in step['module_options']['licenses_files']:
         licenses_list = licenses_list + load_yaml_data(step['module_options']['source_directory'] + '/' + filename)
@@ -263,6 +282,7 @@ def awesome_lint(step):
     for software in software_list:
         check_required_fields(software, errors, required_fields=SOFTWARE_REQUIRED_FIELDS, required_lists=SOFTWARE_REQUIRED_LISTS)
         check_description_syntax(software, errors)
+        check_description_rules(software, description_rules, errors)
         check_attribute_in_list(software, 'licenses', 'identifier', licenses_list, errors)
         check_attribute_in_list(software, 'tags', 'name', tags_list, errors)
         check_attribute_in_list(software, 'platforms', 'name', platforms_list, errors)
