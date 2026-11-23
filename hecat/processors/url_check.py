@@ -23,11 +23,13 @@ steps:
         - '^https://www.youtube.com/watch.*$' # don't check youtube video URLs, always returns HTTP 200 even for unavailable videos
 """
 
-import sys
 import logging
 import re
-from ..utils import load_yaml_data
+import sys
+
 import requests
+
+from ..utils import load_yaml_data
 
 VALID_HTTP_CODES = [200, 206]
 # INVALID_HTTP_CODES = [403, 404, 500]
