@@ -42,11 +42,13 @@ import sys
 import time
 import logging
 from datetime import datetime
+from json import JSONDecodeError
+
 from dateutil.relativedelta import relativedelta
 import requests
 import ruamel.yaml
 from requests.exceptions import ChunkedEncodingError, ConnectionError as RequestsConnectionError, Timeout, RequestException
-from json import JSONDecodeError
+
 from ..utils import load_yaml_data, to_kebab_case
 
 # Variables
