@@ -35,6 +35,7 @@ VALID_HTTP_CODES = [200, 206]
 # INVALID_HTTP_CODES = [403, 404, 500]
 
 def check_return_code(url, current_item_index, total_item_count, errors):
+    """Check a single URL's HTTP return code"""
     try:
         # GET only first 200 bytes when possible, servers that do not support the Range: header will simply return the entire page
         response = requests.get(url, headers={"Range": "bytes=0-200", "User-Agent": "hecat/0.0.1"}, timeout=10)
@@ -53,6 +54,7 @@ def check_return_code(url, current_item_index, total_item_count, errors):
         return False
 
 def check_urls(step):
+    """Load YAML data from source files/directories and check all URLs"""
     data = []
     errors = []
     checked_urls = []
